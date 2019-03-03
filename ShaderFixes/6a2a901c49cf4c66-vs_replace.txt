@@ -14,17 +14,12 @@ void main(
 	o0.xyzw = v0.xyzw;
 	o1.xy = float2(1,-1) * v0.xy;
 	
-	float4 resolution = IniParams.Load(int2(0,0));
-	if (resolution.x != resolution.z) // Render Target
-		return;
-	
 	float4 stereo = StereoParams.Load(0);
-	o0.x -= stereo.x * (o0.w - stereo.y)/100;
+	o0.x -= stereo.x * (o0.w - stereo.y);
 	
 	float4 tex_filter = IniParams.Load(int2(2,0));
-	if (tex_filter.x > 0) {
+	if (tex_filter.x > 0)
 		o0.x -= stereo.x * (tex_filter.z * tex_filter.x - tex_filter.z*5)*50;
-	}
 	
 	return;
 }

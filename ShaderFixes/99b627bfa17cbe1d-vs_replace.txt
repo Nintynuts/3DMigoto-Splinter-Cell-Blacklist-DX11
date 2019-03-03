@@ -34,18 +34,18 @@ void main(
 	o2.xyzw = mvp[r0.z].xyzw;
 	o3.xyzw = mvp[r0.y].xyzw;
 	
-	float4 resolution = IniParams.Load(int2(0,0));
-	int factor = resolution.x == resolution.z ? 1 : 1;
-	
 	float4 stereo = StereoParams.Load(0);
-	o0.x -= stereo.x * (o0.w - stereo.y)/factor; 
+	o0.x -= stereo.x * (o0.w - stereo.y); 
 	
 	float4 tex_filter = IniParams.Load(int2(2,0));
+
 	float layer = 5;
+
 	if (tex_filter.x > 2)
-	layer = tex_filter.x;
+		layer = tex_filter.x;
+
 	if (tex_filter.x == 3.1)
-	layer = 4;
+		layer = 4;
 	
 	o0.x -= stereo.x * (tex_filter.z * layer - tex_filter.z*5)*50;
 		

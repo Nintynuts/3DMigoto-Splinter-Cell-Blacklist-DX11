@@ -30,8 +30,9 @@ void main(
 	float4 stereo = StereoParams.Load(0);
 	o0.x -= stereo.x * (o0.w - stereo.y);
 	
-	float4 tex_filter = IniParams.Load(int2(2,0));
 	float layer = 3.5;
+
+	float4 tex_filter = IniParams.Load(int2(2,0));
 	if (tex_filter.x > 0)
 		layer = tex_filter.x;
 	

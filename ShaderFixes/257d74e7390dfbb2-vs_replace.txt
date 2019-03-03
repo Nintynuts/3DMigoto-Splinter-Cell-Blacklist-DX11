@@ -18,7 +18,8 @@ void main(
 	out float4 o2 : COLOR0)
 {
 	float4 r0;
-		r0.xyzw = (int4)v0.xyzw;
+	
+	r0.xyzw = (int4)v0.xyzw;
 	o0.x = dot(r0.xyzw, mvp[0].xyzw);
 	o0.y = dot(r0.xyzw, mvp[1].xyzw);
 	o0.z = dot(r0.xyzw, mvp[2].xyzw);
@@ -27,16 +28,16 @@ void main(
 	o1.y = dot(r0.xyzw, mvp[7].xyzw);
 	o2.xyzw = v1.zyxw;
 	
-	float4 resolution = IniParams.Load(int2(0,0));
-	int factor = resolution.x == resolution.z ? 1 : 1;
-	
 	float4 stereo = StereoParams.Load(0);
-	o0.x -= stereo.x * (o0.w - stereo.y)/factor;
+	o0.x -= stereo.x * (o0.w - stereo.y);
 	
+	float layer = 1;
+
 	float4 tex_filter = IniParams.Load(int2(2,0));
-	if (tex_filter.x > 0) {
-		o0.x -= stereo.x * (tex_filter.z * tex_filter.x - tex_filter.z*5)*50;
-	}
+	if (tex_filter.x > 0)
+		layer = tex_filter.x;
+
+	o0.x -= stereo.x * (tex_filter.z * layer - tex_filter.z*5)*50;
 	
 	return;
 }

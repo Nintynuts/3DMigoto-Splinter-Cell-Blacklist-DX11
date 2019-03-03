@@ -36,16 +36,12 @@ void main(
 	o1.xy = v1.xy;
 	o4.xyzw = v2.zyxw;
 	
-	float4 resolution = IniParams.Load(int2(0,0));
-	int factor = resolution.x == resolution.z ? 1 : 1;
-	
 	float4 stereo = StereoParams.Load(0);
-	o0.x -= stereo.x * (o0.w - stereo.y)/factor;
+	o0.x -= stereo.x * (o0.w - stereo.y);
 	
 	float4 tex_filter = IniParams.Load(int2(2,0));
-	if (tex_filter.x > 0) {
+	if (tex_filter.x > 0)
 		o0.x -= stereo.x * (tex_filter.z * tex_filter.x - tex_filter.z*5)*50;
-	}
 	
 	return;
 }
