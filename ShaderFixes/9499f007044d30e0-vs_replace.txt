@@ -1,0 +1,143 @@
+// ---- Created with 3Dmigoto v1.3.14 on Thu Feb 21 23:36:02 2019
+
+cbuffer CB_PerPass : register(b12)
+{
+	float4 cAmbientColor : packoffset(c0);
+	float3 cEnvMapAtten : packoffset(c1);
+	float cSHScale : packoffset(c1.w);
+}
+
+cbuffer CB_PerCamera : register(b11)
+{
+	float4x4 gWorldToProj : packoffset(c0);
+	float4x4 gWorldToView : packoffset(c4);
+	float4x4 gProjection : packoffset(c8);
+	float4 cProjSkinMesh : packoffset(c12);
+	float4 gViewViewPos : packoffset(c13);
+	float4 gHalfRenderTargetSize : packoffset(c14);
+	float4 gVPTexelRes : packoffset(c15);
+	float4 gViewportSB : packoffset(c16);
+	float4 cViewPos_VS : packoffset(c17);
+	float4 cViewPos : packoffset(c18);
+	float2 gViewportOffset : packoffset(c19);
+}
+
+cbuffer CB_PerObject : register(b9)
+{
+	float4x3 gLocalToWorld : packoffset(c0);
+	float4 gDrawScale : packoffset(c3);
+	float4 cId : packoffset(c4);
+	float4 cSHParams[7] : packoffset(c5);
+	float cAOID : packoffset(c12);
+	bool bUseSH : packoffset(c12.y);
+}
+
+cbuffer CB_VS_Morphing : register(b0)
+{
+	float4 gForces : packoffset(c0);
+}
+
+cbuffer CB_BoneTransform : register(b2)
+{
+	float4 gBones[156] : packoffset(c0);
+}
+
+
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+
+void main(
+	float4 v0 : POSITION0,
+	int4 v1 : TEXCOORD0,
+	int2 v2 : TEXCOORD1,
+	float4 v3 : NORMAL0,
+	float4 v4 : TANGENT0,
+	float4 v5 : BINORMAL0,
+	int4 v6 : BLENDINDICES0,
+	uint4 v7 : BLENDWEIGHT0,
+	out float4 o0 : SV_Position0,
+	out float4 o1 : TEXCOORD0,
+	out float4 o2 : TEXCOORD1,
+	out float4 o3 : TEXCOORD6)
+{
+	float4 r0,r1,r2,r3,r4,r5,r6,r7;
+	
+	r0.x = v5.w * gForces.w + gForces.x;
+	r0.xy = v0.xy * gForces.yy + r0.xx;
+	r0.x = sin(r0.x);
+	r0.y = cos(r0.y);
+	r0.z = gForces.z * v4.w;
+	r1.x = r0.x * r0.z + v0.x;
+	r1.y = r0.y * r0.z + v0.y;
+	r1.z = v0.z;
+	r0.xyz = gDrawScale.xyz * r1.xyz;
+	r1.xyzw = (int4)v6.xyzw * int4(3,3,3,3);
+	r2.xyzw = (uint4)v7.xyzw;
+	r2.xyzw = float4(0.00392156886,0.00392156886,0.00392156886,0.00392156886) * r2.xyzw;
+	r3.xyzw = gBones[r1.y].xyzw * r2.yyyy;
+	r3.xyzw = gBones[r1.x].xyzw * r2.xxxx + r3.xyzw;
+	r3.xyzw = gBones[r1.z].xyzw * r2.zzzz + r3.xyzw;
+	r1.xyzw = gBones[r1.w].xyzw * r2.wwww + r3.xyzw;
+	r0.w = v0.w;
+	r3.x = dot(r1.xyzw, r0.xyzw);
+	r4.xyzw = mad((int4)v6.xxyy, int4(3,3,3,3), int4(1,2,1,2));
+	r5.xyzw = gBones[r4.z].xyzw * r2.yyyy;
+	r5.xyzw = gBones[r4.x].xyzw * r2.xxxx + r5.xyzw;
+	r6.xyzw = mad((int4)v6.zzww, int4(3,3,3,3), int4(1,2,1,2));
+	r5.xyzw = gBones[r6.x].xyzw * r2.zzzz + r5.xyzw;
+	r5.xyzw = gBones[r6.z].xyzw * r2.wwww + r5.xyzw;
+	r3.y = dot(r5.xyzw, r0.xyzw);
+	r7.xyzw = gBones[r4.w].xyzw * r2.yyyy;
+	r4.xyzw = gBones[r4.y].xyzw * r2.xxxx + r7.xyzw;
+	r4.xyzw = gBones[r6.y].xyzw * r2.zzzz + r4.xyzw;
+	r2.xyzw = gBones[r6.w].xyzw * r2.wwww + r4.xyzw;
+	r3.z = dot(r2.xyzw, r0.xyzw);
+	r0.xyz = -cViewPos_VS.xyz + r3.xyz;
+	o2.xyz = r3.xyz;
+	r3.x = dot(r0.xyz, gWorldToProj._m00_m10_m20);
+	r3.y = dot(r0.xyz, gWorldToProj._m01_m11_m21);
+	r3.z = dot(r0.xyz, gWorldToProj._m02_m12_m22);
+	r3.w = dot(r0.xyz, gWorldToProj._m03_m13_m23);
+	r0.xyzw = cProjSkinMesh.xyzw + r3.xyzw;
+	o0.xyzw = r0.xyzw;
+	o2.w = min(64000, r0.w);
+	r0.xy = (int2)v1.xy;
+	r0.zw = (int2)v2.xy;
+	o1.xyzw = float4(0.00048828125,0.00048828125,0.00048828125,0.00048828125) * r0.xyzw;
+	r0.xyz = v3.zyx * float3(2,2,2) + float3(-1,-1,-1);
+	r3.y = dot(r0.xyz, r5.xyz);
+	r3.z = dot(r0.xyz, r2.xyz);
+	r3.x = dot(r0.xyz, r1.xyz);
+	r0.x = dot(r3.xyz, r3.xyz);
+	r0.x = rsqrt(r0.x);
+	r0.xyz = r3.xyz * r0.xxx;
+	r0.w = 1;
+	r1.x = dot(cSHParams[0].xyzw, r0.xyzw);
+	r1.y = dot(cSHParams[1].xyzw, r0.xyzw);
+	r1.z = dot(cSHParams[2].xyzw, r0.xyzw);
+	r2.xyzw = r0.xyzz * r0.yzzx;
+	r3.x = dot(cSHParams[3].xyzw, r2.xyzw);
+	r3.y = dot(cSHParams[4].xyzw, r2.xyzw);
+	r3.z = dot(cSHParams[5].xyzw, r2.xyzw);
+	r1.xyz = r3.xyz + r1.xyz;
+	r0.y = r0.y * r0.y;
+	r0.x = r0.x * r0.x + -r0.y;
+	r0.xyz = cSHParams[6].xyz * r0.xxx + r1.xyz;
+	r0.xyz = max(float3(0,0,0), r0.xyz);
+	r0.w = 1;
+	r0.xyzw = cSHScale * r0.xyzw;
+	o3.xyzw = bUseSH ? r0.xyzw : cAmbientColor.xyzw;
+	
+	//float4 tex_filter = IniParams.Load(int2(2,0));
+	//if (tex_filter.x = -3)
+	//{
+	//	float4 stereo = StereoParams.Load(0);
+	//	o0.x -= stereo.x * 60;
+	//	o0.y += stereo.x * 60;
+	//}
+	return;
+}

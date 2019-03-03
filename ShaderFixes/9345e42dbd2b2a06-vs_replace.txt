@@ -1,0 +1,72 @@
+// Lighting
+
+cbuffer CB_PerCamera : register(b11)
+{
+	float4x4 gWorldToProj : packoffset(c0);
+	float4x4 gWorldToView : packoffset(c4);
+	float4x4 gProjection : packoffset(c8);
+	float4 cProjSkinMesh : packoffset(c12);
+	float4 gViewViewPos : packoffset(c13);
+	float4 gHalfRenderTargetSize : packoffset(c14);
+	float4 gVPTexelRes : packoffset(c15);
+	float4 gViewportSB : packoffset(c16);
+	float4 cViewPos_VS : packoffset(c17);
+	float4 cViewPos : packoffset(c18);
+	float2 gViewportOffset : packoffset(c19);
+}
+
+cbuffer CB_PerObject : register(b9)
+{
+	float4x3 gLocalToWorld : packoffset(c0);
+	float4 gDrawScale : packoffset(c3);
+	float4 cId : packoffset(c4);
+	float4 cSHParams[7] : packoffset(c5);
+	float cAOID : packoffset(c12);
+	bool bUseSH : packoffset(c12.y);
+}
+
+cbuffer CB_VS_SimpleTransform : register(b3)
+{
+	float4x4 gSimpleWorldToProj : packoffset(c0);
+}
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+void main(
+	float4 v0 : POSITION0,
+	int2 v1 : TEXCOORD0,
+	out float4 o0 : SV_Position0,
+	out float4 o1 : TEXCOORD0,
+	out float o2 : TEXCOORD1)
+{
+	float4 r0,r1;
+
+	r0.x = dot(v0.xyzw, gLocalToWorld._m00_m10_m20_m30);
+	r0.y = dot(v0.xyzw, gLocalToWorld._m01_m11_m21_m31);
+	r0.z = dot(v0.xyzw, gLocalToWorld._m02_m12_m22_m32);
+	r0.w = 1;	
+	r1.x = dot(r0.xyzw, gSimpleWorldToProj._m00_m10_m20_m30);
+	r1.y = dot(r0.xyzw, gSimpleWorldToProj._m01_m11_m21_m31);
+	r1.z = dot(r0.xyzw, gSimpleWorldToProj._m02_m12_m22_m32);
+	r1.w = dot(r0.xyzw, gSimpleWorldToProj._m03_m13_m23_m33);
+	
+	float4 stereo = StereoParams.Load(0);
+	
+	if (r1.w > 100)
+		r1.x += stereo.x * (r1.w - stereo.y); 
+	else
+		r1.x += stereo.x * r1.w;
+	
+	o0.xyzw = r1.xyzw;			
+	
+	o0.x -= stereo.x * (o0.w - stereo.y);
+	
+	r0.xy = gViewportSB.zw * r1.ww;
+	o2.x = r1.w;
+	o1.zw = r1.xy * gViewportSB.xy + r0.xy;
+	o1.xy = r1.xy;	 
+	return;
+}

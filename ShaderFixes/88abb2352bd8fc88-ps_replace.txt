@@ -1,0 +1,43 @@
+// Ignore 3
+
+cbuffer CB_PS_Depth_Static : register(b7)
+{
+	float4 cData : packoffset(c0);
+}
+
+cbuffer CB_PS_DepthAlphaTest_Static : register(b6)
+{
+	bool bAlphaTest : packoffset(c0);
+	float cAlphaTest : packoffset(c0.y);
+}
+
+SamplerState sPunchMask_s : register(s0);
+Texture2D<float4> sPunchMask : register(t0);
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+void main(
+	float4 v0 : SV_Position0,
+	float4 v1 : TEXCOORD0,
+	out float4 o0 : SV_Target0)
+{	
+	float4 r0,r1;
+	
+	if (bAlphaTest != 0) {
+		r0.y = sPunchMask.Sample(sPunchMask_s, v1.xy).w;
+	} else {
+		r0.y = 1;
+	}
+	r0.w = cmp(bAlphaTest != 0);
+	r1.x = -bAlphaTest + r0.y;
+	r1.x = cmp(r1.x < 0);
+	r0.w = r0.w ? r1.x : 0;
+	if (r0.w != 0) discard;
+	r0.x = v1.z / v1.w;
+	r0.z = cData.x;
+	o0.xyzw = r0.xxzy;
+	return;
+}

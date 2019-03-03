@@ -1,0 +1,49 @@
+// ShadowNet - Decorations
+
+cbuffer CB_VS_Scaleform : register(b7)
+{
+	float4 mvp[8] : packoffset(c0);
+}
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+void main(
+	int4 v0 : POSITION0,
+	out float4 o0 : SV_Position0,
+	out float2 o1 : TEXCOORD0)
+{
+	float4 r0;
+		r0.xyzw = (int4)v0.xyzw;
+	o0.x = dot(r0.xyzw, mvp[0].xyzw);
+	o0.y = dot(r0.xyzw, mvp[1].xyzw);
+	o0.z = dot(r0.xyzw, mvp[2].xyzw);
+	o0.w = dot(r0.xyzw, mvp[3].xyzw);
+	o1.x = dot(r0.xyzw, mvp[6].xyzw);
+	o1.y = dot(r0.xyzw, mvp[7].xyzw);
+	
+	float4 resolution = IniParams.Load(int2(0,0));
+	int factor = resolution.x == resolution.z ? 1 : 1;
+	
+	float4 stereo = StereoParams.Load(0);
+	o0.x -= stereo.x * (o0.w - stereo.y)/factor;
+	
+	float4 tex_filter = IniParams.Load(int2(2,0));
+	float layer = 5;
+	if (tex_filter.x > 0)
+	layer = tex_filter.x;
+	if (tex_filter.x == -3) // Loadout character
+	{
+		layer = 5;
+	}
+	if (tex_filter.x == 2.1)
+	layer = 5;
+	if (tex_filter.x == 3.1 && (o0.x < -27500 || o0.x > 27500)) // Large BG map
+			layer = 1;
+	
+	o0.x -= stereo.x * (tex_filter.z * layer - tex_filter.z*5)*50;
+		
+	return;
+}

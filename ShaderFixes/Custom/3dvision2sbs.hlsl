@@ -76,7 +76,7 @@ void main(float4 pos : SV_Position0, out float4 result : SV_Target0)
 		if (mode == 6) {
 			if (side == 0) { // left side of the reverse blited image
 				y1 = 1;
-			} else {  // right side of the reverse blited image
+			} else {	// right side of the reverse blited image
 				y1 = -1;
 				x = x + width / 2;
 			}
@@ -85,7 +85,7 @@ void main(float4 pos : SV_Position0, out float4 result : SV_Target0)
 			if (side == 0) { // right side of the reverse blited image
 				y1 = 1;
 				x = x + width / 2;
-			} else {  // left side of the reverse blited image
+			} else {	// left side of the reverse blited image
 				y1 = -1;
 			}
 		}

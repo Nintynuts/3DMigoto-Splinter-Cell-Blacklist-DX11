@@ -1,0 +1,72 @@
+// Baked shadows
+
+#include "CB_PS_PerLightBatch.hlsl"
+
+cbuffer CB_PS_DeferredOmniLight : register(b7)
+{
+	float4x4 cScreenToWorld : packoffset(c0);
+}
+
+SamplerState sDepth_s : register(s0);
+SamplerState sNormal_s : register(s1);
+SamplerState sSceneAlbedo_s : register(s2);
+Texture2D<float4> sDepth : register(t0);
+Texture2D<float4> sNormal : register(t1);
+Texture2D<float4> sSceneAlbedo : register(t2);
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+void main(
+	float4 v0 : SV_Position0,
+	float4 v1 : TEXCOORD0,
+	float v2 : TEXCOORD1,
+	out float4 o0 : SV_Target0)
+{
+	float4 r0,r1,r2;
+
+	r0.zw = float2(1,1);
+	r1.xyzw = v1.xyzw / v2.xxxx;
+	r0.xy = r1.xy;
+	r1.xy = sDepth.Sample(sDepth_s, r1.zw).xw;
+	r0.xyz = r1.xxx * r0.xyz;
+	
+	float4 stereo = StereoParams.Load(0);	
+	r0.x -= stereo.x * (r0.z - stereo.y); 
+	
+	r2.x = dot(r0.xyzw, cScreenToWorld._m00_m10_m20_m30);
+	r2.y = dot(r0.xyzw, cScreenToWorld._m01_m11_m21_m31);
+	r2.z = dot(r0.xyzw, cScreenToWorld._m02_m12_m22_m32);
+	r0.xyz = cOmni0.pos.xyz + -r2.xyz;
+	r0.w = dot(r0.xyz, r0.xyz);
+	r0.w = rsqrt(r0.w);
+	r2.xyz = r0.xyz * r0.www;
+	r0.x = dot(r0.xyz, r2.xyz);
+	r0.yzw = sNormal.Sample(sNormal_s, r1.zw).xyz;
+	r1.xzw = sSceneAlbedo.Sample(sSceneAlbedo_s, r1.zw).xyz;
+	r1.xzw = r1.xzw * r1.xzw;
+	r0.yzw = r0.yzw * float3(2,2,2) + float3(-1,-1,-1);
+	r2.w = dot(r0.yzw, r0.yzw);
+	r2.w = rsqrt(r2.w);
+	r0.yzw = r2.www * r0.yzw;
+	r0.y = dot(r0.yzw, r2.xyz);
+	r0.z = r0.y * 0.5 + 0.5;
+	r0.y = saturate(r0.y);
+	r0.z = r0.z * r0.z;
+	r0.z = r0.z * r0.z + -r0.y;
+	r0.y = r1.y * r0.z + r0.y;
+	r0.z = saturate(r0.x * cOmni0.atten.x + cOmni0.atten.z);
+	r0.x = cmp(r0.x < cOmni0.pos.w);
+	r0.z = -r0.z * r0.z + 1;
+	r0.z = r0.z * r0.z;
+	r0.w = dot(cOmni0.mask.xyzw, float4(1,1,1,1));
+	r0.z = r0.z * r0.w;
+	r0.y = r0.y * r0.z;
+	r0.yzw = cOmni0.dCol.xyz * r0.yyy;
+	r0.xyz = r0.xxx ? r0.yzw : 0;
+	o0.xyz = r0.xyz * r1.xzw;
+	o0.w = 1;
+	return;
+}

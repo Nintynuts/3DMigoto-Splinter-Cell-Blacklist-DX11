@@ -1,0 +1,1 @@
+G:/Steam/steamapps/common/Tom Clancy's Splinter Cell Blacklist/src/SYSTEM/ShaderFixes/3cb6ac24789031c7-vs_replace.txt

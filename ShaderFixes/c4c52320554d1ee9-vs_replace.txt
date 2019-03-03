@@ -1,0 +1,77 @@
+// Light Flares
+
+cbuffer CB_PerObject : register(b9)
+{
+	float4x3 gLocalToWorld : packoffset(c0);
+	float4 gDrawScale : packoffset(c3);
+	float4 cId : packoffset(c4);
+	float4 cSHParams[7] : packoffset(c5);
+	float cAOID : packoffset(c12);
+	bool bUseSH : packoffset(c12.y);
+}
+
+cbuffer CB_PerCamera : register(b11)
+{
+	float4x4 gWorldToProj : packoffset(c0);
+	float4x4 gWorldToView : packoffset(c4);
+	float4x4 gProjection : packoffset(c8);
+	float4 cProjSkinMesh : packoffset(c12);
+	float4 gViewViewPos : packoffset(c13);
+	float4 gHalfRenderTargetSize : packoffset(c14);
+	float4 gVPTexelRes : packoffset(c15);
+	float4 gViewportSB : packoffset(c16);
+	float4 cViewPos_VS : packoffset(c17);
+	float4 cViewPos : packoffset(c18);
+	float2 gViewportOffset : packoffset(c19);
+}
+
+struct Vertex3D_UV 
+{
+	float3 pos;
+	float2 uv;
+};
+
+StructuredBuffer<Vertex3D_UV> VertexBuffer : register(t13);
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+#include "depth_adjust.hlsl"
+
+void main(
+	float3 v0 : POSITION0,
+	float2 v1 : TEXCOORD0,
+	out float4 o0 : SV_Position0,
+	out float2 o1 : TEXCOORD0)
+{
+	o0 = 0;
+	o1 = 0;
+	
+	//uint size,count;
+	//VertexBuffer.GetDimensions(size);
+	//if(size == 0)
+	//	return;
+	
+	float4 r0,r1,r2;
+	
+	
+	r0.xyz = v0.xyz;
+	r0.w = 1;
+	r1.xyz = mul(r0, gLocalToWorld);
+	r1.w = 1;
+	o0 = mul(r1, gWorldToProj);
+	o1.xy = v1.xy;
+		
+	float4 centre;
+	centre.xyz = (VertexBuffer[0].pos + VertexBuffer[2].pos)/2;
+	centre.w = 1;
+	centre.xyz = mul(centre,gLocalToWorld);
+	centre.w = 1;
+	centre = mul(centre,gWorldToProj);
+	
+	o0.x += adjust_from_depth_buffer(centre.x,centre.y);
+	
+	return;
+}

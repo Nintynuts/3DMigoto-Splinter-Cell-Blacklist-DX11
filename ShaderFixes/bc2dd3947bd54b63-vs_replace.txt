@@ -1,0 +1,40 @@
+// ShadowNet - Text
+
+cbuffer CB_VS_Scaleform : register(b7)
+{
+	float4 mvp[8] : packoffset(c0);
+}
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+void main(
+	float4 v0 : POSITION0,
+	float2 v1 : TEXCOORD0,
+	float4 v2 : COLOR0,
+	out float4 o0 : SV_Position0,
+	out float2 o1 : TEXCOORD0,
+	out float4 o2 : COLOR0)
+{
+	o0.x = dot(v0.xyzw, mvp[0].xyzw);
+	o0.y = dot(v0.xyzw, mvp[1].xyzw);
+	o0.z = dot(v0.xyzw, mvp[2].xyzw);
+	o0.w = dot(v0.xyzw, mvp[3].xyzw);
+	o1.xy = v1.xy;
+	o2.xyzw = v2.zyxw;
+	
+	float4 resolution = IniParams.Load(int2(0,0));
+	int factor = resolution.x == resolution.z ? 1 : 1;
+	
+	float4 stereo = StereoParams.Load(0);
+	o0.x -= stereo.x * (o0.w - stereo.y)/factor;
+	
+	float4 tex_filter = IniParams.Load(int2(2,0));
+	if (tex_filter.x > 0) {
+		o0.x -= stereo.x * (tex_filter.z * tex_filter.x - tex_filter.z*5)*50;
+	}
+	
+	return;
+}

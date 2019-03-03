@@ -1,0 +1,111 @@
+// Lighting Omni
+
+cbuffer CB_PerCamera : register(b11)
+{
+	float4x4 gWorldToProj : packoffset(c0);
+	float4x4 gWorldToView : packoffset(c4);
+	float4x4 gProjection : packoffset(c8);
+	float4 cProjSkinMesh : packoffset(c12);
+	float4 gViewViewPos : packoffset(c13);
+	float4 gHalfRenderTargetSize : packoffset(c14);
+	float4 gVPTexelRes : packoffset(c15);
+	float4 gViewportSB : packoffset(c16);
+	float4 cViewPos_VS : packoffset(c17);
+	float4 cViewPos : packoffset(c18);
+	float2 gViewportOffset : packoffset(c19);
+}
+
+#include "CB_PS_PerLightBatch.hlsl"
+
+cbuffer CB_PS_DeferredOmniLight : register(b7)
+{
+	float4x4 cScreenToWorld : packoffset(c0);
+}
+
+SamplerState sDepth_s : register(s0);
+SamplerState sNormal_s : register(s1);
+SamplerState sSceneAlbedo_s : register(s2);
+Texture2D<float4> sDepth : register(t0);
+Texture2D<float4> sNormal : register(t1);
+Texture2D<float4> sSceneAlbedo : register(t2);
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+void main(
+	float4 v0 : SV_Position0,
+	float4 v1 : TEXCOORD0,
+	float v2 : TEXCOORD1,
+	out float4 o0 : SV_Target0)
+{
+	float4 r0,r1,r2,r3,r4;
+
+	r1.xyzw = v1.xyzw / v2.xxxx;
+	r0.xy = r1.xy;
+	r0.zw = float2(1,1);
+	r1.xy = sDepth.Sample(sDepth_s, r1.zw).xw;
+	r0.xyz = r1.xxx * r0.xyz;
+			
+	float4 stereo = StereoParams.Load(0);
+	r0.x -= stereo.x * (r0.z - stereo.y);
+	
+	r2.x = dot(r0.xyzw, cScreenToWorld._m00_m10_m20_m30);
+	r2.y = dot(r0.xyzw, cScreenToWorld._m01_m11_m21_m31);
+	r2.z = dot(r0.xyzw, cScreenToWorld._m02_m12_m22_m32);
+	r0.xyz = cViewPos.xyz + -r2.xyz;
+	r2.xyz = cOmni0.pos.xyz + -r2.xyz;
+	r0.w = dot(r0.xyz, r0.xyz);
+	r0.w = rsqrt(r0.w);
+	r1.x = dot(r2.xyz, r2.xyz);
+	r1.x = rsqrt(r1.x);
+	r3.xyz = r2.xyz * r1.xxx;
+	r1.x = dot(r2.xyz, r3.xyz);
+	r0.xyz = r0.xyz * r0.www + r3.xyz;
+	r0.w = dot(r0.xyz, r0.xyz);
+	r0.w = rsqrt(r0.w);
+	r0.xyz = r0.xyz * r0.www;
+	r2.xyzw = sNormal.Sample(sNormal_s, r1.zw).xyzw;
+	r4.xyzw = sSceneAlbedo.Sample(sSceneAlbedo_s, r1.zw).xyzw;
+	r4.xyzw = r4.xyzw * r4.xyzw;
+	r2.xyz = r2.xyz * float3(2,2,2) + float3(-1,-1,-1);
+	r0.w = 11 * r2.w;
+	r0.w = exp2(r0.w);
+	r0.w = max(9.99999975e-006, r0.w);
+	r1.z = dot(r2.xyz, r2.xyz);
+	r1.z = rsqrt(r1.z);
+	r2.xyz = r2.xyz * r1.zzz;
+	r0.x = saturate(dot(r0.xyz, r2.xyz));
+	r0.y = dot(r2.xyz, r3.xyz);
+	r0.x = log2(r0.x);
+	r0.x = r0.w * r0.x;
+	r0.z = 2 + r0.w;
+	r0.x = exp2(r0.x);
+	r0.x = r0.z * r0.x;
+	r0.z = r0.y * 0.5 + 0.5;
+	r0.y = saturate(r0.y);
+	r0.z = r0.z * r0.z;
+	r0.z = r0.z * r0.z + -r0.y;
+	r0.y = r1.y * r0.z + r0.y;
+	r0.z = saturate(r0.y);
+	r1.yz = saturate(r1.xx * cOmni0.atten.xy + cOmni0.atten.zw);
+	r0.w = cmp(r1.x < cOmni0.pos.w);
+	r1.xy = -r1.yz * r1.yz + float2(1,1);
+	r1.xy = r1.xy * r1.xy;
+	r1.z = dot(cOmni0.mask.xyzw, float4(1,1,1,1));
+	r1.xy = r1.xy * r1.zz;
+	r0.z = r1.y * r0.z;
+	r0.y = r1.x * r0.y;
+	r1.xyz = cOmni0.dCol.xyz * r0.yyy;
+	r1.xyz = r0.www ? r1.xyz : 0;
+	r0.x = r0.z * r0.x;
+	r0.x = 0.125 * r0.x;
+	r0.xyz = cOmni0.sCol.xyz * r0.xxx;
+	r0.xyz = r0.www ? r0.xyz : 0;
+	r0.w = 2.66666675 * r4.w;
+	r0.xyz = r0.xyz * r0.www;
+	o0.xyz = r1.xyz * r4.xyz + r0.xyz;
+	o0.w = 1;
+	return;
+}

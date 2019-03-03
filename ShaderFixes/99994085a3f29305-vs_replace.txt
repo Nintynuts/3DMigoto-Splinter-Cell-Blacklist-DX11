@@ -1,0 +1,44 @@
+// GUI - Decorations
+
+cbuffer CB_VS_Scaleform : register(b7)
+{
+	float4 mvp[8] : packoffset(c0);
+}
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+void main(
+	int4 v0 : POSITION0,
+	float4 v1 : COLOR0,
+	out float4 o0 : SV_Position0,
+	out float2 o1 : TEXCOORD0,
+	out float4 o2 : COLOR0)
+{
+	float4 r0;
+		r0.xyzw = (int4)v0.xyzw;
+	o0.x = dot(r0.xyzw, mvp[0].xyzw);
+	o0.y = dot(r0.xyzw, mvp[1].xyzw);
+	o0.zw = r0.zw;
+	o1.x = dot(r0.xyzw, mvp[6].xyzw);
+	o1.y = dot(r0.xyzw, mvp[7].xyzw);
+	o2.xyzw = v1.zyxw;
+	
+	float4 resolution = IniParams.Load(int2(0,0));
+	if (resolution.x != resolution.z) // Render Target
+		return;
+	
+	float4 stereo = StereoParams.Load(0);
+	float4 tex_filter = IniParams.Load(int2(2,0));
+	
+	float layer = 2;
+	
+	if (tex_filter.x > 0)
+		layer = tex_filter.x;
+	
+	o0.x -= stereo.x * (tex_filter.z * layer - tex_filter.z*5)/500;
+	
+	return;
+}

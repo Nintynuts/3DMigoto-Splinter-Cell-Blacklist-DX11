@@ -33,14 +33,14 @@ void main(float4 pos : SV_Position0, out float4 result : SV_Target0)
 		y /= 2;
 		if (mode == 6) {
 			if (side == 0) { // left side of the reverse blited image
-			} else {  // right side of the reverse blited image
+			} else {	// right side of the reverse blited image
 				x = x + width / 2;
 			}
 		}
 		else if (mode == 7) { // swap eyes
 			if (side == 0) { // right side of the reverse blited image
 				x = x + width / 2;
-			} else {  // left side of the reverse blited image
+			} else {	// left side of the reverse blited image
 			}
 		}
 	}

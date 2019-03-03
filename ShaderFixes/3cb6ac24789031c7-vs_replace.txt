@@ -1,0 +1,48 @@
+// ShadowNet - Overlay 2-Colour
+
+cbuffer CB_VS_ScaleformBatched : register(b7)
+{
+	float4 mvp[192] : packoffset(c0);
+}
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+void main(
+	int4 v0 : POSITION0,
+	float4 v1 : COLOR0,
+	float4 v2 : COLOR1,
+	out float4 o0 : SV_Position0,
+	out float4 o1 : COLOR0,
+	out float4 o2 : COLOR1,
+	out float4 o3 : TEXCOORD1,
+	out float4 o4 : TEXCOORD2)
+{
+	float4 r0,r1,r2;
+	
+	r0.x = 2040.01001 * v2.x;
+	r0.x = (int)r0.x;
+	r1.xyzw = (int4)v0.xyzw;
+	o0.x = dot(r1.xyzw, mvp[r0.x].xyzw);
+	r2.xyzw = (int4)r0.xxxx + int4(1,2,3,4);
+	r0.x = (int)r0.x + 5;
+	o3.xyzw = mvp[r0.x].xyzw;
+	o0.y = dot(r1.xyzw, mvp[r2.x].xyzw);
+	o0.z = dot(r1.xyzw, mvp[r2.y].xyzw);
+	o0.w = dot(r1.xyzw, mvp[r2.z].xyzw);
+	o4.xyzw = mvp[r2.w].xyzw;
+	o1.xyzw = v1.zyxw;
+	o2.xyzw = v2.zyxw;
+	
+	float4 stereo = StereoParams.Load(0);
+	o0.x -= stereo.x * (o0.w - stereo.y);
+	
+	float4 tex_filter = IniParams.Load(int2(2,0));
+	float layer = 2;
+	
+	//o0.x -= stereo.x * (tex_filter.z * layer - tex_filter.z*5)*50;
+	
+	return;
+}

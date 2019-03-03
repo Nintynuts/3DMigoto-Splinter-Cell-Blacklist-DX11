@@ -1,0 +1,79 @@
+// Self-Illuminated
+
+cbuffer CB_PerCamera : register(b11)
+{
+	float4x4 gWorldToProj : packoffset(c0);
+	float4x4 gWorldToView : packoffset(c4);
+	float4x4 gProjection : packoffset(c8);
+	float4 cProjSkinMesh : packoffset(c12);
+	float4 gViewViewPos : packoffset(c13);
+	float4 gHalfRenderTargetSize : packoffset(c14);
+	float4 gVPTexelRes : packoffset(c15);
+	float4 gViewportSB : packoffset(c16);
+	float4 cViewPos_VS : packoffset(c17);
+	float4 cViewPos : packoffset(c18);
+	float2 gViewportOffset : packoffset(c19);
+}
+
+cbuffer CB_PerObject : register(b9)
+{
+	float4x3 gLocalToWorld : packoffset(c0);
+	float4 gDrawScale : packoffset(c3);
+	float4 cId : packoffset(c4);
+	float4 cSHParams[7] : packoffset(c5);
+	float cAOID : packoffset(c12);
+	bool bUseSH : packoffset(c12.y);
+}
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+void main(
+	float4 v0 : POSITION0,
+	int4 v1 : TEXCOORD0,
+	int2 v2 : TEXCOORD1,
+	float4 v3 : NORMAL0,
+	float4 v4 : TANGENT0,
+	float4 v5 : BINORMAL0,
+	out float4 o0 : SV_Position0,
+	out float4 o1 : TEXCOORD0,
+	out float4 o2 : TEXCOORD1,
+	out float4 o3 : TEXCOORD2)
+{
+	float4 r0,r1,r2;
+	
+	r0.w = gLocalToWorld._m30 + -cViewPos_VS.x;
+	r0.xyz = gLocalToWorld._m00_m10_m20;
+	r1.xyz = gDrawScale.xyz * v0.xyz;
+	r1.w = v0.w;
+	r0.x = dot(r1.xyzw, r0.xyzw);
+	r2.w = gLocalToWorld._m31 + -cViewPos_VS.y;
+	r2.xyz = gLocalToWorld._m01_m11_m21;
+	r0.y = dot(r1.xyzw, r2.xyzw);
+	r2.w = gLocalToWorld._m32 + -cViewPos_VS.z;
+	r2.xyz = gLocalToWorld._m02_m12_m22;
+	r0.z = dot(r1.xyzw, r2.xyzw);
+	r1.x = dot(r0.xyz, gWorldToProj._m00_m10_m20);
+	r1.y = dot(r0.xyz, gWorldToProj._m01_m11_m21);
+	r1.z = dot(r0.xyz, gWorldToProj._m02_m12_m22);
+	r1.w = dot(r0.xyz, gWorldToProj._m03_m13_m23);
+	o2.xyz = cViewPos_VS.xyz + r0.xyz;
+	r0.xyzw = cProjSkinMesh.xyzw + r1.xyzw;
+	o0.xyzw = r0.xyzw;
+		
+	float4 stereo = StereoParams.Load(0);
+	r0.x += stereo.x * (r0.w - stereo.y); 
+	
+	o2.w = r0.w;
+	r0.xy = (int2)v1.xy;
+	r0.zw = (int2)v2.xy;
+	o1.xyzw = float4(0.00048828125,0.00048828125,0.00048828125,0.00048828125) * r0.xyzw;
+	o3.w = 0;
+	r0.xyz = v3.zyx * float3(2,2,2) + float3(-1,-1,-1);
+	o3.x = dot(r0.xyz, gLocalToWorld._m00_m10_m20);
+	o3.y = dot(r0.xyz, gLocalToWorld._m01_m11_m21);
+	o3.z = dot(r0.xyz, gLocalToWorld._m02_m12_m22);
+	return;
+}
