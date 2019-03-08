@@ -1,0 +1,35 @@
+// God Rays Downsample (2)
+
+cbuffer CB_PS_Downsample16x16 : register(b7)
+{
+	float4 cTexelSizeDownsample : packoffset(c0);
+}
+
+SamplerState sTex_s : register(s0);
+Texture2D<float4> sTex : register(t0);
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+void main(
+	float4 v0 : SV_Position0,
+	out float4 o0 : SV_Target0)
+{
+	float4 r0,r1,r2;
+
+	r0.xy = v0.xy * cTexelSizeDownsample.xy + -cTexelSizeDownsample.zw;
+	r0.xyzw = sTex.Sample(sTex_s, r0.xy).xyzw;
+	r1.xy = v0.xy * cTexelSizeDownsample.xy + cTexelSizeDownsample.zw;
+	r1.xyzw = sTex.Sample(sTex_s, r1.xy).xyzw;
+	r0.xyzw = r1.xyzw + r0.xyzw;
+	r1.xy = cTexelSizeDownsample.xy * v0.xy;
+	r1.xyzw = cTexelSizeDownsample.zwzw * float4(-1,1,1,-1) + r1.xyxy;
+	r2.xyzw = sTex.Sample(sTex_s, r1.xy).xyzw;
+	r1.xyzw = sTex.Sample(sTex_s, r1.zw).xyzw;
+	r0.xyzw = r2.xyzw + r0.xyzw;
+	r0.xyzw = r0.xyzw + r1.xyzw;
+	o0.xyzw = float4(0.25,0.25,0.25,0.25) * r0.xyzw;
+	return;
+}
