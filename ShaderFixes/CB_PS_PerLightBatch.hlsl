@@ -1,3 +1,7 @@
+#ifndef LIGHT_REG
+#define LIGHT_REG b0
+#endif
+
 struct Omni
 {
 		float4 pos;
@@ -25,7 +29,7 @@ struct Dir
 		float4 mask;
 };
 
-cbuffer CB_PS_PerLightBatch : register(b0)
+cbuffer CB_PS_PerLightBatch : register(LIGHT_REG)
 {
 		Omni cOmni0 : packoffset(c0);
 		Omni cOmni1 : packoffset(c5);

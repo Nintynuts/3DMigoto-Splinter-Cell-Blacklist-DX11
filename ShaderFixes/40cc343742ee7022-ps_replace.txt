@@ -20,6 +20,7 @@ cbuffer CB_PerCubeMapRenderCell : register(b0)
 	float2 gCubemapScale : packoffset(c0);
 }
 
+#define LIGHT_REG b1
 #include "CB_PS_PerLightBatch.hlsl"
 
 cbuffer CB_PS_DeferredDirLight : register(b7)
@@ -56,10 +57,10 @@ void main(
 	r0.xy = r1.xy;
 	r1.xy = sDepth.Sample(sDepth_s, r1.zw).xw;
 	r0.xyz = r1.xxx * r0.xyz;
-	
+
 	float4 stereo = StereoParams.Load(0);
-	r0.x -= stereo.x * (r0.z - stereo.y); 
-	
+	r0.x -= stereo.x * (r0.z - stereo.y);
+
 	r2.x = dot(r0.xyzw, cScreenToWorld._m00_m10_m20_m30);
 	r2.y = dot(r0.xyzw, cScreenToWorld._m01_m11_m21_m31);
 	r2.z = dot(r0.xyzw, cScreenToWorld._m02_m12_m22_m32);
