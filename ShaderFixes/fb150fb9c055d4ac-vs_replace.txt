@@ -261,8 +261,8 @@ void main(
 		r5.w = dot(r4.xyzw, cWorldToProj._m03_m13_m23_m33);
 		o0 = r5;
 		
-	float4 stereo = StereoParams.Load(0);
-	r5.x += stereo.x * (r5.w - stereo.y)+1.5;
+		float4 stereo = StereoParams.Load(0);
+		r5.x += stereo.x * (r5.w - stereo.y)+1.5;
 		
 		r6.xyzw = gViewportSB.xyzw * r5.xyzw;
 		o4.xy = r6.xy + r6.zw;

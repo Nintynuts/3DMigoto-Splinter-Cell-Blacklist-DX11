@@ -55,7 +55,6 @@ void main(
 	if (resolution.x != resolution.z) // Render Target
 		return;
 	
-	float4 stereo = StereoParams.Load(0);
 	float4 tex_filter = IniParams.Load(int2(2, 0));
 	
 	if (!tex_filter.w)
@@ -69,6 +68,7 @@ void main(
 		if (o0.y < -0.7) // ShadowNet Back
 			layer = 5;
 	
+		float4 stereo = StereoParams.Load(0);
 		o0.x -= stereo.x * (tex_filter.z * layer - tex_filter.z * 5) / 500;
 	}
 	

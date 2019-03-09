@@ -45,18 +45,9 @@ void main(
 	float2 v1 : TEXCOORD0,
 	out float4 o0 : SV_Position0,
 	out float2 o1 : TEXCOORD0)
-{
-	o0 = 0;
-	o1 = 0;
-	
-	//uint size,count;
-	//VertexBuffer.GetDimensions(size);
-	//if(size == 0)
-	//	return;
-	
+{	
 	float4 r0,r1,r2;
-	
-	
+		
 	r0.xyz = v0.xyz;
 	r0.w = 1;
 	r1.xyz = mul(r0, gLocalToWorld);

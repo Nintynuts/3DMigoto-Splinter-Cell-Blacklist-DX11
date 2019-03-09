@@ -57,7 +57,7 @@ void main(
 	
 	float4 tex_filter = IniParams.Load(int2(2,0));
 	
-    if (!tex_filter.w && tex_filter.x)//  && o2.x < 0.75) // Not in menu
+	if (!tex_filter.w)//  && o2.x < 0.75) // Not in menu
 	{
 		uint quad = floor(vID / 6) * 6;	
 		float4 centre, vec1, vec2;

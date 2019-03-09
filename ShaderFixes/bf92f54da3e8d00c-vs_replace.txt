@@ -20,8 +20,6 @@ cbuffer CB_PerCamera : register(b11)
 Texture1D<float4> IniParams : register(t120);
 Texture2D<float4> StereoParams : register(t125);
 
-#include "depth_adjust.hlsl"
-
 void main(
 	float4 v0 : POSITION0,
 	float2 v1 : TEXCOORD0,
@@ -33,8 +31,6 @@ void main(
 
 	float4 stereo = StereoParams.Load(0);
 	v0.x += stereo.x;
-	//v0.x += stereo.x;
-	//v0.x += adjust_from_depth_buffer(v0.x,v0.y);
 		
 	o1.zw = v0.xy * gViewportSB.xy + gViewportSB.zw;
 	o1.xy = v1.xy;
