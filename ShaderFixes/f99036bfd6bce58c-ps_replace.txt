@@ -1,0 +1,91 @@
+// Moon Glow
+
+cbuffer CB_PerCamera : register(b11)
+{
+	float4x4 gWorldToProj : packoffset(c0);
+	float4x4 gWorldToView : packoffset(c4);
+	float4x4 gProjection : packoffset(c8);
+	float4 cProjSkinMesh : packoffset(c12);
+	float4 gViewViewPos : packoffset(c13);
+	float4 gHalfRenderTargetSize : packoffset(c14);
+	float4 gVPTexelRes : packoffset(c15);
+	float4 gViewportSB : packoffset(c16);
+	float4 cViewPos_VS : packoffset(c17);
+	float4 cViewPos : packoffset(c18);
+	float2 gViewportOffset : packoffset(c19);
+}
+
+cbuffer CB_PS_Atmosphere : register(b7)
+{
+	float3 cESun : packoffset(c0);
+	float3 cSunDir : packoffset(c1);
+	float3 cSky : packoffset(c2);
+	float4 cCst1 : packoffset(c3);
+	float4 cCst2 : packoffset(c4);
+	float4x4 cScreenToWorld : packoffset(c5);
+}
+
+SamplerState sSceneTex_s : register(s0);
+SamplerState sDepthTex_s : register(s1);
+Texture2D<float4> sSceneTex : register(t0);
+Texture2D<float4> sDepthTex : register(t1);
+
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+
+void main(
+	float4 v0 : SV_Position0,
+	float4 v1 : TEXCOORD0,
+	float v2 : TEXCOORD1,
+	out float4 o0 : SV_Target0)
+{
+	float4 r0,r1,r2,r3;
+	uint4 bitmask, uiDest;
+	float4 fDest;
+
+	r0.z = 1;
+	r1.xyzw = v1.xyzw / v2.xxxx;
+	r0.xy = r1.xy;
+	r0.w = sDepthTex.Sample(sDepthTex_s, r1.zw).x;
+	r1.xyzw = sSceneTex.Sample(sSceneTex_s, r1.zw).xyzw;
+	r2.xyz = r0.xyz * r0.www;
+	r0.x = cmp(r0.w >= 64000);
+	r2.w = 1;
+	
+	float4 stereo = StereoParams.Load(0);
+	r2.x -= stereo.x * (r2.z - stereo.y);
+	
+	r3.x = dot(r2.xyzw, cScreenToWorld._m00_m10_m20_m30);
+	r3.y = dot(r2.xyzw, cScreenToWorld._m01_m11_m21_m31);
+	r3.z = dot(r2.xyzw, cScreenToWorld._m02_m12_m22_m32);
+	r0.yzw = cViewPos.xyz + -r3.xyz;
+	r2.x = dot(r0.yzw, r0.yzw);
+	r2.y = rsqrt(r2.x);
+	r2.x = sqrt(r2.x);
+	r0.x = r0.x ? cSky.x : r2.x;
+	r0.x = -cCst1.w + r0.x;
+	r0.x = max(0, r0.x);
+	r0.x = -cCst1.x * r0.x;
+	r0.x = 1.44269502 * r0.x;
+	r0.x = exp2(r0.x);
+	r0.yzw = r2.yyy * r0.yzw;
+	r0.y = dot(cSunDir.xyz, r0.yzw);
+	r0.z = -cCst2.z * r0.y + cCst2.y;
+	r0.y = r0.y * r0.y + 1;
+	r0.z = log2(r0.z);
+	r0.z = 1.5 * r0.z;
+	r0.z = exp2(r0.z);
+	r0.z = cCst2.x / r0.z;
+	r0.y = cCst1.z * r0.y + r0.z;
+	r0.y = cCst1.y * r0.y;
+	r0.yzw = cESun.xyz * r0.yyy;
+	r2.x = 1 + -r0.x;
+	r0.yzw = r2.xxx * r0.yzw;
+	o0.xyz = r1.xyz * r0.xxx + r0.yzw;
+	o0.w = r1.w;
+	return;
+}
