@@ -20,6 +20,14 @@ cbuffer CB_PerCamera : register(b11)
 	float2 gViewportOffset : packoffset(c19);
 }
 
+struct Vertex2D_RGB 
+{
+	half2 pos;
+	uint colour; // R8G8B8A8
+};
+
+StructuredBuffer<Vertex2D_RGB> VertexBuffer : register(t13);
+
 // 3Dmigoto declarations
 #define cmp -
 Texture1D<float4> IniParams : register(t120);
@@ -30,6 +38,7 @@ Texture2D<float4> StereoParams : register(t125);
 void main(
 	int4 v0 : POSITION0,
 	float4 v1 : COLOR0,
+	uint vID : SV_VertexID,
 	out float4 o0 : SV_Position0,
 	out float4 o1 : TEXCOORD0,
 	out float4 o2 : TEXCOORD1,
@@ -54,9 +63,26 @@ void main(
 	
 	float4 stereo = StereoParams.Load(0);
 	float4 tex_filter = IniParams.Load(int2(2,0));
+		
+	if (tex_filter.x <= -1)
+	{
+		float4 centre = float4(0,0.2,0,1);
+		if (tex_filter.x <= -2)
+		{
+			float4 vec1, vec2;
+			uint quad = floor(vID / 6) * 6;
 	
-	if (tex_filter.x == -2)
-		o0.x += adjust_from_depth_buffer(0.0,0.2);
+			vec1.xy = VertexBuffer[quad+0].pos;
+			vec2.xy = VertexBuffer[quad+2].pos;
+			centre.zw = vec1.zw = vec2.zw = float2(0,1);
+			centre.x = dot(centre.xyzw, mvp[0].xyzw);
+			centre.y = dot(centre.xyzw, mvp[1].xyzw);
+			centre.xy = (vec1.xy + vec2.xy)/2;
+			if (tex_filter.x == -3)
+				centre.y -= 0.1;
+		}
+		o0.x += adjust_from_depth_buffer(centre.x,centre.y);
+	}
 	else if (tex_filter.x > 0)
 		o0.x -= stereo.x * (tex_filter.z * tex_filter.x - tex_filter.z*5)/500;
 	
