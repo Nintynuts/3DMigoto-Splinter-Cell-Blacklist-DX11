@@ -1,4 +1,4 @@
-// Smoke
+// Sonar Smoke
 
 cbuffer CB_PerPass : register(b12)
 {
@@ -30,13 +30,6 @@ cbuffer CB_PerObject : register(b9)
 	float4 cSHParams[7] : packoffset(c5);
 	float cAOID : packoffset(c12);
 	bool bUseSH : packoffset(c12.y);
-}
-
-cbuffer CB_PerFogControl : register(b8)
-{
-	bool bFog : packoffset(c0);
-	float4 cFog_Density_Start_Range : packoffset(c1);
-	float4 cFogCol : packoffset(c2);
 }
 
 cbuffer CB_VS_ParticleTransforms : register(b6)
@@ -76,15 +69,12 @@ void main(
 	float4 v4 : COLOR0,
 	int2 v5 : BLENDINDICES0,
 	out float4 o0 : SV_Position0,
-	out float4 o1 : TEXCOORD7,
+	out float4 o1 : COLOR0,
 	out float4 o2 : COLOR1,
 	out float4 o3 : TEXCOORD0,
 	out float4 o4 : TEXCOORD1,
 	out float4 o5 : TEXCOORD2,
-	out float4 o6 : TEXCOORD3,
-	out float4 o7 : TEXCOORD4,
-	out float4 o8 : TEXCOORD5,
-	out float4 o9 : TEXCOORD6)
+	out float4 o6 : TEXCOORD3)
 {
 	float4 r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11;
 
@@ -256,21 +246,21 @@ void main(
 		r4.y = dot(r5.xzy, r9.xzw);
 		r4.z = dot(r5.xyz, r6.xyz);
 		r5.xyz = r0.zzz * r7.xyz + r1.xyz;
-		r6.xyz = r4.xyz * r0.www;
+		r4.xyz = r4.xyz * r0.www;
 		r5.w = r1.w;
-		r6.w = 0;
-		r5.xyzw = r6.xyzw + r5.xyzw;
-		r6.x = dot(r5.xyzw, cWorldToProj._m00_m10_m20_m30);
-		r6.y = dot(r5.xyzw, cWorldToProj._m01_m11_m21_m31);
-		r6.z = dot(r5.xyzw, cWorldToProj._m02_m12_m22_m32);
-		r6.w = dot(r5.xyzw, cWorldToProj._m03_m13_m23_m33);
-		o0.xyzw = r6.xyzw;
+		r4.w = 0;
+		r4.xyzw = r5.xyzw + r4.xyzw;
+		r5.x = dot(r4.xyzw, cWorldToProj._m00_m10_m20_m30);
+		r5.y = dot(r4.xyzw, cWorldToProj._m01_m11_m21_m31);
+		r5.z = dot(r4.xyzw, cWorldToProj._m02_m12_m22_m32);
+		r5.w = dot(r4.xyzw, cWorldToProj._m03_m13_m23_m33);
+		o0.xyzw = r5.xyzw;
 		
 		float4 stereo = StereoParams.Load(0);
-		r6.x += stereo.x * (r6.w - stereo.y); 
-	
-		r8.xyzw = gViewportSB.xyzw * r6.xyzw;
-		o4.xy = r8.xy + r8.zw;
+		r5.x += stereo.x * (r5.w - stereo.y);	
+
+		r6.xyzw = gViewportSB.xyzw * r5.xyww;
+		o4.xy = r6.xy + r6.zw;
 		r0.yzw = cCamera_Position.xyz + -r1.xyz;
 		r1.x = dot(r0.yzw, r0.yzw);
 		r1.x = rsqrt(r1.x);
@@ -283,67 +273,48 @@ void main(
 		r0.x = bUseCubeMapAmbient ? r0.y : r0.x;
 		r0.xy = saturate(cBlendModeMask.xy * r0.xx + cBlendModeMask.yx);
 		o1.w = v4.w * r0.y;
-		r0.yzw = cViewPos_VS.xyz + -r5.xyz;
-		r0.y = dot(r0.yzw, r0.yzw);
-		r0.y = sqrt(r0.y);
-		r0.y = -cFog_Density_Start_Range.y + r0.y;
-		r0.y = saturate(r0.y / cFog_Density_Start_Range.z);
-		r0.y = cFog_Density_Start_Range.x * r0.y;
-		r1.y = bFog ? r0.y : 0;
 
-		r8.x = dot(r2.xyz, gLocalToWorld._m00_m10_m20);
-		r8.y = dot(r2.xyz, gLocalToWorld._m01_m11_m21);
-		r8.z = dot(r2.xyz, gLocalToWorld._m02_m12_m22);
-		r0.y = dot(r8.xyz, r8.xyz);
+		r1.x = dot(r2.xyz, gLocalToWorld._m00_m10_m20);
+		r1.y = dot(r2.xyz, gLocalToWorld._m01_m11_m21);
+		r1.z = dot(r2.xyz, gLocalToWorld._m02_m12_m22);
+		r0.y = dot(r1.xyz, r1.xyz);
 		r0.y = rsqrt(r0.y);
-		r2.xyz = r8.xyz * r0.yyy;
-		r2.w = 1;
-		r8.x = dot(cSHParams[0].xyzw, r2.xyzw);
-		r8.y = dot(cSHParams[1].xyzw, r2.xyzw);
-		r8.z = dot(cSHParams[2].xyzw, r2.xyzw);
-		r9.xyzw = r2.xyzz * r2.yzzx;
-		r10.x = dot(cSHParams[3].xyzw, r9.xyzw);
-		r10.y = dot(cSHParams[4].xyzw, r9.xyzw);
-		r10.z = dot(cSHParams[5].xyzw, r9.xyzw);
-		r0.y = r2.y * r2.y;
-		r0.y = r2.x * r2.x + -r0.y;
-		r2.xyz = r10.xyz + r8.xyz;
-		r0.yzw = cSHParams[6].xyz * r0.yyy + r2.xyz;
+		r1.xyz = r1.xyz * r0.yyy;
+		r1.w = 1;
+		r2.x = dot(cSHParams[0].xyzw, r1.xyzw);
+		r2.y = dot(cSHParams[1].xyzw, r1.xyzw);
+		r2.z = dot(cSHParams[2].xyzw, r1.xyzw);
+		r3.xyzw = r1.xyzz * r1.yzzx;
+		r6.x = dot(cSHParams[3].xyzw, r3.xyzw);
+		r6.y = dot(cSHParams[4].xyzw, r3.xyzw);
+		r6.z = dot(cSHParams[5].xyzw, r3.xyzw);
+		r0.y = r1.y * r1.y;
+		r0.y = r1.x * r1.x + -r0.y;
+		r1.xyz = r6.xyz + r2.xyz;
+		r0.yzw = cSHParams[6].xyz * r0.yyy + r1.xyz;
 		r0.yzw = max(float3(0,0,0), r0.yzw);
 		r0.yzw = cSHScale * r0.yzw;
 		r0.yzw = bUseSH ? r0.yzw : cAmbientColor.xyz;
 		r0.yzw = bUseCubeMapAmbient ? r0.yzw : float3(0,0,0);
 		r0.yzw = max(cAmbientMin.xyz, r0.yzw);
 		o2.xyz = min(cAmbientMax.xyz, r0.yzw);
-		r0.y = dot(-r7.xyz, -r7.xyz);
-		r0.y = rsqrt(r0.y);
-		o7.xyz = -r7.xyz * r0.yyy;
-		r0.y = dot(r4.xyz, r4.xyz);
-		r0.y = rsqrt(r0.y);
-		o8.xyz = r4.xyz * r0.yyy;
 		o1.xyz = v4.zyx;
 		o2.w = r0.x;
 		o4.z = v1.w;
-		o4.w = r6.w;
-		r1.x = v0.w;
-		o6.xyz = r3.xyz;
-		o6.w = 1;
-		o7.w = 1;
-		o8.w = 1;
-		o9.xyzw = r5.xyzw;
+		o4.w = r5.w;
+		r0.x = v0.w;
+		r0.y = 1;
+		o5.xyz = r4.xyz;
 	} else {
 		o0.xyzw = float4(0,0,0,-1);
 		o1.xyzw = float4(0,0,0,0);
 		o2.xyzw = float4(0,0,0,0);
 		o3.xyzw = float4(0,0,0,0);
 		o4.xyzw = float4(0,0,0,0);
-		r1.xy = float2(0,0);
-		o6.xyzw = float4(0,0,0,0);
-		o7.xyzw = float4(0,0,0,0);
-		o8.xyzw = float4(0,0,0,0);
-		o9.xyzw = float4(0,0,0,0);
+		r0.xy = float2(0,0);
+		o5.xyz = float3(0,0,0);
 	}
-	o5.xw = r1.xy;
-	o5.yz = float2(0,0);
+	o6.xw = r0.xy;
+	o6.yz = float2(0,0);
 	return;
 }
