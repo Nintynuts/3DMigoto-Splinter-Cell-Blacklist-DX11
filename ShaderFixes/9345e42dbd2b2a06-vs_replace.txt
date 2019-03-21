@@ -1,4 +1,4 @@
-// Lighting
+// Lighting - Shared
 
 cbuffer CB_PerCamera : register(b11)
 {
@@ -54,11 +54,12 @@ void main(
 	r1.w = dot(r0.xyzw, gSimpleWorldToProj._m03_m13_m23_m33);
 	
 	float4 stereo = StereoParams.Load(0);
+	float is_cutscene = IniParams.Load(int2(3, 0)).x;
 	
-	if (r1.w > 100)
-		r1.x += stereo.x * (r1.w - stereo.y); 
-	else
+	if (is_cutscene)
 		r1.x += stereo.x * r1.w;
+	else
+		r1.x += stereo.x * (r1.w - stereo.y); 
 	
 	o0.xyzw = r1.xyzw;			
 	

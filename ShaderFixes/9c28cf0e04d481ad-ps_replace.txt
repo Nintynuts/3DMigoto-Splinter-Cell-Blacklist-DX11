@@ -31,8 +31,8 @@ void main(
 	r0.w = 1;
 	r1.xy = v2.xy * uv[0].xy + uv[0].zw;
 	
-	float4 resolution = IniParams.Load(int2(0,0));
-	if (resolution.x == resolution.z) // non-Render Target
+	float isScreen = IniParams.Load(int2(3,0)).x;
+	if (!isScreen) // non-Render Target
 	{
 		float4 stereo = StereoParams.Load(0);
 		float4 tex_filter = IniParams.Load(int2(2,0));
