@@ -80,10 +80,10 @@ void main(
 	
 		//if (height < 0.056 && height > 0.045)
 		{
+			centre.xy = (vec1.xy + vec2.xy)/2;
 			centre.x = dot(centre.xyzw, mvp[0].xyzw);
 			centre.y = dot(centre.xyzw, mvp[1].xyzw);
-			centre.xy = (vec1.xy + vec2.xy)/2;
-			o0.x += adjust_from_depth_buffer(centre.x,centre.y);
+			o0.x += adjust_from_depth_buffer(centre.x,centre.y) - stereo.x * 0.05;
 		}
 	}
 	else

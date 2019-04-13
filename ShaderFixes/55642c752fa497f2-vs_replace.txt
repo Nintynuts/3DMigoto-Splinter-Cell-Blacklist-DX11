@@ -75,13 +75,13 @@ void main(
 			vec1.xy = VertexBuffer[quad+0].pos;
 			vec2.xy = VertexBuffer[quad+2].pos;
 			centre.zw = vec1.zw = vec2.zw = float2(0,1);
+			centre.xy = (vec1.xy + vec2.xy)/2;
 			centre.x = dot(centre.xyzw, mvp[0].xyzw);
 			centre.y = dot(centre.xyzw, mvp[1].xyzw);
-			centre.xy = (vec1.xy + vec2.xy)/2;
 			if (tex_filter.x == -3)
 				centre.y -= 0.1;
 		}
-		o0.x += adjust_from_depth_buffer(centre.x,centre.y);
+		o0.x += adjust_from_depth_buffer(centre.x,centre.y) - stereo.x * 0.05;
 	}
 	else if (tex_filter.x > 0)
 		o0.x -= stereo.x * (tex_filter.z * tex_filter.x - tex_filter.z*5)/500;
