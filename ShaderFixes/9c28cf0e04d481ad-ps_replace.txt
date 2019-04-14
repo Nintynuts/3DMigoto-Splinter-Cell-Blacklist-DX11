@@ -31,12 +31,17 @@ void main(
 	r0.w = 1;
 	r1.xy = v2.xy * uv[0].xy + uv[0].zw;
 	
-	float isScreen = IniParams.Load(int2(3,0)).x;
-	if (!isScreen) // non-Render Target
+	float isTitleScreen = IniParams.Load(int2(3,0)).x;
+	if (isTitleScreen)
 	{
 		float4 stereo = StereoParams.Load(0);
 		float4 tex_filter = IniParams.Load(int2(2,0));
 		r1.x -= stereo.x * tex_filter.z/500;
+		// Wrap around
+		if (r1.x > 1)
+			r1.x = 2-r1.x;
+		else
+			r1.x = abs(r1.x);
 	}
 	r1.x = texX.Sample(texX_s, r1.xy).x;
 	r2.xy = v2.xy * uv[1].xy + uv[1].zw;
