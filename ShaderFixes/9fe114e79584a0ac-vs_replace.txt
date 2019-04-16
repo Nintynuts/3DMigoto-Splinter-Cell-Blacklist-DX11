@@ -20,22 +20,13 @@ cbuffer CB_PerCamera : register(b11)
 	float2 gViewportOffset : packoffset(c19);
 }
 
-struct Vertex2D_RGB_RGB_UV 
-{
-	float2 pos;
-	uint colour1; // R8G8B8A8
-	uint colour2; // R8G8B8A8
-	float2 uv;
-};
-
-StructuredBuffer<Vertex2D_RGB_RGB_UV> VertexBuffer : register(t13);
-
 // 3Dmigoto declarations
 #define cmp -
 Texture1D<float4> IniParams : register(t120);
 Texture2D<float4> StereoParams : register(t125);
 
 #include "depth_adjust.hlsl" 
+#include "goal_boundaries.hlsl"
 
 void main(
 	float4 v0 : POSITION0,
@@ -65,30 +56,10 @@ void main(
 	if (resolution.x != resolution.z) // Render Target
 		return;
 	
-	float4 stereo = StereoParams.Load(0);
-	float4 tex_filter = IniParams.Load(int2(2,0));
+	float4 stereo = StereoParams.Load(0);	
 	
-	if (!tex_filter.w && tex_filter.x)//  && v2.x < 0.75) // Not in menu
-	{
-		uint quad = floor(vID / 6) * 6;	
-		float4 centre, vec1, vec2;
-		vec1.xy = VertexBuffer[quad+0].pos;
-		vec2.xy = VertexBuffer[quad+2].pos;
-		centre.zw = vec1.zw = vec2.zw = float2(0,1);
-	
-		float height = -vec2.y * mvp[1].y;
-	
-		//if (height < 0.056 && height > 0.045)
-		{
-			centre.xy = (vec1.xy + vec2.xy)/2;
-			centre.x = dot(centre.xyzw, mvp[0].xyzw);
-			centre.y = dot(centre.xyzw, mvp[1].xyzw);
-			o0.x += adjust_from_depth_buffer(centre.x,centre.y) - stereo.x * 0.05;
-		}
-	}
-	else
-	{
-		o0.x -= stereo.x * (tex_filter.z * 5 - tex_filter.z*5)/500;
-	}
+	uint quad = (vID - (vID % 6))/6;
+	o0.x += GoalData[0].elementDepthCache[0] * (stereo.x > 0 ? 1 : -1);
+
 	return;
 }
