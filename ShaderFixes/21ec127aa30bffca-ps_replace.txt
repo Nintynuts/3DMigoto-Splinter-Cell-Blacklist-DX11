@@ -14,10 +14,7 @@ Texture2D<float4> sDepth : register(t0);
 Texture2D<float4> sNormal : register(t1);
 Texture2D<float4> sSceneAlbedo : register(t2);
 
-// 3Dmigoto declarations
-#define cmp -
-Texture1D<float4> IniParams : register(t120);
-Texture2D<float4> StereoParams : register(t125);
+#include "3Dmigoto.hlsl"
 
 void main(
 	float4 v0 : SV_Position0,
@@ -33,8 +30,7 @@ void main(
 	r1.xy = sDepth.Sample(sDepth_s, r1.zw).xw;
 	r0.xyz = r1.xxx * r0.xyz;
 	
-	float4 stereo = StereoParams.Load(0);	
-	r0.x -= stereo.x * (r0.z - stereo.y); 
+	r0.x -= separation * (r0.z - convergence); 
 	
 	r2.x = dot(r0.xyzw, cScreenToWorld._m00_m10_m20_m30);
 	r2.y = dot(r0.xyzw, cScreenToWorld._m01_m11_m21_m31);

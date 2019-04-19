@@ -1,19 +1,6 @@
 // Moon Glow
 
-cbuffer CB_PerCamera : register(b11)
-{
-	float4x4 gWorldToProj : packoffset(c0);
-	float4x4 gWorldToView : packoffset(c4);
-	float4x4 gProjection : packoffset(c8);
-	float4 cProjSkinMesh : packoffset(c12);
-	float4 gViewViewPos : packoffset(c13);
-	float4 gHalfRenderTargetSize : packoffset(c14);
-	float4 gVPTexelRes : packoffset(c15);
-	float4 gViewportSB : packoffset(c16);
-	float4 cViewPos_VS : packoffset(c17);
-	float4 cViewPos : packoffset(c18);
-	float2 gViewportOffset : packoffset(c19);
-}
+#include "CB_PerCamera.hlsl"
 
 cbuffer CB_PS_Atmosphere : register(b7)
 {
@@ -31,10 +18,7 @@ Texture2D<float4> sSceneTex : register(t0);
 Texture2D<float4> sDepthTex : register(t1);
 
 
-// 3Dmigoto declarations
-#define cmp -
-Texture1D<float4> IniParams : register(t120);
-Texture2D<float4> StereoParams : register(t125);
+#include "3Dmigoto.hlsl"
 
 
 void main(
@@ -56,8 +40,7 @@ void main(
 	r0.x = cmp(r0.w >= 64000);
 	r2.w = 1;
 	
-	float4 stereo = StereoParams.Load(0);
-	r2.x -= stereo.x * (r2.z - stereo.y);
+	r2.x -= separation * (r2.z - convergence);
 	
 	r3.x = dot(r2.xyzw, cScreenToWorld._m00_m10_m20_m30);
 	r3.y = dot(r2.xyzw, cScreenToWorld._m01_m11_m21_m31);

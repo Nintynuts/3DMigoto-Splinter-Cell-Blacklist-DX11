@@ -14,10 +14,7 @@ Texture2D<float4> texY : register(t1);
 Texture2D<float4> texZ : register(t2);
 
 
-// 3Dmigoto declarations
-#define cmp -
-Texture1D<float4> IniParams : register(t120);
-Texture2D<float4> StereoParams : register(t125);
+#include "3Dmigoto.hlsl"
 
 
 void main(
@@ -34,9 +31,8 @@ void main(
 	float isTitleScreen = IniParams.Load(int2(3,0)).x;
 	if (isTitleScreen)
 	{
-		float4 stereo = StereoParams.Load(0);
-		float4 tex_filter = IniParams.Load(int2(2,0));
-		r1.x -= stereo.x * tex_filter.z/500;
+			float4 tex_filter = IniParams.Load(int2(2,0));
+		r1.x -= separation * tex_filter.z/500;
 		// Wrap around
 		if (r1.x > 1)
 			r1.x = 2-r1.x;

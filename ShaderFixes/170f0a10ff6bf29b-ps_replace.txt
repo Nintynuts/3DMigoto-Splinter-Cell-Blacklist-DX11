@@ -24,10 +24,7 @@ Texture2D<float4> sIDMap : register(t0);
 Texture2D<float4> sNormalMap : register(t1);
 Texture2D<float4> sAOSphereMap : register(t2);
 
-// 3Dmigoto declarations
-#define cmp -
-Texture1D<float4> IniParams : register(t120);
-Texture2D<float4> StereoParams : register(t125);
+#include "3Dmigoto.hlsl"
 
 void main(
 	float4 v0 : SV_Position0,
@@ -44,8 +41,7 @@ void main(
 	r0.xyz = r0.yzx * float3(2,2,2) + float3(-1,-1,-1);
 	r1.w = 1;
 			
-	float4 stereo = StereoParams.Load(0);
-	r1.x -= stereo.x * (r1.z - stereo.y);
+	r1.x -= separation * (r1.z - convergence);
 	
 	r2.w = dot(r1.xyzw, cScreenToWorld._m00_m10_m20_m30);
 	r2.y = dot(r1.xyzw, cScreenToWorld._m01_m11_m21_m31);

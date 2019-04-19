@@ -1,8 +1,10 @@
 // Depth buffer copied from other shaders to this input with 3Dmigoto:
 
-Texture2D<float4> sSceneDepth : register(t0);
-
+#include "CB_PerCamera.hlsl"
+#include "3Dmigoto.hlsl"
 #include "matrix.hlsl"
+
+Texture2D<float4> sSceneDepth : register(t10);
 
 float world_z_from_depth_buffer(float x, float y)
 {
@@ -22,8 +24,6 @@ float world_z_from_depth_buffer(float x, float y)
 
 float adjust_from_depth_buffer(float x, float y)
 {
-	float4 stereo = StereoParams.Load(0);
-	float separation = stereo.x; float convergence = stereo.y;
 	float old_offset, offset, w, sampled_w, distance;
 	uint i;
 
@@ -77,8 +77,6 @@ float adjust_from_depth_buffer(float x, float y)
 
 float adjust_from_stereo2mono_depth_buffer(float x, float y)
 {
-	float4 stereo = StereoParams.Load(0);
-	float separation = stereo.x; float convergence = stereo.y;
 	float old_offset, offset, w, left, right, left_sampled_w, right_sampled_w, sampled_w, distance;
 	uint i;
 
@@ -135,10 +133,10 @@ float adjust_from_stereo2mono_depth_buffer(float x, float y)
 		//sampled_w = min(left_sampled_w, right_sampled_w);
 
 		// Equivalent to normal auto depth adjustment for a regular stereo depth buffer:
-		//sampled_w = world_z_from_depth_buffer(x + offset * -stereo.z, y);
+		//sampled_w = world_z_from_depth_buffer(x + offset * -eye, y);
 
 		// Equivalent to normal auto depth adjustment for a 2x width mono depth buffer:
-		//sampled_w = world_z_from_depth_buffer((x + offset * -stereo.z) / 2 - 0.5 * -stereo.z, y);
+		//sampled_w = world_z_from_depth_buffer((x + offset * -eye) / 2 - 0.5 * -eye, y);
 
 		if (sampled_w == 0)
 			return 0;
@@ -152,5 +150,5 @@ float adjust_from_stereo2mono_depth_buffer(float x, float y)
 		old_offset = offset;
 	}
 
-	return old_offset * -stereo.z;
+	return old_offset * -eye;
 }

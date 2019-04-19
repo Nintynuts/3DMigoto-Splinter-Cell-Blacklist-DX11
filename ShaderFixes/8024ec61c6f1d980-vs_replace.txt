@@ -5,10 +5,7 @@ cbuffer CB_VS_Scaleform : register(b7)
 	float4 mvp[8] : packoffset(c0);
 }
 
-// 3Dmigoto declarations
-#define cmp -
-Texture1D<float4> IniParams : register(t120);
-Texture2D<float4> StereoParams : register(t125);
+#include "3Dmigoto.hlsl"
 
 void main(
 	int4 v0 : POSITION0,
@@ -24,8 +21,7 @@ void main(
 	o1.x = dot(r0.xyzw, mvp[6].xyzw);
 	o1.y = dot(r0.xyzw, mvp[7].xyzw);
 	
-	float4 stereo = StereoParams.Load(0);
-	o0.x -= stereo.x * (o0.w - stereo.y);
+	stereo_unfix(o0);
 	
 	float4 tex_filter = IniParams.Load(int2(2,0));
 
@@ -43,7 +39,7 @@ void main(
 	if (tex_filter.x == 3.1 && (o0.x < -27500 || o0.x > 27500)) // Large BG map
 			layer = 1;
 	
-	o0.x -= stereo.x * (tex_filter.z * layer - tex_filter.z*5)*50;
+	o0.x -= separation * (tex_filter.z * layer - tex_filter.z*5)*50;
 		
 	return;
 }

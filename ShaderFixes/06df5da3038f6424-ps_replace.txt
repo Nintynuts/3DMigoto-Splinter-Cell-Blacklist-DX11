@@ -27,10 +27,7 @@ TextureCube<float4> sEnvMap : register(t1);
 Texture2D<float4> sScreenMap : register(t2);
 Texture2D<float4> sAltScreenMap : register(t3);
 
-// 3Dmigoto declarations
-#define cmp -
-Texture1D<float4> IniParams : register(t120);
-Texture2D<float4> StereoParams : register(t125);
+#include "3Dmigoto.hlsl"
 
 void main(
 	float4 v0 : SV_Position0,
@@ -59,9 +56,8 @@ void main(
 	r3.xyz = r3.xyz / data0.yyy;
 	r0.yzw = r3.xyz + r0.yzw;
 			
-	float4 stereo = StereoParams.Load(0);
 	float4 cube_sample = r0;
-	r0.y -= stereo.x*cube_sample.w*stereo.y*0.005;
+	r0.y -= separation*cube_sample.w*convergence*0.005;
 
 	r4.xyzw = sEnvMap.SampleLevel(sEnvMap_s, r0.yzw, 0).xyzw;
 	r5.xyzw = sEnvMap.SampleLevel(sEnvMap_s, r0.yzw, 3).xyzw;

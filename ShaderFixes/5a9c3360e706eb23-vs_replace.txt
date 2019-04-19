@@ -7,20 +7,7 @@ cbuffer CB_PerPass : register(b12)
 	float cSHScale : packoffset(c1.w);
 }
 
-cbuffer CB_PerCamera : register(b11)
-{
-	float4x4 gWorldToProj : packoffset(c0);
-	float4x4 gWorldToView : packoffset(c4);
-	float4x4 gProjection : packoffset(c8);
-	float4 cProjSkinMesh : packoffset(c12);
-	float4 gViewViewPos : packoffset(c13);
-	float4 gHalfRenderTargetSize : packoffset(c14);
-	float4 gVPTexelRes : packoffset(c15);
-	float4 gViewportSB : packoffset(c16);
-	float4 cViewPos_VS : packoffset(c17);
-	float4 cViewPos : packoffset(c18);
-	float2 gViewportOffset : packoffset(c19);
-}
+#include "CB_PerCamera.hlsl"
 
 cbuffer CB_PerObject : register(b9)
 {
@@ -107,10 +94,7 @@ cbuffer CB_VS_ParticleMaterial_Static : register(b7)
 	bool bDir0 : packoffset(c37.w);
 }
 
-// 3Dmigoto declarations
-#define cmp -
-Texture1D<float4> IniParams : register(t120);
-Texture2D<float4> StereoParams : register(t125);
+#include "3Dmigoto.hlsl"
 
 void main(
 	float4 v0 : POSITION0,
@@ -305,8 +289,7 @@ void main(
 		r5.w = dot(r4.xyzw, cWorldToProj._m03_m13_m23_m33);
 		o0.xyzw = r5.xyzw;
 		
-		float4 stereo = StereoParams.Load(0);
-		r5.x += stereo.x * (r5.w - stereo.y);
+			stereo_fix(r5);
 	
 		r6.xyzw = gViewportSB.xyzw * r5.xyzw;
 		o4.xy = r6.xy + r6.zw;

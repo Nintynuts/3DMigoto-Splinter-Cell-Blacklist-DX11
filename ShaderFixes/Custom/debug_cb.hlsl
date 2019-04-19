@@ -12,8 +12,8 @@ static int2 meta_pos_start;
 #define TEXCOORD2_BIAS 4096 * font_scale
 
 Texture2D<float> font : register(t100);
-Texture1D<float4> IniParams : register(t120);
-Texture2D<float4> StereoParams : register(t125);
+
+#include "..\3Dmigoto.hlsl"
 
 struct vs2gs {
 	uint idx : TEXCOORD0;

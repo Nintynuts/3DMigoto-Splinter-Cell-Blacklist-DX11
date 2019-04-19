@@ -14,10 +14,7 @@ cbuffer CB_PS_DepthAlphaTest_Static : register(b6)
 SamplerState sPunchMask_s : register(s0);
 Texture2D<float4> sPunchMask : register(t0);
 
-// 3Dmigoto declarations
-#define cmp -
-Texture1D<float4> IniParams : register(t120);
-Texture2D<float4> StereoParams : register(t125);
+#include "3Dmigoto.hlsl"
 
 void main(
 	float4 v0 : SV_Position0,

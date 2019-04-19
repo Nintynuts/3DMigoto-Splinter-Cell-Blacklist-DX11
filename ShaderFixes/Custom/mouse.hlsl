@@ -4,8 +4,7 @@
 #define cursor_showing	IniParams[1].z
 #define cursor_pass		 IniParams[1].w
 
-Texture2D<float4> StereoParams : register(t125);
-Texture1D<float4> IniParams : register(t120);
+#include "..\3Dmigoto.hlsl"
 
 Texture2D<float4> cursor_mask : register(t100);
 Texture2D<float4> cursor_color : register(t101);

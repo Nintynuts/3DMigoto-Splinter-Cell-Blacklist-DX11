@@ -1,19 +1,6 @@
 // Lighting - Shared
 
-cbuffer CB_PerCamera : register(b11)
-{
-	float4x4 gWorldToProj : packoffset(c0);
-	float4x4 gWorldToView : packoffset(c4);
-	float4x4 gProjection : packoffset(c8);
-	float4 cProjSkinMesh : packoffset(c12);
-	float4 gViewViewPos : packoffset(c13);
-	float4 gHalfRenderTargetSize : packoffset(c14);
-	float4 gVPTexelRes : packoffset(c15);
-	float4 gViewportSB : packoffset(c16);
-	float4 cViewPos_VS : packoffset(c17);
-	float4 cViewPos : packoffset(c18);
-	float2 gViewportOffset : packoffset(c19);
-}
+#include "CB_PerCamera.hlsl"
 
 cbuffer CB_PerObject : register(b9)
 {
@@ -30,10 +17,7 @@ cbuffer CB_VS_SimpleTransform : register(b3)
 	float4x4 gSimpleWorldToProj : packoffset(c0);
 }
 
-// 3Dmigoto declarations
-#define cmp -
-Texture1D<float4> IniParams : register(t120);
-Texture2D<float4> StereoParams : register(t125);
+#include "3Dmigoto.hlsl"
 
 void main(
 	float4 v0 : POSITION0,
@@ -44,26 +28,18 @@ void main(
 {
 	float4 r0,r1;
 
-	r0.x = dot(v0.xyzw, gLocalToWorld._m00_m10_m20_m30);
-	r0.y = dot(v0.xyzw, gLocalToWorld._m01_m11_m21_m31);
-	r0.z = dot(v0.xyzw, gLocalToWorld._m02_m12_m22_m32);
+	r0.xyz = mul(v0, gLocalToWorld);
 	r0.w = 1;	
-	r1.x = dot(r0.xyzw, gSimpleWorldToProj._m00_m10_m20_m30);
-	r1.y = dot(r0.xyzw, gSimpleWorldToProj._m01_m11_m21_m31);
-	r1.z = dot(r0.xyzw, gSimpleWorldToProj._m02_m12_m22_m32);
-	r1.w = dot(r0.xyzw, gSimpleWorldToProj._m03_m13_m23_m33);
+	r1 = mul(r0, gSimpleWorldToProj);
+
+	o0.xyzw = r1.xyzw;	
 	
-	float4 stereo = StereoParams.Load(0);
 	float is_cutscene = IniParams.Load(int2(3, 0)).x;
 	
 	if (is_cutscene)
-		r1.x += stereo.x * r1.w;
+		r1.x += separation * r1.w;
 	else
-		r1.x += stereo.x * (r1.w - stereo.y); 
-	
-	o0.xyzw = r1.xyzw;			
-	
-	o0.x -= stereo.x * (o0.w - stereo.y);
+		stereo_fix(r1); 
 	
 	r0.xy = gViewportSB.zw * r1.ww;
 	o2.x = r1.w;

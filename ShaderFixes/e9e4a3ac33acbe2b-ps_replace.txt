@@ -12,10 +12,7 @@ SamplerState sFalloffMap_s : register(s1);
 Texture2D<float4> sSourceMask : register(t0);
 Texture2D<float4> sFalloffMap : register(t1);
 
-// 3Dmigoto declarations
-#define cmp -
-Texture1D<float4> IniParams : register(t120);
-Texture2D<float4> StereoParams : register(t125);
+#include "3Dmigoto.hlsl"
 
 void main(
   float4 v0 : SV_Position0,

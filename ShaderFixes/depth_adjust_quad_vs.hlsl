@@ -11,28 +11,39 @@ cbuffer CB_VS_Scaleform : register(b7)
 	float4 mvp[MVP_SIZE] : packoffset(c0); 
 }
 
-cbuffer CB_PerCamera : register(b11)
+#include "goal_boundaries.hlsl"
+
+struct Vertex
 {
-	float4x4 gWorldToProj : packoffset(c0);
-	float4x4 gWorldToView : packoffset(c4);
-	float4x4 gProjection : packoffset(c8);
-	float4 cProjSkinMesh : packoffset(c12);
-	float4 gViewViewPos : packoffset(c13);
-	float4 gHalfRenderTargetSize : packoffset(c14);
-	float4 gVPTexelRes : packoffset(c15);
-	float4 gViewportSB : packoffset(c16);
-	float4 cViewPos_VS : packoffset(c17);
-	float4 cViewPos : packoffset(c18);
-	float2 gViewportOffset : packoffset(c19);
+	uint pos; // R16G16_SINT
+	uint colour; // R8G8B8A8_UNORM
+#ifdef TEXT
+	uint colour2; // R8G8B8A8_UNORM
+	float2 uv;
+#endif
+};
+
+StructuredBuffer<Vertex> VertexBuffer : register(t13);
+
+#include "D3DX_DXGIFormatConvert.inl"
+
+int2 getVertexPosition(uint index)
+{
+	return D3DX_R16G16_SINT_to_INT2(VertexBuffer[index].pos);
 }
 
-// 3Dmigoto declarations
-#define cmp -
-Texture1D<float4> IniParams : register(t120);
-Texture2D<float4> StereoParams : register(t125);
+float2 transform(uint quad, uint vertex, float4 x_trans, float4 y_trans)
+{
+	float4 vec;
+	vec.xy = getVertexPosition(quad+vertex);
+	vec.zw = float2(0,1);
+	float2 output;
+	output.x = dot(vec, x_trans);
+	output.y = dot(vec, y_trans);
+	return output;
+}
 
-#include "depth_adjust.hlsl" 
-#include "goal_boundaries.hlsl"
+#include "3Dmigoto.hlsl"
 
 void main(
 #ifdef BATCHED
@@ -40,34 +51,20 @@ void main(
 #endif
 	uint vID : SV_VertexID,
 	out float4 o0 : SV_Position0,
-	out float2 topLft : TEXCOORD0,
-	out float2 btmRgt : TEXCOORD1,
-	out float2 depth : TEXCOORD2,
-	out float2 size : TEXCOORD3)
+	out float2 centre : TEXCOORD0)
 {
-	o0 = 0;
-	topLft = 0;
-	btmRgt = 0;
-	depth = 0;
-	size = 0;
-		
-	float4 tex_filter = IniParams.Load(int2(2,0));
-
-	if (tex_filter.x > -2)
-		return;
-
-#ifdef BATCHED
-	uint vertex = vID % 6;
-	uint quad = (vID - vertex)/6;
-	float r0 = (int)(2040.01001 * v1.x);
-	float4 x_trans = mvp[r0 + 0];
-	float4 y_trans = mvp[r0 + 1];
-#else
-	uint vertex = vID;
-	uint quad = 0;
-	float4 x_trans = mvp[0];
-	float4 y_trans = mvp[1];
-#endif
+	#ifdef BATCHED
+		uint vertex = vID % 6;
+		uint quad = (vID - vertex)/6;
+		float r0 = (int)(2040.01001 * v1.x);
+		float4 x_trans = mvp[r0 + 0];
+		float4 y_trans = mvp[r0 + 1];
+	#else
+		uint vertex = vID;
+		uint quad = 0;
+		float4 x_trans = mvp[0];
+		float4 y_trans = mvp[1];
+	#endif
 
 	switch (vertex)
 	{
@@ -75,30 +72,21 @@ void main(
 		case 1: case 5: o0 = float4(1,-1,0,1); break;
 		case 2: case 4: o0 = float4(-1,1,0,1); break;
 		case 3: o0 = float4(1,1,0,1); break;
+		default: o0 = 0; break;
 	}
-	
-	topLft = transform(quad,0,x_trans,y_trans);
-	btmRgt = transform(quad,3,x_trans,y_trans);
-	depth.y = quad+1;	
 
-	size = btmRgt - topLft;
-
-	if (tex_filter.x == -2.5)
+	if (texture_filter == -1)
 	{
-		//if (size.x > 0.19)
-		//{
-		//	o0 = 0;
-		//	topLft = 0;
-		//	btmRgt = 0;
-		//	size = 0;
-		//}
-		//else
-		{
-			float2 centre = (topLft + btmRgt)/2;
-			depth.x = adjust_from_depth_buffer(centre.x,centre.y);
-			depth.y *= -1;
-		}
+		centre = 0;
+		return;
 	}
+
+	float2 topLft = transform(quad,0,x_trans,y_trans);
+	float2 btmRgt = transform(quad,3,x_trans,y_trans);
+	centre = (topLft + btmRgt)/2;
+
+	if (texture_filter == -3)
+		centre.y -= 0.1;
 
 	return;
 }

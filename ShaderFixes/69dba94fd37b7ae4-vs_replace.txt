@@ -5,10 +5,7 @@ cbuffer CB_VS_ScaleformBatched : register(b7)
 	float4 mvp[192] : packoffset(c0);
 }
 
-// 3Dmigoto declarations
-#define cmp -
-Texture1D<float4> IniParams : register(t120);
-Texture2D<float4> StereoParams : register(t125);
+#include "3Dmigoto.hlsl"
 
 void main(
 	float4 v0 : POSITION0,
@@ -36,12 +33,11 @@ void main(
 	o1.xy = v1.xy;
 	o4.xyzw = v2.zyxw;
 	
-	float4 stereo = StereoParams.Load(0);
-	o0.x -= stereo.x * (o0.w - stereo.y);
+	stereo_unfix(o0);
 	
 	float4 tex_filter = IniParams.Load(int2(2,0));
 	if (tex_filter.x > 0)
-		o0.x -= stereo.x * (tex_filter.z * tex_filter.x - tex_filter.z*5)*50;
+		o0.x -= separation * (tex_filter.z * tex_filter.x - tex_filter.z*5)*50;
 	
 	return;
 }

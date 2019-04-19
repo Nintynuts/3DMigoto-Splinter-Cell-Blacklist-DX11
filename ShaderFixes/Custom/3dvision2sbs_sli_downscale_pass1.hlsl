@@ -1,5 +1,5 @@
-Texture2D<float4> StereoParams : register(t125);
-Texture1D<float4> IniParams : register(t120);
+#include "..\3Dmigoto.hlsl"
+
 Texture2D<float4> t100 : register(t100);
 
 #define mode IniParams[0].x

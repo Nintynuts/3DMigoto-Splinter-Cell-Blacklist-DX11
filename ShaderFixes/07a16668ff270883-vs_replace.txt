@@ -5,26 +5,8 @@ cbuffer CB_VS_ScaleformBatched : register(b7)
 	float4 mvp[192] : packoffset(c0);
 }
 
-cbuffer CB_PerCamera : register(b11)
-{
-	float4x4 gWorldToProj : packoffset(c0);
-	float4x4 gWorldToView : packoffset(c4);
-	float4x4 gProjection : packoffset(c8);
-	float4 cProjSkinMesh : packoffset(c12);
-	float4 gViewViewPos : packoffset(c13);
-	float4 gHalfRenderTargetSize : packoffset(c14);
-	float4 gVPTexelRes : packoffset(c15);
-	float4 gViewportSB : packoffset(c16);
-	float4 cViewPos_VS : packoffset(c17);
-	float4 cViewPos : packoffset(c18);
-	float2 gViewportOffset : packoffset(c19);
-}
-
-// 3Dmigoto declarations
-#define cmp -
-Texture1D<float4> IniParams : register(t120);
-Texture2D<float4> StereoParams : register(t125);
-
+#include "CB_PerCamera.hlsl"
+#include "3Dmigoto.hlsl"
 #include "depth_adjust.hlsl" 
 
 void main(
@@ -68,8 +50,7 @@ void main(
 		if (o0.y < -0.7) // ShadowNet Back
 			layer = 5;
 	
-		float4 stereo = StereoParams.Load(0);
-		o0.x -= stereo.x * (tex_filter.z * layer - tex_filter.z * 5) / 500;
+		o0.x -= separation * (tex_filter.z * layer - tex_filter.z * 5) / 500;
 	}
 	
 	return;

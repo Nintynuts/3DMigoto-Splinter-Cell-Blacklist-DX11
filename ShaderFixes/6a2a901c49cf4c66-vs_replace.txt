@@ -1,9 +1,6 @@
 // ShadowNet - Block colour
 
-// 3Dmigoto declarations
-#define cmp -
-Texture1D<float4> IniParams : register(t120);
-Texture2D<float4> StereoParams : register(t125);
+#include "3Dmigoto.hlsl"
 
 void main(
 	float4 v0 : POSITION0,
@@ -18,11 +15,10 @@ void main(
 	
 	if (tex_filter.w)
 	{
-		float4 stereo = StereoParams.Load(0);
-		o0.x -= stereo.x * (o0.w - stereo.y);
+		stereo_unfix(o0);
 		
 		if (tex_filter.x > 0)
-			o0.x -= stereo.x * (tex_filter.z * tex_filter.x - tex_filter.z*5)*50;
+			o0.x -= separation * (tex_filter.z * tex_filter.x - tex_filter.z*5)*50;
 	}
 	return;
 }

@@ -5,27 +5,10 @@ cbuffer CB_VS_Scaleform : register(b7)
 	float4 mvp[8] : packoffset(c0);
 }
 
-cbuffer CB_PerCamera : register(b11)
-{
-	float4x4 gWorldToProj : packoffset(c0);
-	float4x4 gWorldToView : packoffset(c4);
-	float4x4 gProjection : packoffset(c8);
-	float4 cProjSkinMesh : packoffset(c12);
-	float4 gViewViewPos : packoffset(c13);
-	float4 gHalfRenderTargetSize : packoffset(c14);
-	float4 gVPTexelRes : packoffset(c15);
-	float4 gViewportSB : packoffset(c16);
-	float4 cViewPos_VS : packoffset(c17);
-	float4 cViewPos : packoffset(c18);
-	float2 gViewportOffset : packoffset(c19);
-}
+#include "CB_PerCamera.hlsl"
 
-// 3Dmigoto declarations
-#define cmp -
-Texture1D<float4> IniParams : register(t120);
-Texture2D<float4> StereoParams : register(t125);
+#include "3Dmigoto.hlsl"
 
-#include "depth_adjust.hlsl"
 #include "goal_boundaries.hlsl"
 
 void main(
@@ -45,11 +28,9 @@ void main(
 		
 	float4 resolution = IniParams.Load(int2(0,0));
 	if (resolution.x != resolution.z) // Render Target
-		return;
-	
-	float4 stereo = StereoParams.Load(0);
+		return;	
 
-	o0.x += GoalData[0].elementDepthCache[0] * (stereo.x > 0 ? 1 : -1);
+	o0.x += depth[0] * -eye;
 	
 	return;
 }

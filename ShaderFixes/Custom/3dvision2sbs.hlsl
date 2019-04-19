@@ -1,5 +1,4 @@
-Texture2D<float4> StereoParams : register(t125);
-Texture1D<float4> IniParams : register(t120);
+#include "..\3Dmigoto.hlsl"
 
 #define mode IniParams[0].x
 
@@ -8,8 +7,6 @@ void main(
 		out float4 pos : SV_Position0,
 		uint vertex : SV_VertexID)
 {
-	float4 stereo = StereoParams.Load(0);
-
 	// Not using vertex buffers so manufacture our own coordinates.
 	switch(vertex) {
 		case 0:
@@ -37,8 +34,6 @@ Texture2D<float4> t100 : register(t100);
 
 void main(float4 pos : SV_Position0, out float4 result : SV_Target0)
 {
-	float4 stereo = StereoParams.Load(0);
-
 	float x = pos.x;
 	float y = pos.y;
 	float width, height;
@@ -47,10 +42,10 @@ void main(float4 pos : SV_Position0, out float4 result : SV_Target0)
 	t100.GetDimensions(width, height);
 
 	if (mode == 0) { // Regular 3D Vision
-		if (stereo.z == 1)
+		if (eye == 1)
 			x += width / 2;
 	} else if (mode == 1) { // Regular 3D Vision with eyes swapped
-		if (stereo.z == -1)
+		if (eye == -1)
 			x += width / 2;
 	} else if (mode == 2 || mode == 3) { // Side by side
 		x = int(x);
