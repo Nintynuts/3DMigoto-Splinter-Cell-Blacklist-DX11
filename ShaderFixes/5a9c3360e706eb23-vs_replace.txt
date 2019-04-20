@@ -52,43 +52,43 @@ cbuffer CB_VS_ParticleTransforms : register(b6)
 
 struct Omni
 {
-		float4 pos;
-		float4 dCol;
-		float4 atten;
+	float4 pos;
+	float4 dCol;
+	float4 atten;
 };
 
 struct Spot
 {
-		float4 pos;
-		float4 dCol;
-		float4 atten;
-		float4x4 proj;
+	float4 pos;
+	float4 dCol;
+	float4 atten;
+	float4x4 proj;
 };
 
 struct Dir
 {
-		float4 dir;
-		float4 dCol;
+	float4 dir;
+	float4 dCol;
 };
 
 cbuffer CB_VS_ParticleMaterial_Static : register(b7)
 {
 	float4 cTranslucency : packoffset(c0);
 
-	Omni cOmni0 : packoffset(c1);			 
-	Omni cOmni1 : packoffset(c4);			 
-	Omni cOmni2 : packoffset(c7);			 
-	Omni cOmni3 : packoffset(c10);			 
-	Spot cSpot0 : packoffset(c13);			 
-	Spot cSpot1 : packoffset(c20);			 
-	Spot cSpot2 : packoffset(c27);			 
+	Omni cOmni0 : packoffset(c1);
+	Omni cOmni1 : packoffset(c4);
+	Omni cOmni2 : packoffset(c7);
+	Omni cOmni3 : packoffset(c10);
+	Spot cSpot0 : packoffset(c13);
+	Spot cSpot1 : packoffset(c20);
+	Spot cSpot2 : packoffset(c27);
 	Dir cDir0 : packoffset(c34);
 
-	bool bOmni0 : packoffset(c36);
+	bool bOmni0 : packoffset(c36.x);
 	bool bOmni1 : packoffset(c36.y);
 	bool bOmni2 : packoffset(c36.z);
 	bool bOmni3 : packoffset(c36.w);
-	bool bSpot0 : packoffset(c37);
+	bool bSpot0 : packoffset(c37.x);
 	bool bSpot1 : packoffset(c37.y);
 	bool bSpot2 : packoffset(c37.z);
 	bool bDir0 : packoffset(c37.w);
@@ -111,7 +111,7 @@ void main(
 	out float4 o5 : TEXCOORD2)
 {
 	float4 r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11;
-		r0.xyz = v0.xyz;
+	r0.xyz = v0.xyz;
 	r0.w = 1;
 	r1.x = dot(r0.xyzw, cAxisEffect._m00_m10_m20_m30);
 	r1.y = dot(r0.xyzw, cAxisEffect._m01_m11_m21_m31);
@@ -287,9 +287,9 @@ void main(
 		r5.y = dot(r4.xyzw, cWorldToProj._m01_m11_m21_m31);
 		r5.z = dot(r4.xyzw, cWorldToProj._m02_m12_m22_m32);
 		r5.w = dot(r4.xyzw, cWorldToProj._m03_m13_m23_m33);
-		o0.xyzw = r5.xyzw;
-		
-			stereo_fix(r5);
+		o0 = r5;
+	
+		stereo_fix(r5);
 	
 		r6.xyzw = gViewportSB.xyzw * r5.xyzw;
 		o4.xy = r6.xy + r6.zw;
@@ -336,6 +336,7 @@ void main(
 		r0.yzw = bUseCubeMapAmbient ? r0.yzw : float3(0,0,0);
 		r0.yzw = max(cAmbientMin.xyz, r0.yzw);
 		r0.yzw = min(cAmbientMax.xyz, r0.yzw);
+
 		r2.xyz = -cCenter_Position.xyz + r4.xyz;
 		r2.w = dot(r2.xyz, r2.xyz);
 		r2.w = rsqrt(r2.w);
@@ -344,7 +345,7 @@ void main(
 		r2.w = rsqrt(r2.w);
 		r2.xyz = r2.xyz * r2.www;
 		r3.xyz = cOmni0.pos.xyz + -r1.xyz;
-		r4.xyz = float3(9.99999975e-005,9.99999975e-005,9.99999975e-005) + r3.xyz;
+		r4.xyz = float3(0.0001,0.0001,0.0001) + r3.xyz;
 		r2.w = dot(r4.xyz, r4.xyz);
 		r2.w = rsqrt(r2.w);
 		r4.xyz = r4.xyz * r2.www;
@@ -360,7 +361,7 @@ void main(
 		r3.xyz = r3.xxx ? r3.yzw : 0;
 		r3.xyz = bOmni0 ? r3.xyz : float3(0,0,0);
 		r4.xyz = cOmni1.pos.xyz + -r1.xyz;
-		r7.xyz = float3(9.99999975e-005,9.99999975e-005,9.99999975e-005) + r4.xyz;
+		r7.xyz = float3(0.0001,0.0001,0.0001) + r4.xyz;
 		r2.w = dot(r7.xyz, r7.xyz);
 		r2.w = rsqrt(r2.w);
 		r7.xyz = r7.xyz * r2.www;
@@ -374,9 +375,9 @@ void main(
 		r2.w = r4.x * r2.w;
 		r4.xyz = r2.www * cOmni1.dCol.xyz + r3.xyz;
 		r4.xyz = r3.www ? r4.xyz : r3.xyz;
-		r3.xyz = bOmni0 ? r4.xyz : r3.xyz;
+		r3.xyz = bOmni1 ? r4.xyz : r3.xyz;
 		r4.xyz = cOmni2.pos.xyz + -r1.xyz;
-		r7.xyz = float3(9.99999975e-005,9.99999975e-005,9.99999975e-005) + r4.xyz;
+		r7.xyz = float3(0.0001,0.0001,0.0001) + r4.xyz;
 		r2.w = dot(r7.xyz, r7.xyz);
 		r2.w = rsqrt(r2.w);
 		r7.xyz = r7.xyz * r2.www;
@@ -390,9 +391,9 @@ void main(
 		r2.w = r4.x * r2.w;
 		r4.xyz = r2.www * cOmni2.dCol.xyz + r3.xyz;
 		r4.xyz = r3.www ? r4.xyz : r3.xyz;
-		r3.xyz = bOmni0 ? r4.xyz : r3.xyz;
+		r3.xyz = bOmni2 ? r4.xyz : r3.xyz;
 		r4.xyz = cOmni3.pos.xyz + -r1.xyz;
-		r7.xyz = float3(9.99999975e-005,9.99999975e-005,9.99999975e-005) + r4.xyz;
+		r7.xyz = float3(0.0001,0.0001,0.0001) + r4.xyz;
 		r2.w = dot(r7.xyz, r7.xyz);
 		r2.w = rsqrt(r2.w);
 		r7.xyz = r7.xyz * r2.www;
@@ -406,14 +407,14 @@ void main(
 		r2.w = r4.x * r2.w;
 		r4.xyz = r2.www * cOmni3.dCol.xyz + r3.xyz;
 		r4.xyz = r3.www ? r4.xyz : r3.xyz;
-		r3.xyz = bOmni0 ? r4.xyz : r3.xyz;
+		r3.xyz = bOmni3 ? r4.xyz : r3.xyz;
 		r4.x = dot(r1.xyzw, cSpot0.proj._m00_m10_m20_m30);
 		r4.y = dot(r1.xyzw, cSpot0.proj._m01_m11_m21_m31);
 		r2.w = dot(r1.xyzw, cSpot0.proj._m02_m12_m22_m32);
 		r3.w = dot(r1.xyzw, cSpot0.proj._m03_m13_m23_m33);
 		r2.w = cmp(abs(r2.w) < 1);
 		r7.xyz = cSpot0.pos.xyz + -r1.xyz;
-		r8.xyz = float3(9.99999975e-005,9.99999975e-005,9.99999975e-005) + r7.xyz;
+		r8.xyz = float3(0.0001,0.0001,0.0001) + r7.xyz;
 		r4.z = dot(r8.xyz, r8.xyz);
 		r4.z = rsqrt(r4.z);
 		r8.xyz = r8.xyz * r4.zzz;
@@ -439,7 +440,7 @@ void main(
 		r3.w = dot(r1.xyzw, cSpot1.proj._m03_m13_m23_m33);
 		r2.w = cmp(abs(r2.w) < 1);
 		r7.xyz = cSpot1.pos.xyz + -r1.xyz;
-		r8.xyz = float3(9.99999975e-005,9.99999975e-005,9.99999975e-005) + r7.xyz;
+		r8.xyz = float3(0.0001,0.0001,0.0001) + r7.xyz;
 		r4.z = dot(r8.xyz, r8.xyz);
 		r4.z = rsqrt(r4.z);
 		r8.xyz = r8.xyz * r4.zzz;
@@ -458,14 +459,14 @@ void main(
 		r3.w = r4.x * r3.w;
 		r4.xyz = r3.www * cSpot1.dCol.xyz + r3.xyz;
 		r4.xyz = r2.www ? r4.xyz : r3.xyz;
-		r3.xyz = bSpot0 ? r4.xyz : r3.xyz;
+		r3.xyz = bSpot1 ? r4.xyz : r3.xyz;
 		r4.x = dot(r1.xyzw, cSpot2.proj._m00_m10_m20_m30);
 		r4.y = dot(r1.xyzw, cSpot2.proj._m01_m11_m21_m31);
 		r2.w = dot(r1.xyzw, cSpot2.proj._m02_m12_m22_m32);
 		r1.w = dot(r1.xyzw, cSpot2.proj._m03_m13_m23_m33);
 		r2.w = cmp(abs(r2.w) < 1);
 		r1.xyz = cSpot2.pos.xyz + -r1.xyz;
-		r7.xyz = float3(9.99999975e-005,9.99999975e-005,9.99999975e-005) + r1.xyz;
+		r7.xyz = float3(0.0001,0.0001,0.0001) + r1.xyz;
 		r3.w = dot(r7.xyz, r7.xyz);
 		r3.w = rsqrt(r3.w);
 		r7.xyz = r7.xyz * r3.www;
@@ -484,17 +485,22 @@ void main(
 		r1.x = r1.y * r1.x;
 		r1.xyz = r1.xxx * cSpot2.dCol.xyz + r3.xyz;
 		r1.xyz = r2.www ? r1.xyz : r3.xyz;
-		r1.xyz = bSpot0 ? r1.xyz : r3.xyz;
+		r1.xyz = bSpot2 ? r1.xyz : r3.xyz;
 		r1.w = dot(r2.xyz, cDir0.dir.xyz);
 		r1.w = saturate(max(cTranslucency.x, r1.w));
 		r2.xyz = r1.www * cDir0.dCol.xyz + r1.xyz;
-		r1.xyz = bSpot0 ? r2.xyz : r1.xyz;
+		r1.xyz = bDir0 ? r2.xyz : r1.xyz;
 		r1.xyz = r1.xyz + r0.yzw;
+
 		o1.xyz = v4.zyx * r1.xyz;
 		o2.w = r0.x;
 		o2.xyz = r0.yzw;
 		o4.z = v1.w;
 		o4.w = r5.w;
+
+		// Moved from PS
+		o4.xy = o4.xy / o4.ww;
+
 		r6.x = v0.w;
 	} else {
 		o0.xyzw = float4(0,0,0,-1);
@@ -506,5 +512,7 @@ void main(
 	}
 	o5.xw = r6.xy;
 	o5.yz = float2(0,0);
+
+	//o1.xyz = 1;
 	return;
 }

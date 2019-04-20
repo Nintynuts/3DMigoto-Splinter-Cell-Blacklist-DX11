@@ -1,0 +1,95 @@
+// Breath + Steam
+
+cbuffer CB_PerFrame : register(b13)
+{
+	float4 gCameraFadeAlpha : packoffset(c0);
+	float4 gCameraFadeShadow : packoffset(c1);
+	float4 gColorControl : packoffset(c2);
+	float3 cBoostCol : packoffset(c3);
+	float cHdrControl : packoffset(c3.w);
+	float gAOControl : packoffset(c4);
+}
+
+cbuffer CB_PerFogControl : register(b8)
+{
+	bool bFog : packoffset(c0);
+	float4 cFog_Density_Start_Range : packoffset(c1);
+	float4 cFogCol : packoffset(c2);
+}
+
+cbuffer CB_PS_ParticleMaterialCommon : register(b0)
+{
+	float4 cEmissive : packoffset(c0);
+	float4 cEmissiveMask : packoffset(c1);
+	float4 cFadeTerms : packoffset(c2);
+	float4x4 cScreenToWorld : packoffset(c3);
+	float4x4 cWorldToProj : packoffset(c7);
+}
+
+cbuffer CB_PS_ParticleMaterial_Static : register(b7)
+{
+	bool bSoftParticles : packoffset(c0);
+	bool bEnvPass : packoffset(c0.y);
+	float4 cTranslucency : packoffset(c1);
+	float4 cDistortion : packoffset(c2);
+	float4 cEnvCol : packoffset(c3);
+	float4 cNormalScale : packoffset(c4);
+	float cAlphaTest : packoffset(c5);
+}
+
+SamplerState sDiffuseMap_s : register(s0);
+SamplerState sSceneDepth_s : register(s3);
+Texture2D<float4> sDiffuseMap : register(t0);
+Texture2D<float4> sSceneDepth : register(t1);
+
+#include "3Dmigoto.hlsl"
+
+void main(
+	float4 v0 : SV_Position0,
+	float4 v1 : TEXCOORD7,
+	float4 v2 : COLOR1,
+	float4 v3 : TEXCOORD0,
+	float4 v4 : TEXCOORD1,
+	float4 v5 : TEXCOORD2,
+	out float4 o0 : SV_Target0)
+{
+	float4 r0,r1,r2,r3;
+	uint4 bitmask, uiDest;
+	float4 fDest;
+
+	r0.xyzw = sDiffuseMap.Sample(sDiffuseMap_s, v3.xy).xyzw;
+	r0.xyz = r0.xyz * r0.xyz;
+	r1.xyzw = sDiffuseMap.Sample(sDiffuseMap_s, v3.zw).xyzw;
+	r1.xyz = r1.xyz * r1.xyz;
+	r2.x = 1 + -v4.z;
+	r1.xyzw = r2.xxxx * r1.xyzw;
+	r0.xyzw = v4.zzzz * r0.xyzw + r1.xyzw;
+	r1.xyz = v1.xyz * r0.xyz;
+	r2.xyz = float3(1,1,1) + -cEmissiveMask.xyz;
+	r3.xyzw = cEmissiveMask.xyzw * v5.xyzw;
+	r2.xyz = r2.xyz * cEmissive.xyz + r3.xyz;
+	r1.xyz = log2(abs(r1.xyz));
+	r1.xyz = r2.zzz * r1.xyz;
+	r1.xyz = exp2(r1.xyz);
+	r0.xyz = r1.xyz * r2.xxx + r2.yyy;
+	if (bSoftParticles != 0) {
+
+		// Code moved to VS
+		//r1.xy = v4.xy / v4.ww;
+		//r1.x = sSceneDepth.Sample(sSceneDepth_s, r1.xy).x;
+
+		r1.x = sSceneDepth.Sample(sSceneDepth_s, v4.xy).x;
+		r1.x = -v4.w + r1.x;
+		r1.x = saturate(cTranslucency.y * r1.x);
+		r1.xyzw = cFadeTerms.xxxy * r1.xxxx + cFadeTerms.zzzw;
+		r0.xyzw = r1.xyzw * r0.xyzw;
+	}
+	r0.w = v1.w * r0.w;
+	r1.x = dot(r0.xyz, cFadeTerms.xxx);
+	r1.x = cFadeTerms.z + r1.x;
+	r1.xyz = cFogCol.xyz * r1.xxx + -r0.xyz;
+	r0.xyz = r3.www * r1.xyz + r0.xyz;
+	o0.xyz = v2.www * r0.xyz;
+	o0.w = gColorControl.w * r0.w;
+	return;
+}

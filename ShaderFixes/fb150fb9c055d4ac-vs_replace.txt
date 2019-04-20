@@ -67,7 +67,8 @@ void main(
 	out float4 o5 : TEXCOORD2)
 {
 	float4 r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11;
-		r0.xyz = v0.xyz;
+	
+	r0.xyz = v0.xyz;
 	r0.w = 1;
 	r1.x = dot(r0.xyzw, cAxisEffect._m00_m10_m20_m30);
 	r1.y = dot(r0.xyzw, cAxisEffect._m01_m11_m21_m31);
@@ -245,7 +246,7 @@ void main(
 		r5.w = dot(r4.xyzw, cWorldToProj._m03_m13_m23_m33);
 		o0 = r5;
 		
-		r5.x += separation * (r5.w - convergence)+1.5;
+		stereo_fix(r5);
 		
 		r6.xyzw = gViewportSB.xyzw * r5.xyzw;
 		o4.xy = r6.xy + r6.zw;
@@ -292,10 +293,19 @@ void main(
 		r0.yzw = bUseCubeMapAmbient ? r0.yzw : float3(0,0,0);
 		r0.yzw = max(cAmbientMin.xyz, r0.yzw);
 		o2.xyz = min(cAmbientMax.xyz, r0.yzw);
+
+		// Steam shader does lighting calculations here
+
 		o1.xyz = v4.zyx;
 		o2.w = r0.x;
 		o4.z = v1.w;
 		o4.w = r5.w;
+		
+		// Moved from PS
+		o4.xy = o4.xy / o4.ww;
+		// Halo Fix
+		o4.x -= separation * (o4.w - convergence);
+
 		r1.x = v0.w;
 	} else {
 		o0.xyzw = float4(0,0,0,-1);
