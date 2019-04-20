@@ -96,6 +96,57 @@ cbuffer CB_VS_ParticleMaterial_Static : register(b7)
 
 #include "3Dmigoto.hlsl"
 
+void process_omni_light(Omni cOmni, bool bOmni, float3 r1, float3 r2, inout float3 r3)
+{	
+	if (!bOmni)
+		return;
+	
+	float3 r4 = cOmni.pos.xyz + -r1;
+	float3 r5 = float3(0.0001,0.0001,0.0001) + r4;
+	float r6 = dot(r4, r5 * rsqrt(dot(r5, r5)));
+	
+	if(!cmp(r6 < cOmni.pos.w))
+		return;
+	
+	r6 = saturate(r6 * cOmni.atten.x + cOmni.atten.z);
+	r6 = -r6 * r6 + 1;
+	r6 = r6 * r6;
+	r6 = saturate(max(cTranslucency.x, dot(r2, r5))) * r6;
+	
+	r3 = r6 * cOmni.dCol.xyz + r3;
+}
+
+void process_spot_light(Spot cSpot, bool bSpot, const float4 r1, const float3 r2, inout float3 r3)
+{
+	if (!bSpot)
+		return;
+	
+	float2 r4;
+	r4.x = dot(r1.xyzw, cSpot.proj._m00_m10_m20_m30);
+	r4.y = dot(r1.xyzw, cSpot.proj._m01_m11_m21_m31);
+	float r5 = dot(r1.xyzw, cSpot.proj._m02_m12_m22_m32);
+	float r6 = dot(r1.xyzw, cSpot.proj._m03_m13_m23_m33);
+	
+	if (!cmp(abs(r5) < 1))
+		return;
+	
+	float3 r7 = cSpot.pos.xyz + -r1.xyz;
+	float3 r8 = float3(0.0001,0.0001,0.0001) + r7;
+	
+	r8 = r8 * rsqrt(dot(r8, r8));
+	r4 = r4 / r6;
+	r4 = r4 * 2 + -1;
+	r4 = min(1, abs(r4));
+	r4 = -r4 * r4 + 1;
+	
+	float r9 = saturate(dot(r7, r8) * cSpot.atten.x + cSpot.atten.y);
+	r9 = -r9 * r9 + 1;
+	r9 = r4.x * r4.y * r9;
+	r9 = r9 * r9;
+	r9 = saturate(max(cTranslucency.x, dot(r2, r8))) * r9;
+	r3 = r9 * cSpot.dCol.xyz + r3;
+}
+
 void main(
 	float4 v0 : POSITION0,
 	float4 v1 : NORMAL0,
@@ -344,154 +395,26 @@ void main(
 		r2.w = dot(r2.xyz, r2.xyz);
 		r2.w = rsqrt(r2.w);
 		r2.xyz = r2.xyz * r2.www;
-		r3.xyz = cOmni0.pos.xyz + -r1.xyz;
-		r4.xyz = float3(0.0001,0.0001,0.0001) + r3.xyz;
-		r2.w = dot(r4.xyz, r4.xyz);
-		r2.w = rsqrt(r2.w);
-		r4.xyz = r4.xyz * r2.www;
-		r2.w = dot(r3.xyz, r4.xyz);
-		r3.x = cmp(r2.w < cOmni0.pos.w);
-		r2.w = saturate(r2.w * cOmni0.atten.x + cOmni0.atten.z);
-		r2.w = -r2.w * r2.w + 1;
-		r2.w = r2.w * r2.w;
-		r3.y = dot(r2.xyz, r4.xyz);
-		r3.y = saturate(max(cTranslucency.x, r3.y));
-		r2.w = r3.y * r2.w;
-		r3.yzw = cOmni0.dCol.xyz * r2.www;
-		r3.xyz = r3.xxx ? r3.yzw : 0;
-		r3.xyz = bOmni0 ? r3.xyz : float3(0,0,0);
-		r4.xyz = cOmni1.pos.xyz + -r1.xyz;
-		r7.xyz = float3(0.0001,0.0001,0.0001) + r4.xyz;
-		r2.w = dot(r7.xyz, r7.xyz);
-		r2.w = rsqrt(r2.w);
-		r7.xyz = r7.xyz * r2.www;
-		r2.w = dot(r4.xyz, r7.xyz);
-		r3.w = cmp(r2.w < cOmni1.pos.w);
-		r2.w = saturate(r2.w * cOmni1.atten.x + cOmni1.atten.z);
-		r2.w = -r2.w * r2.w + 1;
-		r2.w = r2.w * r2.w;
-		r4.x = dot(r2.xyz, r7.xyz);
-		r4.x = saturate(max(cTranslucency.x, r4.x));
-		r2.w = r4.x * r2.w;
-		r4.xyz = r2.www * cOmni1.dCol.xyz + r3.xyz;
-		r4.xyz = r3.www ? r4.xyz : r3.xyz;
-		r3.xyz = bOmni1 ? r4.xyz : r3.xyz;
-		r4.xyz = cOmni2.pos.xyz + -r1.xyz;
-		r7.xyz = float3(0.0001,0.0001,0.0001) + r4.xyz;
-		r2.w = dot(r7.xyz, r7.xyz);
-		r2.w = rsqrt(r2.w);
-		r7.xyz = r7.xyz * r2.www;
-		r2.w = dot(r4.xyz, r7.xyz);
-		r3.w = cmp(r2.w < cOmni2.pos.w);
-		r2.w = saturate(r2.w * cOmni2.atten.x + cOmni2.atten.z);
-		r2.w = -r2.w * r2.w + 1;
-		r2.w = r2.w * r2.w;
-		r4.x = dot(r2.xyz, r7.xyz);
-		r4.x = saturate(max(cTranslucency.x, r4.x));
-		r2.w = r4.x * r2.w;
-		r4.xyz = r2.www * cOmni2.dCol.xyz + r3.xyz;
-		r4.xyz = r3.www ? r4.xyz : r3.xyz;
-		r3.xyz = bOmni2 ? r4.xyz : r3.xyz;
-		r4.xyz = cOmni3.pos.xyz + -r1.xyz;
-		r7.xyz = float3(0.0001,0.0001,0.0001) + r4.xyz;
-		r2.w = dot(r7.xyz, r7.xyz);
-		r2.w = rsqrt(r2.w);
-		r7.xyz = r7.xyz * r2.www;
-		r2.w = dot(r4.xyz, r7.xyz);
-		r3.w = cmp(r2.w < cOmni3.pos.w);
-		r2.w = saturate(r2.w * cOmni3.atten.x + cOmni3.atten.z);
-		r2.w = -r2.w * r2.w + 1;
-		r2.w = r2.w * r2.w;
-		r4.x = dot(r2.xyz, r7.xyz);
-		r4.x = saturate(max(cTranslucency.x, r4.x));
-		r2.w = r4.x * r2.w;
-		r4.xyz = r2.www * cOmni3.dCol.xyz + r3.xyz;
-		r4.xyz = r3.www ? r4.xyz : r3.xyz;
-		r3.xyz = bOmni3 ? r4.xyz : r3.xyz;
-		r4.x = dot(r1.xyzw, cSpot0.proj._m00_m10_m20_m30);
-		r4.y = dot(r1.xyzw, cSpot0.proj._m01_m11_m21_m31);
-		r2.w = dot(r1.xyzw, cSpot0.proj._m02_m12_m22_m32);
-		r3.w = dot(r1.xyzw, cSpot0.proj._m03_m13_m23_m33);
-		r2.w = cmp(abs(r2.w) < 1);
-		r7.xyz = cSpot0.pos.xyz + -r1.xyz;
-		r8.xyz = float3(0.0001,0.0001,0.0001) + r7.xyz;
-		r4.z = dot(r8.xyz, r8.xyz);
-		r4.z = rsqrt(r4.z);
-		r8.xyz = r8.xyz * r4.zzz;
-		r4.xy = r4.xy / r3.ww;
-		r4.xy = r4.xy * float2(2,2) + float2(-1,-1);
-		r4.xy = min(float2(1,1), abs(r4.xy));
-		r4.xy = -r4.xy * r4.xy + float2(1,1);
-		r3.w = r4.x * r4.y;
-		r4.x = dot(r7.xyz, r8.xyz);
-		r4.x = saturate(r4.x * cSpot0.atten.x + cSpot0.atten.y);
-		r4.x = -r4.x * r4.x + 1;
-		r3.w = r4.x * r3.w;
-		r3.w = r3.w * r3.w;
-		r4.x = dot(r2.xyz, r8.xyz);
-		r4.x = saturate(max(cTranslucency.x, r4.x));
-		r3.w = r4.x * r3.w;
-		r4.xyz = r3.www * cSpot0.dCol.xyz + r3.xyz;
-		r4.xyz = r2.www ? r4.xyz : r3.xyz;
-		r3.xyz = bSpot0 ? r4.xyz : r3.xyz;
-		r4.x = dot(r1.xyzw, cSpot1.proj._m00_m10_m20_m30);
-		r4.y = dot(r1.xyzw, cSpot1.proj._m01_m11_m21_m31);
-		r2.w = dot(r1.xyzw, cSpot1.proj._m02_m12_m22_m32);
-		r3.w = dot(r1.xyzw, cSpot1.proj._m03_m13_m23_m33);
-		r2.w = cmp(abs(r2.w) < 1);
-		r7.xyz = cSpot1.pos.xyz + -r1.xyz;
-		r8.xyz = float3(0.0001,0.0001,0.0001) + r7.xyz;
-		r4.z = dot(r8.xyz, r8.xyz);
-		r4.z = rsqrt(r4.z);
-		r8.xyz = r8.xyz * r4.zzz;
-		r4.xy = r4.xy / r3.ww;
-		r4.xy = r4.xy * float2(2,2) + float2(-1,-1);
-		r4.xy = min(float2(1,1), abs(r4.xy));
-		r4.xy = -r4.xy * r4.xy + float2(1,1);
-		r3.w = r4.x * r4.y;
-		r4.x = dot(r7.xyz, r8.xyz);
-		r4.x = saturate(r4.x * cSpot1.atten.x + cSpot1.atten.y);
-		r4.x = -r4.x * r4.x + 1;
-		r3.w = r4.x * r3.w;
-		r3.w = r3.w * r3.w;
-		r4.x = dot(r2.xyz, r8.xyz);
-		r4.x = saturate(max(cTranslucency.x, r4.x));
-		r3.w = r4.x * r3.w;
-		r4.xyz = r3.www * cSpot1.dCol.xyz + r3.xyz;
-		r4.xyz = r2.www ? r4.xyz : r3.xyz;
-		r3.xyz = bSpot1 ? r4.xyz : r3.xyz;
-		r4.x = dot(r1.xyzw, cSpot2.proj._m00_m10_m20_m30);
-		r4.y = dot(r1.xyzw, cSpot2.proj._m01_m11_m21_m31);
-		r2.w = dot(r1.xyzw, cSpot2.proj._m02_m12_m22_m32);
-		r1.w = dot(r1.xyzw, cSpot2.proj._m03_m13_m23_m33);
-		r2.w = cmp(abs(r2.w) < 1);
-		r1.xyz = cSpot2.pos.xyz + -r1.xyz;
-		r7.xyz = float3(0.0001,0.0001,0.0001) + r1.xyz;
-		r3.w = dot(r7.xyz, r7.xyz);
-		r3.w = rsqrt(r3.w);
-		r7.xyz = r7.xyz * r3.www;
-		r4.xy = r4.xy / r1.ww;
-		r4.xy = r4.xy * float2(2,2) + float2(-1,-1);
-		r4.xy = min(float2(1,1), abs(r4.xy));
-		r4.xy = -r4.xy * r4.xy + float2(1,1);
-		r1.w = r4.x * r4.y;
-		r1.x = dot(r1.xyz, r7.xyz);
-		r1.x = saturate(r1.x * cSpot2.atten.x + cSpot2.atten.y);
-		r1.x = -r1.x * r1.x + 1;
-		r1.x = r1.w * r1.x;
-		r1.x = r1.x * r1.x;
-		r1.y = dot(r2.xyz, r7.xyz);
-		r1.y = saturate(max(cTranslucency.x, r1.y));
-		r1.x = r1.y * r1.x;
-		r1.xyz = r1.xxx * cSpot2.dCol.xyz + r3.xyz;
-		r1.xyz = r2.www ? r1.xyz : r3.xyz;
-		r1.xyz = bSpot2 ? r1.xyz : r3.xyz;
-		r1.w = dot(r2.xyz, cDir0.dir.xyz);
-		r1.w = saturate(max(cTranslucency.x, r1.w));
-		r2.xyz = r1.www * cDir0.dCol.xyz + r1.xyz;
-		r1.xyz = bDir0 ? r2.xyz : r1.xyz;
-		r1.xyz = r1.xyz + r0.yzw;
+		
+		r3.xyz = 0;
+		process_omni_light(cOmni0, bOmni0, r1.xyz, r2.xyz, r3.xyz);
+		process_omni_light(cOmni1, bOmni1, r1.xyz, r2.xyz, r3.xyz);
+		process_omni_light(cOmni2, bOmni2, r1.xyz, r2.xyz, r3.xyz);
+		process_omni_light(cOmni3, bOmni3, r1.xyz, r2.xyz, r3.xyz);
+		
+		process_spot_light(cSpot0, bSpot0, r1, r2.xyz, r3.xyz);
+		process_spot_light(cSpot1, bSpot1, r1, r2.xyz, r3.xyz);
+		process_spot_light(cSpot1, bSpot2, r1, r2.xyz, r3.xyz);
 
+		// process dir light*/
+		if (bDir0) {
+			float temp = dot(r2.xyz, cDir0.dir.xyz);
+			r1.w = saturate(max(cTranslucency.x, r1.w));
+			r2.xyz = r1.www * cDir0.dCol.xyz + r3.xyz;
+			r3.xyz = r2.xyz;
+		}
+
+		r1.xyz = r3.xyz + r0.yzw;
 		o1.xyz = v4.zyx * r1.xyz;
 		o2.w = r0.x;
 		o2.xyz = r0.yzw;
