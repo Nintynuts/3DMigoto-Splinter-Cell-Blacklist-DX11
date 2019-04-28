@@ -53,9 +53,7 @@ void main(
 	r2.yzw = r4.xyz + r4.xyz;
 	r3.yzw = r1.x * r2.yzw + r3.xyz;
 	r3.x = dot(r2, r1);
-	r0.w = dot(r0.xyz, r0.xyz);
-	r0.w = rsqrt(r0.w);
-	r0.yzw = r0.xyz * r0.w;
+	r0.yzw = normalise(r0.xyz);
 	r0.x = 1;
 	r0.x = saturate(dot(r3, r0));
 	o0 = gColorControl.w * r0.x;

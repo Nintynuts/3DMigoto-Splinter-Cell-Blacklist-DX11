@@ -59,9 +59,7 @@ void main(
 	r0.xyz = v3.zyx * 2 + -1;
 	r1.xyz = mul(r0.xyz, gLocalToWorld);
 	o5.xyz = r1.xyz;
-	r0.x = dot(r1.xyz, r1.xyz);
-	r0.x = rsqrt(r0.x);
-	r0.xyz = r1.xyz * r0.x;
+	r0.xyz = normalise(r1.xyz);
 	r0.w = 1;
 	r1.x = dot(cSHParams[0], r0);
 	r1.y = dot(cSHParams[1], r0);

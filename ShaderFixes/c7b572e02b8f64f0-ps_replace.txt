@@ -49,13 +49,9 @@ void main(
 	r4.yzw = sSpotTex0.Sample(sSpotTex0_s, r0.xy).xyz;
 	if (r4.x != 0) {
 		r1.xzw = r1.xzw * 2 + -1;
-		r0.x = dot(r1.xzw, r1.xzw);
-		r0.x = rsqrt(r0.x);
-		r1.xzw = r1.xzw * r0.x;
+		r1.xzw = normalise(r1.xzw);
 		r3.xyz = cSpot0.pos.xyz + -r3.xyz;
-		r0.x = dot(r3.xyz, r3.xyz);
-		r0.x = rsqrt(r0.x);
-		r5.xyz = r3.xyz * r0.x;
+		r5.xyz = normalise(r3.xyz);
 		r0.x = dot(r3.xyz, r5.xyz);
 		r0.x = saturate(r0.x * cSpot0.atten.x + cSpot0.atten.y);
 		r0.x = -r0.x * r0.x + 1;

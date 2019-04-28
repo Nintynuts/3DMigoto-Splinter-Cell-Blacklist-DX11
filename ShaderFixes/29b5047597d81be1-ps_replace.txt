@@ -39,14 +39,10 @@ void main(
 	r2.xyz = cOmni0.pos.xyz + -r2.xyz;
 	r0.w = dot(r0.xyz, r0.xyz);
 	r0.w = rsqrt(r0.w);
-	r1.x = dot(r2.xyz, r2.xyz);
-	r1.x = rsqrt(r1.x);
-	r3.xyz = r2.xyz * r1.x;
+	r3.xyz = normalise(r2.xyz);
 	r1.x = dot(r2.xyz, r3.xyz);
 	r0.xyz = r0.xyz * r0.w + r3.xyz;
-	r0.w = dot(r0.xyz, r0.xyz);
-	r0.w = rsqrt(r0.w);
-	r0.xyz = r0.xyz * r0.w;
+	r0.xyz = normalise(r0.xyz);
 	r2 = sNormal.Sample(sNormal_s, r1.zw);
 	r4 = sSceneAlbedo.Sample(sSceneAlbedo_s, r1.zw);
 	r4 = r4 * r4;
@@ -54,9 +50,7 @@ void main(
 	r0.w = 11 * r2.w;
 	r0.w = exp2(r0.w);
 	r0.w = max(9.99999975e-006, r0.w);
-	r1.z = dot(r2.xyz, r2.xyz);
-	r1.z = rsqrt(r1.z);
-	r2.xyz = r2.xyz * r1.z;
+	r2.xyz = normalise(r2.xyz);
 	r0.x = saturate(dot(r0.xyz, r2.xyz));
 	r0.y = dot(r2.xyz, r3.xyz);
 	r0.x = log2(r0.x);

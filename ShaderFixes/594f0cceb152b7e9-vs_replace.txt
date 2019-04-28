@@ -106,9 +106,7 @@ void main(
 		o8 = 1;
 	}
 	r1.xyz = mul(r0.xyz, gWorldToView);
-	r0.w = dot(r1.xyz, r1.xyz);
-	r0.w = rsqrt(r0.w);
-	o1.xyz = r1.xyz * r0.w;
+	o1.xyz = normalise(r1.xyz);
 	o4.xyz = r4.xyz;
 	o5.w = 0;
 	o6.w = 0;

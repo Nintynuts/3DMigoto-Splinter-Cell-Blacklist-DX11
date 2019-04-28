@@ -35,9 +35,7 @@ void main(
 	r0 = v1 / v2.x;
 	r1.xyz = sNormalMap.Sample(sNormalMap_s, r0.zw).xyz;
 	r1.xyz = r1.yzx * 2 + -1;
-	r1.w = dot(r1.xyz, r1.xyz);
-	r1.w = rsqrt(r1.w);
-	r1.yzw = r1.xyz * r1.w;
+	r1.yzw = normalise(r1.xyz);
 	r2.xyz = 6 * r1.wyz;
 	r3.xyz = mul(r2.xyz, cRealWorldToOccluder);
 	r2.z = sIDMap.Sample(sIDMap_s, r0.zw).x;
