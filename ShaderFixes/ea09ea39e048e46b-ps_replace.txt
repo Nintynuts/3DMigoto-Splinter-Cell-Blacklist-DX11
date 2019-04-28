@@ -30,14 +30,16 @@ void main(
 {
 	float4 r0,r1,r2,r3,r4,r5,r6;
 
+	//o0 = 1;
+	//return;
+
 	r0.xyzw = v1.xyzw / v2.xxxx;
 	r2.xy = r0.xy;
-	r2.zw = float2(1,1);	
-	r1.xy = sDepth.Sample(sDepth_s, r0.zw).xw;	
-	r2.xyz = r1.xxx * r2.xyz;	
-	
-	float4 stereo = StereoParams.Load(0);
-	r2.x -= stereo.x * (r2.z - stereo.y); 
+	r2.zw = float2(1,1);
+	r1.xy = sDepth.Sample(sDepth_s, r0.zw).xw;
+	r2.xyz = r1.xxx * r2.xyz;
+
+	stereo_unfix(r2);
 	
 	r3.x = dot(r2.xyzw, cScreenToWorld._m00_m10_m20_m30);
 	r3.y = dot(r2.xyzw, cScreenToWorld._m01_m11_m21_m31);
@@ -51,7 +53,7 @@ void main(
 	r1.z = dot(r3.xyzw, cSpot0.proj._m03_m13_m23_m33);
 	r1.x = cmp(abs(r1.x) < 1);
 	r0.xy = r0.xy / r1.zz;
-	r5.xyz = sSpotTex0.Sample(sSpotTex0_s, r0.xy).xyz;	
+	r5.xyz = sSpotTex0.Sample(sSpotTex0_s, r0.xy).xyz;
 	if (r1.x != 0) {
 		r1.xzw = cViewPos.xyz + -r3.xyz;
 		r0.x = dot(r1.xzw, r1.xzw);

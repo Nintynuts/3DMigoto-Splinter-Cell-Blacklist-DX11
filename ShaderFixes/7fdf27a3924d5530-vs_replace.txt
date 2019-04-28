@@ -26,23 +26,20 @@ void main(
 	o1.x = dot(r0.xyzw, mvp[6].xyzw);
 	o1.y = dot(r0.xyzw, mvp[7].xyzw);
 	
-	float4 resolution = IniParams.Load(int2(0,0));
-	if (resolution.x != resolution.z) // Render Target
-		return;	
+	if (!rt_res_size_match()) // Render Target
+		return;
 	
 	o0.x += depth[0] * -eye;
-
-	float4 tex_filter = IniParams.Load(int2(2,0));
-	
-	if (tex_filter.x > -1)
+	if (texture_filter > -1)
 	{	
 		float layer = 4;
 	
 		if (o0.x == 0 || o0.x == 1 || o0.y == 0 || o0.y == 1)
 			layer = 1; // Background Map
-		else if (tex_filter.x > 0)
-			layer = tex_filter.x;
-		o0.x -= separation * (tex_filter.z * layer - tex_filter.z*5)/500;
+		else if (texture_filter > 0)
+			layer = texture_filter;
+
+		gui_element(o0, layer, 0.002);
 	}
 	
 	return;

@@ -28,11 +28,9 @@ void main(
 	r0.w = 1;
 	r1.xy = v2.xy * uv[0].xy + uv[0].zw;
 	
-	float isTitleScreen = IniParams.Load(int2(3,0)).x;
-	if (isTitleScreen)
+	if (ini(x,3)) // is_title_screen
 	{
-			float4 tex_filter = IniParams.Load(int2(2,0));
-		r1.x -= separation * tex_filter.z/500;
+		r1.x -= separation * gui_depth / 500;
 		// Wrap around
 		if (r1.x > 1)
 			r1.x = 2-r1.x;
@@ -44,7 +42,7 @@ void main(
 	r1.y = texY.Sample(texY_s, r2.xy).x;
 	r2.xy = v2.xy * uv[2].xy + uv[2].zw;
 	r1.z = texZ.Sample(texZ_s, r2.xy).x;
-	r1.w = 1;		
+	r1.w = 1;
 	r0.x = dot(r1.xyzw, mat._m00_m10_m20_m30);
 	r0.y = dot(r1.xyzw, mat._m01_m11_m21_m31);
 	r0.z = dot(r1.xyzw, mat._m02_m12_m22_m32);

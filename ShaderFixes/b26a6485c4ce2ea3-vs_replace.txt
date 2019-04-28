@@ -79,10 +79,9 @@ void main(
 	r0.xy = (int2)v1.xy;
 	o1.xy = float2(0.00048828125,0.00048828125) * r0.xy;
 	
-	//float4 tex_filter = IniParams.Load(int2(2,0));
-	//if (tex_filter.x = -3)
+	//if (texture_filter = -3)
 	//{
-	//	//	o0.x -= separation * 60;
+	//	o0.x -= separation * 60;
 	//	o0.y += separation * 60;
 	//}
 	return;

@@ -116,10 +116,9 @@ void main(
 	r0.xyzw = cSHScale * r0.xyzw;
 	o3.xyzw = bUseSH ? r0.xyzw : cAmbientColor.xyzw;
 	
-	//float4 tex_filter = IniParams.Load(int2(2,0));
-	//if (tex_filter.x = -3)
+	//if (texture_filter = -3)
 	//{
-	//	//	o0.x -= separation * 60;
+	//	o0.x -= separation * 60;
 	//	o0.y += separation * 60;
 	//}
 	return;

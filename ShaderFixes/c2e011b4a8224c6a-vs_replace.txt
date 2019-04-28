@@ -37,9 +37,6 @@ void main(
 	r0.z = dot(r1.xyzw, gWorldToProj._m02_m12_m22_m32);
 	r0.w = dot(r1.xyzw, gWorldToProj._m03_m13_m23_m33);
 	o0 = r0;	
-		
-	stereo_fix(r0);
-	
 	o1.zw = r0.zw;
 	r0.xy = (int2)v1.xy;
 	o1.xy = float2(0.00048828125,0.00048828125) * r0.xy;

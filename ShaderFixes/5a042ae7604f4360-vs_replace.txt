@@ -126,10 +126,9 @@ void main(
 	o4.w = 0;
 	o5.w = 0;
 	
-	//float4 tex_filter = IniParams.Load(int2(2,0));
-	//if (tex_filter.x = -3)
+	//if (texture_filter = -3)
 	//{
-	//	//	o0.x -= separation * 60;
+	//	o0.x -= separation * 60;
 	//	o0.y += separation * 60;
 	//}
 	return;

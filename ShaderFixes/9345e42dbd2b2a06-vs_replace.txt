@@ -29,21 +29,22 @@ void main(
 	float4 r0,r1;
 
 	r0.xyz = mul(v0, gLocalToWorld);
-	r0.w = 1;	
+	r0.w = 1;
 	r1 = mul(r0, gSimpleWorldToProj);
+	
+	if (ini(x,3)||ini(w,3)) // is_cutscene or loadout_open
+		r1.x += separation * (r1.w - 0.1);
 
-	o0.xyzw = r1.xyzw;	
+	o0 = r1;
 	
-	float is_cutscene = IniParams.Load(int2(3, 0)).x;
-	
-	if (is_cutscene)
-		r1.x += separation * r1.w;
+	if (ini(x,3)||ini(w,3)) // is_cutscene or loadout_open
+		stereo_unfix(o0);
 	else
-		stereo_fix(r1); 
+		stereo_fix(r1);
 	
 	r0.xy = gViewportSB.zw * r1.ww;
 	o2.x = r1.w;
 	o1.zw = r1.xy * gViewportSB.xy + r0.xy;
-	o1.xy = r1.xy;	 
+	o1.xy = r1.xy;
 	return;
 }

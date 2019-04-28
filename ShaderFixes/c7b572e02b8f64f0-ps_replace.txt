@@ -34,7 +34,7 @@ void main(
 	r1.xy = sDepth.Sample(sDepth_s, r0.zw).xw;
 	r2.xyz = r2.xyz * r1.xxx;
 	
-	r2.x -= separation * (r2.z - convergence); 
+	stereo_unfix(r2);
 	
 	r3.x = dot(r2.xyzw, cScreenToWorld._m00_m10_m20_m30);
 	r3.y = dot(r2.xyzw, cScreenToWorld._m01_m11_m21_m31);

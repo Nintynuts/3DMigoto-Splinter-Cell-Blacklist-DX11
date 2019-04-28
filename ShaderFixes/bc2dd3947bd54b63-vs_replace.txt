@@ -23,10 +23,8 @@ void main(
 	o2.xyzw = v2.zyxw;
 	
 	stereo_unfix(o0);
-	
-	float4 tex_filter = IniParams.Load(int2(2,0));
-	if (tex_filter.x > 0)
-		o0.x -= separation * (tex_filter.z * tex_filter.x - tex_filter.z*5)*50;
+	if (texture_filter > 0)
+		gui_element(o0,texture_filter,50);
 	
 	return;
 }

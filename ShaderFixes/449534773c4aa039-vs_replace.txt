@@ -36,7 +36,7 @@ void main(
 	r1.y = dot(r0.xyzw, gSimpleWorldToProj._m01_m11_m21_m31);
 	r1.z = dot(r0.xyzw, gSimpleWorldToProj._m02_m12_m22_m32);
 	r1.w = dot(r0.xyzw, gSimpleWorldToProj._m03_m13_m23_m33);
-	o0.xyzw = r1.xyzw;	
+	o0.xyzw = r1.xyzw;
 	r0.xy = gViewportSB.zw * r1.ww;
 	o2.x = r1.w;
 	o1.zw = r1.xy * gViewportSB.xy + r0.xy;

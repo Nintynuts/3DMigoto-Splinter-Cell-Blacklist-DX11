@@ -41,7 +41,7 @@ void main(
 	r0.xyz = r0.yzx * float3(2,2,2) + float3(-1,-1,-1);
 	r1.w = 1;
 			
-	r1.x -= separation * (r1.z - convergence);
+	stereo_unfix(r1);
 	
 	r2.w = dot(r1.xyzw, cScreenToWorld._m00_m10_m20_m30);
 	r2.y = dot(r1.xyzw, cScreenToWorld._m01_m11_m21_m31);

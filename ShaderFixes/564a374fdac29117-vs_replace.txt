@@ -20,15 +20,12 @@ void main(
 	o1.xy = v1.xy;
 	
 	stereo_unfix(o0);
-		
-	float4 tex_filter = IniParams.Load(int2(2,0));
-
 	float layer = 4;
 
-	if (tex_filter.x > 0)
-		layer = tex_filter.x;
+	if (texture_filter > 0)
+		layer = texture_filter;
 	
-	o0.x -= separation * (tex_filter.z * layer - tex_filter.z*5)*50;
+	gui_element(o0,layer,50);
 	
 	return;
 }

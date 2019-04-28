@@ -26,10 +26,8 @@ void main(
 	o1.xy = v1.xy;
 	o2.xyzw = v2.zyxw;
 		
-	float4 resolution = IniParams.Load(int2(0,0));
-	if (resolution.x != resolution.z) // Render Target
-		return;	
-
+	if (!rt_res_size_match()) // Render Target
+		return;
 	o0.x += depth[0] * -eye;
 	
 	return;

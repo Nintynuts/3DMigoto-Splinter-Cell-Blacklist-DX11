@@ -31,19 +31,16 @@ void main(
 	o2.xyzw = mvp[r0.z].xyzw;
 	o3.xyzw = mvp[r0.y].xyzw;
 	
-	stereo_unfix(o0); 
-	
-	float4 tex_filter = IniParams.Load(int2(2,0));
-
+	stereo_unfix(o0);
 	float layer = 5;
 
-	if (tex_filter.x > 2)
-		layer = tex_filter.x;
+	if (texture_filter > 2)
+		layer = texture_filter;
 
-	if (tex_filter.x == 3.1)
+	if (texture_filter == 3.1)
 		layer = 4;
 	
-	o0.x -= separation * (tex_filter.z * layer - tex_filter.z*5)*50;
+	gui_element(o0,layer,50);
 		
 	return;
 }

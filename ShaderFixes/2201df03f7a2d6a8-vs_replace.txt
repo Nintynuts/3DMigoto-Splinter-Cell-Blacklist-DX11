@@ -24,17 +24,14 @@ void main(
 	o1.xyzw = v1.zyxw;
 	o2.xyzw = v2.zyxw;
 		
-	float4 resolution = IniParams.Load(int2(0,0));
-	if (resolution.x != resolution.z) // Render Target
+	if (!rt_res_size_match()) // Render Target
 		return;
-	
-	float4 tex_filter = IniParams.Load(int2(2,0));
 	float layer = 2;
 	
-	if (o0.x < -0.77 && o0.x > -0.81 && ((o0.y > -0.399 && o0.y < -0.35) || (o0.y > 0.35 && o0.y < 0.395)) && tex_filter.x == 0) // Menu Vertical Bar
+	if (o0.x < -0.77 && o0.x > -0.81 && ((o0.y > -0.399 && o0.y < -0.35) || (o0.y > 0.35 && o0.y < 0.395)) && texture_filter == 0) // Menu Vertical Bar
 	{
 		o0.x -= 0.11;
-	layer = 4;
+		layer = 4;
 	}
 	else if (o0.y < -0.7) // ShadowNet Back
 	{
@@ -45,7 +42,7 @@ void main(
 		layer = 4;
 	}
 	
-	o0.x -= separation * (tex_filter.z * layer - tex_filter.z*5)/500;
+	gui_element(o0,layer,0.002);
 	
 	return;
 }

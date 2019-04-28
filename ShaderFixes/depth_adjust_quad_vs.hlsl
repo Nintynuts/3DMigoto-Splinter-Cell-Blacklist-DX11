@@ -8,7 +8,7 @@
 
 cbuffer CB_VS_Scaleform : register(b7)
 {	
-	float4 mvp[MVP_SIZE] : packoffset(c0); 
+	float4 mvp[MVP_SIZE] : packoffset(c0);
 }
 
 #include "goal_boundaries.hlsl"
@@ -77,7 +77,7 @@ void main(
 
 	if (texture_filter == -1)
 	{
-		centre = 0;
+		centre = float2(0,0.2);
 		return;
 	}
 

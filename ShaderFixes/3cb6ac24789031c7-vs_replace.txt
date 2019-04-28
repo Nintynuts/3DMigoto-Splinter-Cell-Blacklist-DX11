@@ -34,11 +34,9 @@ void main(
 	o2.xyzw = v2.zyxw;
 	
 	stereo_unfix(o0);
-	
-	float4 tex_filter = IniParams.Load(int2(2,0));
 	float layer = 2;
 	
-	//o0.x -= separation * (tex_filter.z * layer - tex_filter.z*5)*50;
+	//gui_element(o0,layer,50);
 	
 	return;
 }

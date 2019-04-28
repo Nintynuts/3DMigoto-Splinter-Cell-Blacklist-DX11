@@ -240,8 +240,7 @@ void main(
 		r5.w = dot(r4.xyzw, cWorldToProj._m03_m13_m23_m33);
 		o0.xyzw = r5.xyzw;
 		
-			stereo_fix(r5);	
-
+		stereo_fix(r5);
 		r6.xyzw = gViewportSB.xyzw * r5.xyww;
 		o4.xy = r6.xy + r6.zw;
 		r0.yzw = cCamera_Position.xyz + -r1.xyz;

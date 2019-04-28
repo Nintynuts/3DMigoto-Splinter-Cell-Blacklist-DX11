@@ -28,12 +28,10 @@ void main(
 	stereo_unfix(o0);
 	
 	float layer = 1;
+	if (texture_filter > 0)
+		layer = texture_filter;
 
-	float4 tex_filter = IniParams.Load(int2(2,0));
-	if (tex_filter.x > 0)
-		layer = tex_filter.x;
-
-	o0.x -= separation * (tex_filter.z * layer - tex_filter.z*5)*50;
+	gui_element(o0,layer,50);
 	
 	return;
 }

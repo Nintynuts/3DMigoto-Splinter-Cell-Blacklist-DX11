@@ -47,7 +47,7 @@ void main(
 	r0.xyzw = cProjSkinMesh.xyzw + r1.xyzw;
 	o0.xyzw = r0.xyzw;
 		
-	stereo_fix(r0); 
+	stereo_fix(r0);
 	
 	o2.w = r0.w;
 	r0.xy = (int2)v1.xy;

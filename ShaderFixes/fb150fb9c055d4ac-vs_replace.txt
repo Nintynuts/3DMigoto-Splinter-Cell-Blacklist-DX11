@@ -304,7 +304,7 @@ void main(
 		// Moved from PS
 		o4.xy = o4.xy / o4.ww;
 		// Halo Fix
-		o4.x -= separation * (o4.w - convergence);
+		stereo_unfix(o4);
 
 		r1.x = v0.w;
 	} else {

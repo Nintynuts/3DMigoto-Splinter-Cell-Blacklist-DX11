@@ -22,24 +22,21 @@ void main(
 	o1.y = dot(r0.xyzw, mvp[7].xyzw);
 	
 	stereo_unfix(o0);
-	
-	float4 tex_filter = IniParams.Load(int2(2,0));
-
 	float layer = 5;
 
-	if (tex_filter.x > 0)
-		layer = tex_filter.x;
+	if (texture_filter > 0)
+		layer = texture_filter;
 
-	if (tex_filter.x == -3) // Loadout character
+	if (texture_filter == -3) // Loadout character
 		layer = 5;
 
-	if (tex_filter.x == 2.1)
+	if (texture_filter == 2.1)
 		layer = 5;
 
-	if (tex_filter.x == 3.1 && (o0.x < -27500 || o0.x > 27500)) // Large BG map
+	if (texture_filter == 3.1 && (o0.x < -27500 || o0.x > 27500)) // Large BG map
 			layer = 1;
 	
-	o0.x -= separation * (tex_filter.z * layer - tex_filter.z*5)*50;
+	gui_element(o0,layer,50);
 		
 	return;
 }

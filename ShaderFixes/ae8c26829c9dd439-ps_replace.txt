@@ -40,12 +40,12 @@ void main(
 	
 	r0.xy = float2(-0.5,-0.5) + v0.xy;
 	r0.xy = r0.xy * cVPSB.xy + cVPSB.zw;
-	r0.zw = v1.zw / v2.xx;	
+	r0.zw = v1.zw / v2.xx;
 	r1.z = sSceneDepth.Sample(sSceneDepth_s, r0.zw).x;
 	r1.xy = r1.zz * r0.xy;
 	r1.w = 1;
 	
-	r1.x -= separation * (r1.z - convergence);
+	stereo_unfix(r1);
 	
 	r0.x = dot(r1.xyzw, cClip0.xyzw);
 	r0.y = dot(r1.xyzw, cClip1.xyzw);

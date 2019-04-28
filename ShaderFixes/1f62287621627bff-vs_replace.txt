@@ -250,7 +250,7 @@ void main(
 		r6.w = dot(r5.xyzw, cWorldToProj._m03_m13_m23_m33);
 		o0.xyzw = r6.xyzw;
 		
-		stereo_fix(r6); 
+		stereo_fix(r6);
 	
 		r8.xyzw = gViewportSB.xyzw * r6.xyzw;
 		o4.xy = r8.xy + r8.zw;
@@ -273,7 +273,6 @@ void main(
 		r0.y = saturate(r0.y / cFog_Density_Start_Range.z);
 		r0.y = cFog_Density_Start_Range.x * r0.y;
 		r1.y = bFog ? r0.y : 0;
-
 		r8.x = dot(r2.xyz, gLocalToWorld._m00_m10_m20);
 		r8.y = dot(r2.xyz, gLocalToWorld._m01_m11_m21);
 		r8.z = dot(r2.xyz, gLocalToWorld._m02_m12_m22);
