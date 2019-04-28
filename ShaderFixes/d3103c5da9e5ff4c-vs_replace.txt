@@ -9,20 +9,9 @@ cbuffer CB_PerPass : register(b12)
 
 #include "CB_PerCamera.hlsl"
 
-cbuffer CB_PerObject : register(b9)
-{
-	float4x3 gLocalToWorld : packoffset(c0);
-	float4 gDrawScale : packoffset(c3);
-	float4 cId : packoffset(c4);
-	float4 cSHParams[7] : packoffset(c5);
-	float cAOID : packoffset(c12);
-	bool bUseSH : packoffset(c12.y);
-}
-
-
+#include "CB_PerObject.hlsl"
 
 #include "3Dmigoto.hlsl"
-
 
 void main(
 	float4 v0 : POSITION0,
@@ -45,64 +34,51 @@ void main(
 	r0.xyz = gLocalToWorld._m00_m10_m20;
 	r1.xyz = gDrawScale.xyz * v0.xyz;
 	r1.w = v0.w;
-	r0.x = dot(r1.xyzw, r0.xyzw);
+	r0.x = dot(r1, r0);
 	r2.w = gLocalToWorld._m31 + -cViewPos_VS.y;
 	r2.xyz = gLocalToWorld._m01_m11_m21;
-	r0.y = dot(r1.xyzw, r2.xyzw);
+	r0.y = dot(r1, r2);
 	r2.w = gLocalToWorld._m32 + -cViewPos_VS.z;
 	r2.xyz = gLocalToWorld._m02_m12_m22;
-	r0.z = dot(r1.xyzw, r2.xyzw);
-	r1.x = dot(r0.xyz, gWorldToProj._m00_m10_m20);
-	r1.y = dot(r0.xyz, gWorldToProj._m01_m11_m21);
-	r1.z = dot(r0.xyz, gWorldToProj._m02_m12_m22);
-	r1.w = dot(r0.xyz, gWorldToProj._m03_m13_m23);
+	r0.z = dot(r1, r2);
+	r1 = mul(r0.xyz, gWorldToProj);
 	o2.xyz = cViewPos_VS.xyz + r0.xyz;
-	r0.xyzw = cProjSkinMesh.xyzw + r1.xyzw;
-	o0.xyzw = r0.xyzw;
+	r0 = cProjSkinMesh + r1;
+	o0 = r0;
 	o2.w = min(64000, r0.w);
 	r0.xy = (int2)v1.xy;
 	r0.zw = (int2)v2.xy;
-	o1.xyzw = float4(0.00048828125,0.00048828125,0.00048828125,0.00048828125) * r0.xyzw;
+	o1 = 0.00048828125 * r0;
 	o3.w = 0;
-	r0.xyz = v4.zyx * float3(2,2,2) + float3(-1,-1,-1);
-	o3.x = dot(r0.xyz, gLocalToWorld._m00_m10_m20);
-	o3.y = dot(r0.xyz, gLocalToWorld._m01_m11_m21);
-	o3.z = dot(r0.xyz, gLocalToWorld._m02_m12_m22);
+	r0.xyz = v4.zyx * 2 + -1;
+	o3.xyz = mul(r0.xyz, gLocalToWorld);
 	o4.w = 0;
-	r0.xyz = v5.zyx * float3(2,2,2) + float3(-1,-1,-1);
-	o4.x = dot(r0.xyz, gLocalToWorld._m00_m10_m20);
-	o4.y = dot(r0.xyz, gLocalToWorld._m01_m11_m21);
-	o4.z = dot(r0.xyz, gLocalToWorld._m02_m12_m22);
+	r0.xyz = v5.zyx * 2 + -1;
+	o4.xyz = mul(r0.xyz, gLocalToWorld);
 	o5.w = 0;
-	r0.xyz = v3.zyx * float3(2,2,2) + float3(-1,-1,-1);
-	r1.x = dot(r0.xyz, gLocalToWorld._m00_m10_m20);
-	r1.y = dot(r0.xyz, gLocalToWorld._m01_m11_m21);
-	r1.z = dot(r0.xyz, gLocalToWorld._m02_m12_m22);
+	r0.xyz = v3.zyx * 2 + -1;
+	r1.xyz = mul(r0.xyz, gLocalToWorld);
 	o5.xyz = r1.xyz;
 	r0.x = dot(r1.xyz, r1.xyz);
 	r0.x = rsqrt(r0.x);
-	r0.xyz = r1.xyz * r0.xxx;
+	r0.xyz = r1.xyz * r0.x;
 	r0.w = 1;
-	r1.x = dot(cSHParams[0].xyzw, r0.xyzw);
-	r1.y = dot(cSHParams[1].xyzw, r0.xyzw);
-	r1.z = dot(cSHParams[2].xyzw, r0.xyzw);
-	r2.xyzw = r0.xyzz * r0.yzzx;
-	r3.x = dot(cSHParams[3].xyzw, r2.xyzw);
-	r3.y = dot(cSHParams[4].xyzw, r2.xyzw);
-	r3.z = dot(cSHParams[5].xyzw, r2.xyzw);
+	r1.x = dot(cSHParams[0], r0);
+	r1.y = dot(cSHParams[1], r0);
+	r1.z = dot(cSHParams[2], r0);
+	r2 = r0.xyzz * r0.yzzx;
+	r3.x = dot(cSHParams[3], r2);
+	r3.y = dot(cSHParams[4], r2);
+	r3.z = dot(cSHParams[5], r2);
 	r1.xyz = r3.xyz + r1.xyz;
 	r0.y = r0.y * r0.y;
 	r0.x = r0.x * r0.x + -r0.y;
-	r0.xyz = cSHParams[6].xyz * r0.xxx + r1.xyz;
-	r0.xyz = max(float3(0,0,0), r0.xyz);
+	r0.xyz = cSHParams[6].xyz * r0.x + r1.xyz;
+	r0.xyz = max(0, r0.xyz);
 	r0.w = 1;
-	r0.xyzw = cSHScale * r0.xyzw;
-	o6.xyzw = bUseSH ? r0.xyzw : cAmbientColor.xyzw;
+	r0 = cSHScale * r0;
+	o6 = bUseSH ? r0 : cAmbientColor;
 	
-	//if (texture_filter = -3)
-	//{
-	//	o0.x -= separation * 60;
-	//	o0.y += separation * 60;
-	//}
+	//correct_orientation(o0);
 	return;
 }

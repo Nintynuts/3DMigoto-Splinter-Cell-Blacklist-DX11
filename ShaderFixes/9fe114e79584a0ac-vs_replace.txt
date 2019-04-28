@@ -27,13 +27,13 @@ void main(
 	
 	r0.x = 2040.01001 * v3.x;
 	r0.x = (int)r0.x;
-	o0.x = dot(v0.xyzw, mvp[r0.x + 0].xyzw);
-	o0.y = dot(v0.xyzw, mvp[r0.x + 1].xyzw);
+	o0.x = dot(v0, mvp[r0.x + 0]);
+	o0.y = dot(v0, mvp[r0.x + 1]);
 	o0.zw = v0.zw;
 	o1.xy = v1.xy;
-	o2.xyzw = mvp[r0.x + 5].xyzw;
-	o3.xyzw = mvp[r0.x + 4].xyzw;
-	o4.xyzw = v2.zyxw;
+	o2 = mvp[r0.x + 5];
+	o3 = mvp[r0.x + 4];
+	o4 = v2.zyxw;
 	
 	if (!rt_res_size_match()) // Render Target
 		return;

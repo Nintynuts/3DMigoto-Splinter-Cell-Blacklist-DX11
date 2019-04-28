@@ -20,9 +20,9 @@ void main(
 	v1.z -= separation / 2;
 
 	r0.x = sGodRays.Sample(sGodRays_s, v1.zw).y;
-	r0.xyzw = cColor.xyzw * r0.xxxx;
-	r1.x = dot(r0.xyz, float3(1,1,1));
-	o0.xyzw = r0.xyzw;
+	r0 = cColor * r0.x;
+	r1.x = dot(r0.xyz, 1);
+	o0 = r0;
 	r0.x = cmp(-r1.x >= 0);
 	if (r0.x != 0) discard;
 	return;

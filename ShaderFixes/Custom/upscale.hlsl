@@ -14,11 +14,11 @@ void main(
 			break;
 		case 1:
 			pos.xy = float2(-1, 1);
-			texcoord = float2(0,0);
+			texcoord = 0;
 			break;
 		case 2:
 			pos.xy = float2(1, -1);
-			texcoord = float2(1,1);
+			texcoord = 1;
 			break;
 		case 3:
 			pos.xy = float2(1, 1);
@@ -26,7 +26,7 @@ void main(
 			break;
 		default:
 			pos.xy = 0;
-			texcoord = float2(0,0);
+			texcoord = 0;
 			break;
 	};
 	pos.zw = float2(0, 1);

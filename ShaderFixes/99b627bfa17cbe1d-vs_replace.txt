@@ -19,17 +19,17 @@ void main(
 	
 	r0.x = 2040.01001 * v1.x;
 	r0.x = (int)r0.x;
-	r1.xyzw = (int4)v0.xyzw;
-	o0.x = dot(r1.xyzw, mvp[r0.x].xyzw);
-	r2.xyzw = (int4)r0.xxxx + int4(1,2,3,6);
-	r0.xyz = (int3)r0.xxx + int3(7,4,5);
-	o0.y = dot(r1.xyzw, mvp[r2.x].xyzw);
-	o0.z = dot(r1.xyzw, mvp[r2.y].xyzw);
-	o0.w = dot(r1.xyzw, mvp[r2.z].xyzw);
-	o1.x = dot(r1.xyzw, mvp[r2.w].xyzw);
-	o1.y = dot(r1.xyzw, mvp[r0.x].xyzw);
-	o2.xyzw = mvp[r0.z].xyzw;
-	o3.xyzw = mvp[r0.y].xyzw;
+	r1 = (int4)v0;
+	o0.x = dot(r1, mvp[r0.x]);
+	r2 = (int4)r0.x + int4(1,2,3,6);
+	r0.xyz = (int3)r0.x + int3(7,4,5);
+	o0.y = dot(r1, mvp[r2.x]);
+	o0.z = dot(r1, mvp[r2.y]);
+	o0.w = dot(r1, mvp[r2.z]);
+	o1.x = dot(r1, mvp[r2.w]);
+	o1.y = dot(r1, mvp[r0.x]);
+	o2 = mvp[r0.z];
+	o3 = mvp[r0.y];
 	
 	stereo_unfix(o0);
 	float layer = 5;

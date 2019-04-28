@@ -35,6 +35,6 @@ void main(
 	if (r0.w != 0) discard;
 	r0.x = v1.z / v1.w;
 	r0.z = cData.x;
-	o0.xyzw = r0.xxzy;
+	o0 = r0.xxzy;
 	return;
 }

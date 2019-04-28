@@ -1,14 +1,6 @@
 // Night Vision
 
-cbuffer CB_PerFrame : register(b13)
-{
-	float4 gCameraFadeAlpha : packoffset(c0);
-	float4 gCameraFadeShadow : packoffset(c1);
-	float4 gColorControl : packoffset(c2);
-	float3 cBoostCol : packoffset(c3);
-	float cHdrControl : packoffset(c3.w);
-	float gAOControl : packoffset(c4);
-}
+#include "CB_PerFrame.hlsl"
 
 cbuffer CB_PS_PostFinal : register(b7)
 {
@@ -56,36 +48,36 @@ void main(
 		r0.y = sSceneTexPoint.Sample(sSceneTexPoint_s, r1.xy).z;
 	}
 	r0.w = cmp(cHdrControl < 0);
-	r1.xyz = r0.www ? r0.xzy : float3(1,1,1);
+	r1.xyz = r0.w ? r0.xzy : 1;
 	r0.xyz = r1.xyz * r0.xzy;
-	r0.w = sTonemap.Sample(sTonemap_s, float2(0,0)).x;
-	r0.xyz = r0.xyz * r0.www;
+	r0.w = sTonemap.Sample(sTonemap_s, 0).x;
+	r0.xyz = r0.xyz * r0.w;
 	if (bPost != 0) {
 		r1.xyz = sBloom.Sample(sBloom_s, v1.xy).xyz;
-		r1.xyz = cBloomWeights.xxx * r1.xyz + r0.xyz;
-		r0.xyz = gColorControl.zzz * r1.xyz;
+		r1.xyz = cBloomWeights.x * r1.xyz + r0.xyz;
+		r0.xyz = gColorControl.z * r1.xyz;
 	}
-	r0.xyz = max(float3(0,0,0), r0.xyz);
-	r0.xyz = min(cExtractTerms.www, r0.xyz);
+	r0.xyz = max(0, r0.xyz);
+	r0.xyz = min(cExtractTerms.w, r0.xyz);
 	if (bPost != 0) {
 		r1.zw = cNoiseTerms.xy * v1.zw;
 		r1.xy = v1.zw;
 		r2.xy = cNoiseTerms.xy;
-		r2.zw = float2(0.5,0.5);
-		r1.xyzw = r1.xyzw * r2.xyzw + cNoiseOffsets.xyzw;
+		r2.zw = 0.5;
+		r1 = r1 * r2 + cNoiseOffsets;
 
 		r1.x += separation;
 
 		r2.xyz = sNoise1.Sample(sNoise1_s, r1.xy * 1.5).xyz;
 		r1.xyz = sNoise1.Sample(sNoise1_s, r1.zw * 1.5).xyz;
 		r1.xyz = r2.xyz + r1.xyz;
-		r1.xyz = r1.xyz * cNoiseTerms.zzz + -cNoiseTerms.zzz;
-		r1.yz = bPost ? r1.xx : r1.yz;
+		r1.xyz = r1.xyz * cNoiseTerms.z + -cNoiseTerms.z;
+		r1.yz = bPost ? r1.x : r1.yz;
 		r0.xyz = r1.xyz + r0.xyz;
 		r0.w = dot(r0.xyz, float3(0.300000012,0.600000024,0.100000001));
-		r1.xyz = r0.xyz + -r0.www;
-		r1.xyz = cTint.www * r1.xyz + r0.www;
-		r1.xyz = r1.xyz * cMiscTerms.xxx + cMiscTerms.yyy;
+		r1.xyz = r0.xyz + -r0.w;
+		r1.xyz = cTint.w * r1.xyz + r0.w;
+		r1.xyz = r1.xyz * cMiscTerms.x + cMiscTerms.y;
 		r0.xyz = cTint.xyz * r1.xyz;
 	}
 	r0.xyz = saturate(r0.xyz * cLevelsScale.xyz + cLevelsBias.xyz);

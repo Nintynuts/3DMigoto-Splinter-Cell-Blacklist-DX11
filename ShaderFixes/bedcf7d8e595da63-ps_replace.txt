@@ -1,14 +1,6 @@
 // Breath + Steam
 
-cbuffer CB_PerFrame : register(b13)
-{
-	float4 gCameraFadeAlpha : packoffset(c0);
-	float4 gCameraFadeShadow : packoffset(c1);
-	float4 gColorControl : packoffset(c2);
-	float3 cBoostCol : packoffset(c3);
-	float cHdrControl : packoffset(c3.w);
-	float gAOControl : packoffset(c4);
-}
+#include "CB_PerFrame.hlsl"
 
 cbuffer CB_PerFogControl : register(b8)
 {
@@ -57,39 +49,39 @@ void main(
 	uint4 bitmask, uiDest;
 	float4 fDest;
 
-	r0.xyzw = sDiffuseMap.Sample(sDiffuseMap_s, v3.xy).xyzw;
+	r0 = sDiffuseMap.Sample(sDiffuseMap_s, v3.xy);
 	r0.xyz = r0.xyz * r0.xyz;
-	r1.xyzw = sDiffuseMap.Sample(sDiffuseMap_s, v3.zw).xyzw;
+	r1 = sDiffuseMap.Sample(sDiffuseMap_s, v3.zw);
 	r1.xyz = r1.xyz * r1.xyz;
 	r2.x = 1 + -v4.z;
-	r1.xyzw = r2.xxxx * r1.xyzw;
-	r0.xyzw = v4.zzzz * r0.xyzw + r1.xyzw;
+	r1 = r2.x * r1;
+	r0 = v4.z * r0 + r1;
 	r1.xyz = v1.xyz * r0.xyz;
-	r2.xyz = float3(1,1,1) + -cEmissiveMask.xyz;
-	r3.xyzw = cEmissiveMask.xyzw * v5.xyzw;
+	r2.xyz = 1 + -cEmissiveMask.xyz;
+	r3 = cEmissiveMask * v5;
 	r2.xyz = r2.xyz * cEmissive.xyz + r3.xyz;
 	r1.xyz = log2(abs(r1.xyz));
-	r1.xyz = r2.zzz * r1.xyz;
+	r1.xyz = r2.z * r1.xyz;
 	r1.xyz = exp2(r1.xyz);
-	r0.xyz = r1.xyz * r2.xxx + r2.yyy;
+	r0.xyz = r1.xyz * r2.x + r2.y;
 	if (bSoftParticles != 0) {
 
 		// Code moved to VS
-		//r1.xy = v4.xy / v4.ww;
+		//r1.xy = v4.xy / v4.w;
 		//r1.x = sSceneDepth.Sample(sSceneDepth_s, r1.xy).x;
 
 		r1.x = sSceneDepth.Sample(sSceneDepth_s, v4.xy).x;
 		r1.x = -v4.w + r1.x;
 		r1.x = saturate(cTranslucency.y * r1.x);
-		r1.xyzw = cFadeTerms.xxxy * r1.xxxx + cFadeTerms.zzzw;
-		r0.xyzw = r1.xyzw * r0.xyzw;
+		r1 = cFadeTerms.xxxy * r1.x + cFadeTerms.zzzw;
+		r0 = r1 * r0;
 	}
 	r0.w = v1.w * r0.w;
-	r1.x = dot(r0.xyz, cFadeTerms.xxx);
+	r1.x = dot(r0.xyz, cFadeTerms.x);
 	r1.x = cFadeTerms.z + r1.x;
-	r1.xyz = cFogCol.xyz * r1.xxx + -r0.xyz;
-	r0.xyz = r3.www * r1.xyz + r0.xyz;
-	o0.xyz = v2.www * r0.xyz;
+	r1.xyz = cFogCol.xyz * r1.x + -r0.xyz;
+	r0.xyz = r3.w * r1.xyz + r0.xyz;
+	o0.xyz = v2.w * r0.xyz;
 	o0.w = gColorControl.w * r0.w;
 	return;
 }

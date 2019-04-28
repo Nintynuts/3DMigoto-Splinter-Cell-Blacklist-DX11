@@ -1,16 +1,8 @@
-// ---- Created with 3Dmigoto v1.3.14 on Thu Feb 21 23:35:24 2019
+// Unlit mesh with bones
 
 #include "CB_PerCamera.hlsl"
 
-cbuffer CB_PerObject : register(b9)
-{
-	float4x3 gLocalToWorld : packoffset(c0);
-	float4 gDrawScale : packoffset(c3);
-	float4 cId : packoffset(c4);
-	float4 cSHParams[7] : packoffset(c5);
-	float cAOID : packoffset(c12);
-	bool bUseSH : packoffset(c12.y);
-}
+#include "CB_PerObject.hlsl"
 
 cbuffer CB_VS_Morphing : register(b0)
 {
@@ -41,7 +33,7 @@ void main(
 	float4 r0,r1,r2,r3,r4,r5,r6,r7;
 	
 	r0.x = v5.w * gForces.w + gForces.x;
-	r0.xy = v0.xy * gForces.yy + r0.xx;
+	r0.xy = v0.xy * gForces.y + r0.x;
 	r0.x = sin(r0.x);
 	r0.y = cos(r0.y);
 	r0.z = gForces.z * v4.w;
@@ -49,52 +41,43 @@ void main(
 	r1.y = r0.y * r0.z + v0.y;
 	r1.z = v0.z;
 	r0.xyz = gDrawScale.xyz * r1.xyz;
-	r1.xyzw = (int4)v6.xyzw * int4(3,3,3,3);
-	r2.xyzw = (uint4)v7.xyzw;
-	r2.xyzw = float4(0.00392156886,0.00392156886,0.00392156886,0.00392156886) * r2.xyzw;
-	r3.xyzw = gBones[r1.y].xyzw * r2.yyyy;
-	r3.xyzw = gBones[r1.x].xyzw * r2.xxxx + r3.xyzw;
-	r3.xyzw = gBones[r1.z].xyzw * r2.zzzz + r3.xyzw;
-	r1.xyzw = gBones[r1.w].xyzw * r2.wwww + r3.xyzw;
+	r1 = (int4)v6 * 3;
+	r2 = (uint4)v7;
+	r2 = 0.00392156886 * r2;
+	r3 = gBones[r1.y] * r2.y;
+	r3 = gBones[r1.x] * r2.x + r3;
+	r3 = gBones[r1.z] * r2.z + r3;
+	r1 = gBones[r1.w] * r2.w + r3;
 	r0.w = v0.w;
-	r3.x = dot(r1.xyzw, r0.xyzw);
-	r4.xyzw = mad((int4)v6.xxyy, int4(3,3,3,3), int4(1,2,1,2));
-	r5.xyzw = gBones[r4.z].xyzw * r2.yyyy;
-	r5.xyzw = gBones[r4.x].xyzw * r2.xxxx + r5.xyzw;
-	r6.xyzw = mad((int4)v6.zzww, int4(3,3,3,3), int4(1,2,1,2));
-	r5.xyzw = gBones[r6.x].xyzw * r2.zzzz + r5.xyzw;
-	r5.xyzw = gBones[r6.z].xyzw * r2.wwww + r5.xyzw;
-	r3.y = dot(r5.xyzw, r0.xyzw);
-	r7.xyzw = gBones[r4.w].xyzw * r2.yyyy;
-	r4.xyzw = gBones[r4.y].xyzw * r2.xxxx + r7.xyzw;
-	r4.xyzw = gBones[r6.y].xyzw * r2.zzzz + r4.xyzw;
-	r2.xyzw = gBones[r6.w].xyzw * r2.wwww + r4.xyzw;
-	r3.z = dot(r2.xyzw, r0.xyzw);
+	r3.x = dot(r1, r0);
+	r4 = mad((int4)v6.xxyy, 3, int4(1,2,1,2));
+	r5 = gBones[r4.z] * r2.y;
+	r5 = gBones[r4.x] * r2.x + r5;
+	r6 = mad((int4)v6.zzww, 3, int4(1,2,1,2));
+	r5 = gBones[r6.x] * r2.z + r5;
+	r5 = gBones[r6.z] * r2.w + r5;
+	r3.y = dot(r5, r0);
+	r7 = gBones[r4.w] * r2.y;
+	r4 = gBones[r4.y] * r2.x + r7;
+	r4 = gBones[r6.y] * r2.z + r4;
+	r2 = gBones[r6.w] * r2.w + r4;
+	r3.z = dot(r2, r0);
 	r0.xyz = -cViewPos_VS.xyz + r3.xyz;
 	o2.xyz = r3.xyz;
-	r3.x = dot(r0.xyz, gWorldToProj._m00_m10_m20);
-	r3.y = dot(r0.xyz, gWorldToProj._m01_m11_m21);
-	r3.z = dot(r0.xyz, gWorldToProj._m02_m12_m22);
-	r3.w = dot(r0.xyz, gWorldToProj._m03_m13_m23);
-	r0.xyzw = cProjSkinMesh.xyzw + r3.xyzw;
-	o0.xyzw = r0.xyzw;
+	r3 = mul(r0.xyz, gWorldToProj);
+	r0 = cProjSkinMesh + r3;
+	o0 = r0;
 	o2.w = r0.w;
 	r0.xy = (int2)v1.xy;
 	r0.zw = (int2)v2.xy;
-	o1.xyzw = float4(0.00048828125,0.00048828125,0.00048828125,0.00048828125) * r0.xyzw;
-	r0.xyz = v3.zyx * float3(2,2,2) + float3(-1,-1,-1);
+	o1 = 0.00048828125 * r0;
+	r0.xyz = v3.zyx * 2 + -1;
 	r3.y = dot(r0.xyz, r5.xyz);
 	r3.z = dot(r0.xyz, r2.xyz);
 	r3.x = dot(r0.xyz, r1.xyz);
-	o3.x = dot(r3.xyz, gLocalToWorld._m00_m10_m20);
-	o3.y = dot(r3.xyz, gLocalToWorld._m01_m11_m21);
-	o3.z = dot(r3.xyz, gLocalToWorld._m02_m12_m22);
+	o3.xyz = mul(r3.xyz, gLocalToWorld);
 	o3.w = 0;
 		
-	//if (texture_filter = -3)
-	//{
-	//	o0.x -= separation * 60;
-	//	o0.y += separation * 60;
-	//}
+	//correct_orientation(o0);
 	return;
 }

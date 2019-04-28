@@ -27,8 +27,8 @@ void main(
 	r0.x = r0.y * r0.x + 9.99999975e-005;
 	r0.x = cmp(r0.x < 0);
 	if (r0.x != 0) discard;
-	o0.xz = float2(0,0);
-	r0.xyzw = sSceneTexPoint.Sample(sSceneTexPoint_s, v1.xy).xyzw;
+	o0.xz = 0;
+	r0 = sSceneTexPoint.Sample(sSceneTexPoint_s, v1.xy);
 	o0.y = dot(r0.xyz, float3(0.300000012,0.600000024,0.100000001));
 	o0.w = r0.w;
 	return;

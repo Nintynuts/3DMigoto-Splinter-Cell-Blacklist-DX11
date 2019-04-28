@@ -23,15 +23,15 @@ void main(
 	
 	r0.x = 2040.01001 * v2.x;
 	r0.x = (int)r0.x;
-	r1.xyzw = (int4)v0.xyzw;
-	o0.x = dot(r1.xyzw, mvp[r0.x].xyzw);
-	r0.xyz = (int3)r0.xxx + int3(1,4,5);
-	o0.y = dot(r1.xyzw, mvp[r0.x].xyzw);
+	r1 = (int4)v0;
+	o0.x = dot(r1, mvp[r0.x]);
+	r0.xyz = (int3)r0.x + int3(1,4,5);
+	o0.y = dot(r1, mvp[r0.x]);
 	o0.zw = r1.zw;
-	o1.xyzw = v1.zyxw;
-	o2.xyzw = v2.zyxw;
-	o3.xyzw = mvp[r0.z].xyzw;
-	o4.xyzw = mvp[r0.y].xyzw;
+	o1 = v1.zyxw;
+	o2 = v2.zyxw;
+	o3 = mvp[r0.z];
+	o4 = mvp[r0.y];
 	
 	if (!rt_res_size_match()) // Render Target
 		return;

@@ -17,9 +17,7 @@ SamplerState sDepthTex_s : register(s1);
 Texture2D<float4> sSceneTex : register(t0);
 Texture2D<float4> sDepthTex : register(t1);
 
-
 #include "3Dmigoto.hlsl"
-
 
 void main(
 	float4 v0 : SV_Position0,
@@ -32,19 +30,17 @@ void main(
 	float4 fDest;
 
 	r0.z = 1;
-	r1.xyzw = v1.xyzw / v2.xxxx;
+	r1 = v1 / v2.x;
 	r0.xy = r1.xy;
 	r0.w = sDepthTex.Sample(sDepthTex_s, r1.zw).x;
-	r1.xyzw = sSceneTex.Sample(sSceneTex_s, r1.zw).xyzw;
-	r2.xyz = r0.xyz * r0.www;
+	r1 = sSceneTex.Sample(sSceneTex_s, r1.zw);
+	r2.xyz = r0.xyz * r0.w;
 	r0.x = cmp(r0.w >= 64000);
 	r2.w = 1;
 	
 	stereo_unfix(r2);
 	
-	r3.x = dot(r2.xyzw, cScreenToWorld._m00_m10_m20_m30);
-	r3.y = dot(r2.xyzw, cScreenToWorld._m01_m11_m21_m31);
-	r3.z = dot(r2.xyzw, cScreenToWorld._m02_m12_m22_m32);
+	r3.xyz = mul(r2, cScreenToWorld);
 	r0.yzw = cViewPos.xyz + -r3.xyz;
 	r2.x = dot(r0.yzw, r0.yzw);
 	r2.y = rsqrt(r2.x);
@@ -55,7 +51,7 @@ void main(
 	r0.x = -cCst1.x * r0.x;
 	r0.x = 1.44269502 * r0.x;
 	r0.x = exp2(r0.x);
-	r0.yzw = r2.yyy * r0.yzw;
+	r0.yzw = r2.y * r0.yzw;
 	r0.y = dot(cSunDir.xyz, r0.yzw);
 	r0.z = -cCst2.z * r0.y + cCst2.y;
 	r0.y = r0.y * r0.y + 1;
@@ -65,10 +61,10 @@ void main(
 	r0.z = cCst2.x / r0.z;
 	r0.y = cCst1.z * r0.y + r0.z;
 	r0.y = cCst1.y * r0.y;
-	r0.yzw = cESun.xyz * r0.yyy;
+	r0.yzw = cESun.xyz * r0.y;
 	r2.x = 1 + -r0.x;
-	r0.yzw = r2.xxx * r0.yzw;
-	o0.xyz = r1.xyz * r0.xxx + r0.yzw;
+	r0.yzw = r2.x * r0.yzw;
+	o0.xyz = r1.xyz * r0.x + r0.yzw;
 	o0.w = r1.w;
 	return;
 }

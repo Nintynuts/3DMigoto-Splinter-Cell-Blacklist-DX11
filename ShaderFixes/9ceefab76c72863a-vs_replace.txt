@@ -13,8 +13,8 @@ void main(
 	out float4 o0 : SV_Position0,
 	out float2 o1 : TEXCOORD0)
 {
-	o0.x = dot(v0.xyzw, mvp[0].xyzw);
-	o0.y = dot(v0.xyzw, mvp[1].xyzw);
+	o0.x = dot(v0, mvp[0]);
+	o0.y = dot(v0, mvp[1]);
 	o0.zw = v0.zw;
 	o1.xy = v1.xy;
 		

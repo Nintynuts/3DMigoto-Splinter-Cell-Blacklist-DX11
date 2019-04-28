@@ -1,14 +1,6 @@
 // Shoulder Pad (less broken, but still broken - disappears)
 
-cbuffer CB_PerFrame : register(b13)
-{
-	float4 gCameraFadeAlpha : packoffset(c0);
-	float4 gCameraFadeShadow : packoffset(c1);
-	float4 gColorControl : packoffset(c2);
-	float3 cBoostCol : packoffset(c3);
-	float cHdrControl : packoffset(c3.w);
-	float gAOControl : packoffset(c4);
-}
+#include "CB_PerFrame.hlsl"
 
 cbuffer CB_PS_FullDeferredMaterial_Static : register(b7)
 {
@@ -38,9 +30,7 @@ Texture2D<float4> sNormalMap : register(t1);
 Texture2D<float4> sSpecularMap : register(t2);
 Texture2D<float4> sSelfAOMap : register(t3);
 
-
 #include "3Dmigoto.hlsl"
-
 
 void main(
 	float4 v0 : SV_Position0,
@@ -65,20 +55,20 @@ void main(
 	r0.y = gAOControl * r0.y + 1;
 	o0.y = r0.x * r0.y;
 	o0.x = v2.w;
-	o0.zw = float2(0,0);
+	o0.zw = 0;
 	r0.xy = sNormalMap.Sample(sNormalMap_s, v1.xy).xy;
-	r0.xy = r0.xy * float2(2,2) + float2(-1,-1);
-	r1.xyz = v4.xyz * r0.yyy;
-	r1.xyz = r0.xxx * v3.xyz + r1.xyz;
+	r0.xy = r0.xy * 2 + -1;
+	r1.xyz = v4.xyz * r0.y;
+	r1.xyz = r0.x * v3.xyz + r1.xyz;
 	r0.x = dot(r0.xy, r0.xy);
 	r0.x = min(1, r0.x);
 	r0.x = 1 + -r0.x;
 	r0.x = sqrt(r0.x);
-	r0.xyz = r0.xxx * v5.xyz + r1.xyz;
+	r0.xyz = r0.x * v5.xyz + r1.xyz;
 	r0.w = dot(r0.xyz, r0.xyz);
 	r0.w = rsqrt(r0.w);
-	r0.xyz = r0.xyz * r0.www;
-	o1.xyz = r0.xyz * float3(0.5,0.5,0.5) + float3(0.5,0.5,0.5);
+	r0.xyz = r0.xyz * r0.w;
+	o1.xyz = r0.xyz * 0.5 + 0.5;
 	r0.x = 1 + -data0.w;
 	r0.yzw = sSpecularMap.Sample(sSpecularMap_s, v1.xy).xyz;
 	r0.x = r0.w * r0.x + data0.w;
@@ -96,7 +86,7 @@ void main(
 	r0.xyz = cDiffCol.xyz * r0.xyz;
 	o2.xyz = sqrt(r0.xyz);
 	r0.xyz = v6.xyz * r0.xyz;
-	r0.xyz = gCubemapScale.yyy * r0.xyz;
+	r0.xyz = gCubemapScale.y * r0.xyz;
 	r0.xyz = sqrt(r0.xyz);
 	r0.xyz = max(float3(9.99999975e-005,9.99999975e-005,9.99999975e-005), r0.xyz);
 	r0.w = max(r0.x, r0.y);
@@ -105,8 +95,8 @@ void main(
 	r0.w = 255 * r0.w;
 	r0.w = ceil(r0.w);
 	r0.w = 0.00392156886 * r0.w;
-	r0.xyz = r0.xyz / r0.www;
+	r0.xyz = r0.xyz / r0.w;
 	o3.w = r0.w;
-	o3.xyz = min(float3(1,1,1), r0.xyz);
+	o3.xyz = min(1, r0.xyz);
 	return;
 }

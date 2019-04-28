@@ -1,14 +1,6 @@
 // Ambient Occlusion Character
 
-cbuffer CB_PerFrame : register(b13)
-{
-	float4 gCameraFadeAlpha : packoffset(c0);
-	float4 gCameraFadeShadow : packoffset(c1);
-	float4 gColorControl : packoffset(c2);
-	float3 cBoostCol : packoffset(c3);
-	float cHdrControl : packoffset(c3.w);
-	float gAOControl : packoffset(c4);
-}
+#include "CB_PerFrame.hlsl"
 
 cbuffer CB_PS_AOSphere : register(b7)
 {
@@ -34,40 +26,38 @@ void main(
 {
 	float4 r0,r1,r2,r3,r4;
 	
-	r0.xyzw = v1.xyzw / v2.xxxx;
+	r0 = v1 / v2.x;
 	r1.z = sIDMap.Sample(sIDMap_s, r0.zw).x;
-	r1.xy = r1.zz * r0.xy;
+	r1.xy = r1.z * r0.xy;
 	r0.xyz = sNormalMap.Sample(sNormalMap_s, r0.zw).xyz;
-	r0.xyz = r0.yzx * float3(2,2,2) + float3(-1,-1,-1);
+	r0.xyz = r0.yzx * 2 + -1;
 	r1.w = 1;
 			
 	stereo_unfix(r1);
 	
-	r2.w = dot(r1.xyzw, cScreenToWorld._m00_m10_m20_m30);
-	r2.y = dot(r1.xyzw, cScreenToWorld._m01_m11_m21_m31);
-	r2.z = dot(r1.xyzw, cScreenToWorld._m02_m12_m22_m32);
+	r2.wyz = mul(r1, cScreenToWorld);
 	r0.w = dot(r2.yzw, r2.yzw);
 	r1.x = rsqrt(r0.w);
 	r0.w = 4 * r0.w;
 	r3.x = min(1, r0.w);
-	r1.yzw = r2.yzw * r1.xxx;
+	r1.yzw = r2.yzw * r1.x;
 	r3.y = 0.5;
 	r3.x += 0.01;
 	r2.xy = sAOSphereMap.SampleLevel(sAOSphereMap_s, r3.xy, 0).xy;
 	r1.x = 1;
-	r1.xyzw = r1.xyzw * r2.xyyy + float4(-1,-0,-0,-0);
-	r1.xyzw = cIDFactor.yyyy * r1.xyzw + float4(1,0,0,0);
-	r2.x = dot(r1.xyzw, r1.xyzw);
-	r3.xyz = r2.xxx * r1.yzw;
-	r4.xyz = r1.xxx * r1.yzw;
+	r1 = r1 * r2.xyyy + float4(-1,-0,-0,-0);
+	r1 = cIDFactor.y * r1 + float4(1,0,0,0);
+	r2.x = dot(r1, r1);
+	r3.xyz = r2.x * r1.yzw;
+	r4.xyz = r1.x * r1.yzw;
 	r2.yzw = r4.xyz + r4.xyz;
-	r3.yzw = r1.xxx * r2.yzw + r3.xyz;
-	r3.x = dot(r2.xyzw, r1.xyzw);
+	r3.yzw = r1.x * r2.yzw + r3.xyz;
+	r3.x = dot(r2, r1);
 	r0.w = dot(r0.xyz, r0.xyz);
 	r0.w = rsqrt(r0.w);
-	r0.yzw = r0.xyz * r0.www;
+	r0.yzw = r0.xyz * r0.w;
 	r0.x = 1;
-	r0.x = saturate(dot(r3.xyzw, r0.xyzw));
-	o0.xyzw = gColorControl.wwww * r0.xxxx;
+	r0.x = saturate(dot(r3, r0));
+	o0 = gColorControl.w * r0.x;
 	return;
 }

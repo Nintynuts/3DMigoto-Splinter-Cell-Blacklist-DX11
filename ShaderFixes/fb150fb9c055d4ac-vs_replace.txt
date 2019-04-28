@@ -9,15 +9,7 @@ cbuffer CB_PerPass : register(b12)
 
 #include "CB_PerCamera.hlsl"
 
-cbuffer CB_PerObject : register(b9)
-{
-	float4x3 gLocalToWorld : packoffset(c0);
-	float4 gDrawScale : packoffset(c3);
-	float4 cId : packoffset(c4);
-	float4 cSHParams[7] : packoffset(c5);
-	float cAOID : packoffset(c12);
-	bool bUseSH : packoffset(c12.y);
-}
+#include "CB_PerObject.hlsl"
 
 cbuffer CB_PerFogControl : register(b8)
 {
@@ -26,29 +18,7 @@ cbuffer CB_PerFogControl : register(b8)
 	float4 cFogCol : packoffset(c2);
 }
 
-cbuffer CB_VS_ParticleTransforms : register(b6)
-{
-	bool bUseCubeMapAmbient : packoffset(c0);
-	bool bUsePerpendicularFade : packoffset(c0.y);
-	float4 cTextureProperties : packoffset(c1);
-	float4 cSize_Offset : packoffset(c2);
-	float4 cCamera_Position : packoffset(c3);
-	float4 cCenter_Position : packoffset(c4);
-	float4 cRotation_Offset : packoffset(c5);
-	float4 cUseDirectionFrom : packoffset(c6);
-	float4 cProjection_Front : packoffset(c7);
-	float4 cProjection_Up : packoffset(c8);
-	float4 cProjection_Right : packoffset(c9);
-	float4 cAmbientMin : packoffset(c10);
-	float4 cAmbientMax : packoffset(c11);
-	float4 cFadeParms : packoffset(c12);
-	float4 cBlendModeMask : packoffset(c13);
-	float4x4 cAxisEffect : packoffset(c14);
-	float4x4 cWorldToProj : packoffset(c18);
-	float4x4 cViewToProj : packoffset(c22);
-	float4x4 cL2W_Rot : packoffset(c26);
-	float4 cCorners[4] : packoffset(c30);
-}
+#include "CB_VS_ParticleTransforms.hlsl"
 
 #include "3Dmigoto.hlsl"
 
@@ -70,161 +40,150 @@ void main(
 	
 	r0.xyz = v0.xyz;
 	r0.w = 1;
-	r1.x = dot(r0.xyzw, cAxisEffect._m00_m10_m20_m30);
-	r1.y = dot(r0.xyzw, cAxisEffect._m01_m11_m21_m31);
-	r1.z = dot(r0.xyzw, cAxisEffect._m02_m12_m22_m32);
-	r1.w = dot(r0.xyzw, cAxisEffect._m03_m13_m23_m33);
-	r0.xyzw = -cCamera_Position.xyzw + r1.xyzw;
-	r0.x = dot(r0.xyzw, cProjection_Front.xyzw);
+	r1 = mul(r0, cAxisEffect);
+	r0 = -cCamera_Position + r1;
+	r0.x = dot(r0, cProjection_Front);
 	r0.x = saturate(r0.x * cFadeParms.z + cFadeParms.w);
 	r0.y = cmp(0 < r0.x);
 	if (r0.y != 0) {
-		r2.xyzw = (uint4)v2.xyzw;
+		r2 = (uint4)v2;
 		r0.y = v5.x;
 		r0.zw = cCorners[r0.y].xy + -cSize_Offset.xy;
-		r3.xyzw = cCorners[r0.y].zwzw * cTextureProperties.xyxy;
-		o3.xyzw = r2.xyzw * cTextureProperties.xyxy + r3.xyzw;
-		r2.xyz = v1.zyx * float3(2,2,2) + float3(-1,-1,-1);
+		r3 = cCorners[r0.y].zwzw * cTextureProperties.xyxy;
+		o3 = r2 * cTextureProperties.xyxy + r3;
+		r2.xyz = v1.zyx * 2 + -1;
 		r0.y = cmp(cUseDirectionFrom.x == 0.000000);
 		if (r0.y != 0) {
 			r3.xyz = cProjection_Right.yzx * cProjection_Up.zxy;
 			r3.xyz = cProjection_Up.yzx * cProjection_Right.zxy + -r3.xyz;
 			r0.y = dot(r3.xyz, r3.xyz);
 			r0.y = rsqrt(r0.y);
-			r3.xyz = r3.xyz * r0.yyy;
+			r3.xyz = r3.xyz * r0.y;
 			r4.xyz = cProjection_Up.xyz;
 			r5.xyz = cProjection_Right.xyz;
 		} else {
 			r0.y = cmp(cUseDirectionFrom.x == 1.000000);
 			if (r0.y != 0) {
-				r6.xy = cmp(float2(0.569999993,0.569999993) < abs(r2.xy));
-				r6.yzw = r6.yyy ? float3(0,0,1) : float3(1,0,0);
-				r6.xyz = r6.xxx ? float3(0,1,0) : r6.yzw;
-				r7.x = dot(r2.xyz, cL2W_Rot._m00_m10_m20);
-				r7.y = dot(r2.xyz, cL2W_Rot._m01_m11_m21);
-				r7.z = dot(r2.xyz, cL2W_Rot._m02_m12_m22);
-				r8.z = dot(r6.xyz, cL2W_Rot._m00_m10_m20);
-				r8.x = dot(r6.xyz, cL2W_Rot._m01_m11_m21);
-				r8.y = dot(r6.xyz, cL2W_Rot._m02_m12_m22);
+				r6.xy = cmp(0.569999993 < abs(r2.xy));
+				r6.yzw = r6.y ? float3(0,0,1) : float3(1,0,0);
+				r6.xyz = r6.x ? float3(0,1,0) : r6.yzw;
+				r7.xyz = mul(r2.xyz, cL2W_Rot);
+				r8.xyz = mul(r6.xyz, cL2W_Rot);
 				r6.xyz = r8.xyz * r7.zxy;
 				r6.xyz = r7.yzx * r8.yzx + -r6.xyz;
 				r0.y = dot(r6.xyz, r6.xyz);
 				r0.y = rsqrt(r0.y);
-				r4.xyz = r6.xyz * r0.yyy;
+				r4.xyz = r6.xyz * r0.y;
 				r6.xyz = r7.zxy * r4.yzx;
 				r6.xyz = r7.yzx * r4.zxy + -r6.xyz;
 				r0.y = dot(r6.xyz, r6.xyz);
 				r0.y = rsqrt(r0.y);
-				r5.xyz = r6.xyz * r0.yyy;
+				r5.xyz = r6.xyz * r0.y;
 				r6.xyz = r5.yzx * r4.zxy;
 				r6.xyz = r4.yzx * r5.zxy + -r6.xyz;
 				r0.y = dot(r6.xyz, r6.xyz);
 				r0.y = rsqrt(r0.y);
-				r3.xyz = r6.xyz * r0.yyy;
+				r3.xyz = r6.xyz * r0.y;
 				r2.xyz = r7.xyz;
 			} else {
 				r6.xyz = -cCamera_Position.zxy + r1.zxy;
-				r7.xyz = cmp(cUseDirectionFrom.xxx == float3(2,3,9));
+				r7.xyz = cmp(cUseDirectionFrom.x == float3(2,3,9));
 				r0.y = (int)r7.y | (int)r7.x;
 				r0.y = (int)r7.z | (int)r0.y;
 				if (r0.y != 0) {
-					r4.x = dot(r2.xyz, cAxisEffect._m00_m10_m20);
-					r4.y = dot(r2.xyz, cAxisEffect._m01_m11_m21);
-					r4.z = dot(r2.xyz, cAxisEffect._m02_m12_m22);
+					r4.xyz = mul(r2.xyz, cAxisEffect);
 					r7.xyz = r4.zxy * r6.zxy;
 					r7.xyz = r4.yzx * r6.xyz + -r7.xyz;
 					r0.y = dot(r7.xyz, r7.xyz);
 					r0.y = rsqrt(r0.y);
-					r5.xyz = r7.xyz * r0.yyy;
+					r5.xyz = r7.xyz * r0.y;
 					r7.xyz = r5.yzx * r4.zxy;
 					r7.xyz = r4.yzx * r5.zxy + -r7.xyz;
 					r0.y = dot(r7.xyz, r7.xyz);
 					r0.y = rsqrt(r0.y);
-					r3.xyz = r7.xyz * r0.yyy;
+					r3.xyz = r7.xyz * r0.y;
 					r2.xyz = r4.xyz;
 				} else {
-					r7.xy = cmp(cUseDirectionFrom.xx == float2(4,5));
+					r7.xy = cmp(cUseDirectionFrom.x == float2(4,5));
 					r0.y = (int)r7.y | (int)r7.x;
 					if (r0.y != 0) {
-						r7.x = dot(r2.xyz, cAxisEffect._m00_m10_m20);
-						r7.y = dot(r2.xyz, cAxisEffect._m01_m11_m21);
-						r7.z = dot(r2.xyz, cAxisEffect._m02_m12_m22);
+						r7.xyz = mul(r2.xyz, cAxisEffect);
 						r0.y = dot(r7.xyz, r7.xyz);
 						r0.y = rsqrt(r0.y);
-						r2.xyz = r7.xyz * r0.yyy;
+						r2.xyz = r7.xyz * r0.y;
 						r7.xyz = r2.xyz * r6.xyz;
 						r7.xyz = r2.zxy * r6.yzx + -r7.xyz;
 						r0.y = dot(r7.xyz, r7.xyz);
 						r0.y = rsqrt(r0.y);
-						r7.xyz = r7.xyz * r0.yyy;
+						r7.xyz = r7.xyz * r0.y;
 						r0.y = 1 + -cUseDirectionFrom.y;
-						r8.xyz = r7.zxy * r0.yyy;
-						r4.xyz = r2.xyz * cUseDirectionFrom.yyy + r8.xyz;
-						r8.xyz = cUseDirectionFrom.yyy * r7.zxy;
-						r5.xyz = r2.xyz * r0.yyy + r8.xyz;
+						r8.xyz = r7.zxy * r0.y;
+						r4.xyz = r2.xyz * cUseDirectionFrom.y + r8.xyz;
+						r8.xyz = cUseDirectionFrom.y * r7.zxy;
+						r5.xyz = r2.xyz * r0.y + r8.xyz;
 						r8.xyz = r7.xyz * r2.zxy;
 						r7.xyz = r2.yzx * r7.yzx + -r8.xyz;
 						r0.y = dot(r7.xyz, r7.xyz);
 						r0.y = rsqrt(r0.y);
-						r3.xyz = r7.xyz * r0.yyy;
+						r3.xyz = r7.xyz * r0.y;
 					} else {
-						r7.xyz = cmp(cUseDirectionFrom.xxx == float3(6,7,8));
+						r7.xyz = cmp(cUseDirectionFrom.x == float3(6,7,8));
 						r0.y = (int)r7.y | (int)r7.x;
 						r7.xyw = r6.xyz * r2.xyz;
 						r6.xyz = r2.zxy * r6.yzx + -r7.xyw;
 						r2.w = dot(r6.xyz, r6.xyz);
 						r2.w = rsqrt(r2.w);
-						r6.xyz = r6.xyz * r2.www;
+						r6.xyz = r6.xyz * r2.w;
 						r2.w = 1 + -cUseDirectionFrom.y;
-						r7.xyw = r6.zxy * r2.www;
-						r7.xyw = r2.xyz * cUseDirectionFrom.yyy + r7.xyw;
-						r8.xyz = cUseDirectionFrom.yyy * r6.zxy;
-						r8.xyz = r2.xyz * r2.www + r8.xyz;
+						r7.xyw = r6.zxy * r2.w;
+						r7.xyw = r2.xyz * cUseDirectionFrom.y + r7.xyw;
+						r8.xyz = cUseDirectionFrom.y * r6.zxy;
+						r8.xyz = r2.xyz * r2.w + r8.xyz;
 						r9.xyz = r6.xyz * r2.zxy;
 						r6.xyz = r2.yzx * r6.yzx + -r9.xyz;
 						r2.w = dot(r6.xyz, r6.xyz);
 						r2.w = rsqrt(r2.w);
-						r6.xyz = r6.xyz * r2.www;
+						r6.xyz = r6.xyz * r2.w;
 						r9.xyz = float3(0,1,0) * r2.zxy;
 						r9.xyz = r2.yzx * float3(1,0,0) + -r9.xyz;
 						r2.w = dot(r9.xy, r9.xy);
 						r2.w = rsqrt(r2.w);
-						r9.xyz = r9.xyz * r2.www;
+						r9.xyz = r9.xyz * r2.w;
 						r10.xyz = r9.zxy * r2.yzx;
 						r10.xyz = r9.yzx * r2.zxy + -r10.xyz;
 						r2.w = dot(r10.xyz, r10.xyz);
 						r2.w = rsqrt(r2.w);
-						r10.xyz = r10.xyz * r2.www;
+						r10.xyz = r10.xyz * r2.w;
 						r11.xyz = r10.zxy * r9.yzx;
 						r11.xyz = r10.yzx * r9.zxy + -r11.xyz;
 						r2.w = dot(r11.xyz, r11.xyz);
 						r2.w = rsqrt(r2.w);
-						r11.xyz = r11.xyz * r2.www;
-						r10.xyz = r7.zzz ? r10.xyz : 0;
-						r9.xyz = r7.zzz ? r9.xyz : 0;
-						r11.xyz = r7.zzz ? r11.xyz : 0;
-						r4.xyz = r0.yyy ? r7.xyw : r10.xyz;
-						r5.xyz = r0.yyy ? r8.xyz : r9.xyz;
-						r3.xyz = r0.yyy ? r6.xyz : r11.xyz;
+						r11.xyz = r11.xyz * r2.w;
+						r10.xyz = r7.z ? r10.xyz : 0;
+						r9.xyz = r7.z ? r9.xyz : 0;
+						r11.xyz = r7.z ? r11.xyz : 0;
+						r4.xyz = r0.y ? r7.xyw : r10.xyz;
+						r5.xyz = r0.y ? r8.xyz : r9.xyz;
+						r3.xyz = r0.y ? r6.xyz : r11.xyz;
 					}
 				}
 			}
 		}
-		r5.xyz = v3.xxx * r5.xyz;
-		r4.xyz = v3.yyy * r4.xyz;
-		r6.xyz = r4.xyz * r0.zzz;
-		r4.xyz = r6.xyz * cRotation_Offset.xxx + r4.xyz;
-		r6.xyz = r5.xyz * r0.www;
-		r5.xyz = r6.xyz * cRotation_Offset.yyy + r5.xyz;
+		r5.xyz = v3.x * r5.xyz;
+		r4.xyz = v3.y * r4.xyz;
+		r6.xyz = r4.xyz * r0.z;
+		r4.xyz = r6.xyz * cRotation_Offset.x + r4.xyz;
+		r6.xyz = r5.xyz * r0.w;
+		r5.xyz = r6.xyz * cRotation_Offset.y + r5.xyz;
 		r0.y = 1 + -v3.w;
-		r6.xyzw = r3.xyzx * r3.xyzy;
+		r6 = r3.xyzx * r3.xyzy;
 		r7.xy = r3.zy * r3.xz;
-		r8.xyz = v3.zzz * r3.yzx;
+		r8.xyz = v3.z * r3.yzx;
 		r9.x = r6.w * r0.y + r8.y;
 		r10.x = r6.w * r0.y + -r8.y;
-		r10.yz = r7.yx * r0.yy + r8.zx;
-		r9.yz = r7.xy * r0.yy + -r8.xz;
-		r6.xyz = r6.xyz * r0.yyy + v3.www;
+		r10.yz = r7.yx * r0.y + r8.zx;
+		r9.yz = r7.xy * r0.y + -r8.xz;
+		r6.xyz = r6.xyz * r0.y + v3.w;
 		r10.w = r6.x;
 		r7.x = dot(r4.yzx, r10.xzw);
 		r9.w = r6.y;
@@ -235,32 +194,29 @@ void main(
 		r4.x = dot(r5.yzx, r10.xzw);
 		r4.y = dot(r5.xzy, r9.xzw);
 		r4.z = dot(r5.xyz, r6.xyz);
-		r5.xyz = r0.zzz * r7.xyz + r1.xyz;
-		r4.xyz = r4.xyz * r0.www;
+		r5.xyz = r0.z * r7.xyz + r1.xyz;
+		r4.xyz = r4.xyz * r0.w;
 		r5.w = r1.w;
 		r4.w = 0;
-		r4.xyzw = r5.xyzw + r4.xyzw;
-		r5.x = dot(r4.xyzw, cWorldToProj._m00_m10_m20_m30);
-		r5.y = dot(r4.xyzw, cWorldToProj._m01_m11_m21_m31);
-		r5.z = dot(r4.xyzw, cWorldToProj._m02_m12_m22_m32);
-		r5.w = dot(r4.xyzw, cWorldToProj._m03_m13_m23_m33);
+		r4 = r5 + r4;
+		r5 = mul(r4, cWorldToProj);
 		o0 = r5;
 		
 		stereo_fix(r5);
 		
-		r6.xyzw = gViewportSB.xyzw * r5.xyzw;
+		r6 = gViewportSB * r5;
 		o4.xy = r6.xy + r6.zw;
 		r0.yzw = cCamera_Position.xyz + -r1.xyz;
 		r1.x = dot(r0.yzw, r0.yzw);
 		r1.x = rsqrt(r1.x);
-		r0.yzw = r1.xxx * r0.yzw;
+		r0.yzw = r1.x * r0.yzw;
 		r0.y = dot(r0.yzw, r3.xyz);
 		r0.z = dot(cProjection_Front.xyz, r3.xyz);
 		r0.y = saturate(abs(r0.y) * abs(r0.z) + -cFadeParms.x);
 		r0.y = cFadeParms.y * r0.y;
 		r0.y = r0.x * r0.y;
 		r0.x = bUseCubeMapAmbient ? r0.y : r0.x;
-		r0.xy = saturate(cBlendModeMask.xy * r0.xx + cBlendModeMask.yx);
+		r0.xy = saturate(cBlendModeMask.xy * r0.x + cBlendModeMask.yx);
 		o1.w = v4.w * r0.y;
 		r0.yzw = cViewPos_VS.xyz + -r4.xyz;
 		r0.y = dot(r0.yzw, r0.yzw);
@@ -269,28 +225,26 @@ void main(
 		r0.y = saturate(r0.y / cFog_Density_Start_Range.z);
 		r0.y = cFog_Density_Start_Range.x * r0.y;
 		r1.y = bFog ? r0.y : 0;
-		r3.x = dot(r2.xyz, gLocalToWorld._m00_m10_m20);
-		r3.y = dot(r2.xyz, gLocalToWorld._m01_m11_m21);
-		r3.z = dot(r2.xyz, gLocalToWorld._m02_m12_m22);
+		r3.xyz = mul(r2.xyz, gLocalToWorld);
 		r0.y = dot(r3.xyz, r3.xyz);
 		r0.y = rsqrt(r0.y);
-		r2.xyz = r3.xyz * r0.yyy;
+		r2.xyz = r3.xyz * r0.y;
 		r2.w = 1;
-		r3.x = dot(cSHParams[0].xyzw, r2.xyzw);
-		r3.y = dot(cSHParams[1].xyzw, r2.xyzw);
-		r3.z = dot(cSHParams[2].xyzw, r2.xyzw);
-		r4.xyzw = r2.xyzz * r2.yzzx;
-		r6.x = dot(cSHParams[3].xyzw, r4.xyzw);
-		r6.y = dot(cSHParams[4].xyzw, r4.xyzw);
-		r6.z = dot(cSHParams[5].xyzw, r4.xyzw);
+		r3.x = dot(cSHParams[0], r2);
+		r3.y = dot(cSHParams[1], r2);
+		r3.z = dot(cSHParams[2], r2);
+		r4 = r2.xyzz * r2.yzzx;
+		r6.x = dot(cSHParams[3], r4);
+		r6.y = dot(cSHParams[4], r4);
+		r6.z = dot(cSHParams[5], r4);
 		r0.y = r2.y * r2.y;
 		r0.y = r2.x * r2.x + -r0.y;
 		r2.xyz = r6.xyz + r3.xyz;
-		r0.yzw = cSHParams[6].xyz * r0.yyy + r2.xyz;
-		r0.yzw = max(float3(0,0,0), r0.yzw);
+		r0.yzw = cSHParams[6].xyz * r0.y + r2.xyz;
+		r0.yzw = max(0, r0.yzw);
 		r0.yzw = cSHScale * r0.yzw;
 		r0.yzw = bUseSH ? r0.yzw : cAmbientColor.xyz;
-		r0.yzw = bUseCubeMapAmbient ? r0.yzw : float3(0,0,0);
+		r0.yzw = bUseCubeMapAmbient ? r0.yzw : 0;
 		r0.yzw = max(cAmbientMin.xyz, r0.yzw);
 		o2.xyz = min(cAmbientMax.xyz, r0.yzw);
 
@@ -302,20 +256,20 @@ void main(
 		o4.w = r5.w;
 		
 		// Moved from PS
-		o4.xy = o4.xy / o4.ww;
+		o4.xy = o4.xy / o4.w;
 		// Halo Fix
 		stereo_unfix(o4);
 
 		r1.x = v0.w;
 	} else {
-		o0.xyzw = float4(0,0,0,-1);
-		o1.xyzw = float4(0,0,0,0);
-		o2.xyzw = float4(0,0,0,0);
-		o3.xyzw = float4(0,0,0,0);
-		o4.xyzw = float4(0,0,0,0);
-		r1.xy = float2(0,0);
+		o0 = float4(0,0,0,-1);
+		o1 = 0;
+		o2 = 0;
+		o3 = 0;
+		o4 = 0;
+		r1.xy = 0;
 	}
 	o5.xw = r1.xy;
-	o5.yz = float2(0,0);
+	o5.yz = 0;
 	return;
 }

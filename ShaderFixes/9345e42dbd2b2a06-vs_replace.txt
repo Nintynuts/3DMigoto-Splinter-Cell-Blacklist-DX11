@@ -2,15 +2,7 @@
 
 #include "CB_PerCamera.hlsl"
 
-cbuffer CB_PerObject : register(b9)
-{
-	float4x3 gLocalToWorld : packoffset(c0);
-	float4 gDrawScale : packoffset(c3);
-	float4 cId : packoffset(c4);
-	float4 cSHParams[7] : packoffset(c5);
-	float cAOID : packoffset(c12);
-	bool bUseSH : packoffset(c12.y);
-}
+#include "CB_PerObject.hlsl"
 
 cbuffer CB_VS_SimpleTransform : register(b3)
 {
@@ -42,7 +34,7 @@ void main(
 	else
 		stereo_fix(r1);
 	
-	r0.xy = gViewportSB.zw * r1.ww;
+	r0.xy = gViewportSB.zw * r1.w;
 	o2.x = r1.w;
 	o1.zw = r1.xy * gViewportSB.xy + r0.xy;
 	o1.xy = r1.xy;

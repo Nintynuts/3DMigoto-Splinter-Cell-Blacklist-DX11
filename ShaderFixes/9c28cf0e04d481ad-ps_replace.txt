@@ -13,9 +13,7 @@ Texture2D<float4> texX : register(t0);
 Texture2D<float4> texY : register(t1);
 Texture2D<float4> texZ : register(t2);
 
-
 #include "3Dmigoto.hlsl"
-
 
 void main(
 	float4 v0 : SV_Position0,
@@ -43,9 +41,7 @@ void main(
 	r2.xy = v2.xy * uv[2].xy + uv[2].zw;
 	r1.z = texZ.Sample(texZ_s, r2.xy).x;
 	r1.w = 1;
-	r0.x = dot(r1.xyzw, mat._m00_m10_m20_m30);
-	r0.y = dot(r1.xyzw, mat._m01_m11_m21_m31);
-	r0.z = dot(r1.xyzw, mat._m02_m12_m22_m32);
-	o0.xyzw = v1.xyzw * r0.xyzw;
+	r0.xyz = mul(r1, mat);
+	o0 = v1 * r0;
 	return;
 }

@@ -15,13 +15,13 @@ void main(
 	out float4 o2 : COLOR0)
 {
 	float4 r0;
-		r0.xyzw = (int4)v0.xyzw;
-	o0.x = dot(r0.xyzw, mvp[0].xyzw);
-	o0.y = dot(r0.xyzw, mvp[1].xyzw);
+		r0 = (int4)v0;
+	o0.x = dot(r0, mvp[0]);
+	o0.y = dot(r0, mvp[1]);
 	o0.zw = r0.zw;
-	o1.x = dot(r0.xyzw, mvp[6].xyzw);
-	o1.y = dot(r0.xyzw, mvp[7].xyzw);
-	o2.xyzw = v1.zyxw;
+	o1.x = dot(r0, mvp[6]);
+	o1.y = dot(r0, mvp[7]);
+	o2 = v1.zyxw;
 	
 	if (!rt_res_size_match()) // Render Target
 		return;

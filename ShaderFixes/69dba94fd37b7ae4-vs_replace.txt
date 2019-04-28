@@ -22,16 +22,16 @@ void main(
 	
 	r0.x = 2040.01001 * v3.x;
 	r0.x = (int)r0.x;
-	o0.x = dot(v0.xyzw, mvp[r0.x].xyzw);
-	r1.xyzw = (int4)r0.xxxx + int4(1,2,3,4);
+	o0.x = dot(v0, mvp[r0.x]);
+	r1 = (int4)r0.x + int4(1,2,3,4);
 	r0.x = (int)r0.x + 5;
-	o2.xyzw = mvp[r0.x].xyzw;
-	o0.y = dot(v0.xyzw, mvp[r1.x].xyzw);
-	o0.z = dot(v0.xyzw, mvp[r1.y].xyzw);
-	o0.w = dot(v0.xyzw, mvp[r1.z].xyzw);
-	o3.xyzw = mvp[r1.w].xyzw;
+	o2 = mvp[r0.x];
+	o0.y = dot(v0, mvp[r1.x]);
+	o0.z = dot(v0, mvp[r1.y]);
+	o0.w = dot(v0, mvp[r1.z]);
+	o3 = mvp[r1.w];
 	o1.xy = v1.xy;
-	o4.xyzw = v2.zyxw;
+	o4 = v2.zyxw;
 	
 	stereo_unfix(o0);
 

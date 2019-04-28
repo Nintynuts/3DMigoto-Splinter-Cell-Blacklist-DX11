@@ -15,12 +15,12 @@ void main(
 	out float2 o1 : TEXCOORD0,
 	out float4 o2 : COLOR0)
 {
-	o0.x = dot(v0.xyzw, mvp[0].xyzw);
-	o0.y = dot(v0.xyzw, mvp[1].xyzw);
-	o0.z = dot(v0.xyzw, mvp[2].xyzw);
-	o0.w = dot(v0.xyzw, mvp[3].xyzw);
+	o0.x = dot(v0, mvp[0]);
+	o0.y = dot(v0, mvp[1]);
+	o0.z = dot(v0, mvp[2]);
+	o0.w = dot(v0, mvp[3]);
 	o1.xy = v1.xy;
-	o2.xyzw = v2.zyxw;
+	o2 = v2.zyxw;
 	
 	stereo_unfix(o0);
 	if (texture_filter > 0)

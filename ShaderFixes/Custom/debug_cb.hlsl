@@ -325,7 +325,7 @@ void main(point vs2gs input[1], inout TriangleStream<gs2ps> ostream)
 #ifdef PIXEL_SHADER
 void main(gs2ps input, out float4 o0 : SV_Target0)
 {
-	o0.xyzw = font.Load(int3(unpack_texcoord(input), 0)) * float4(colour, 1);
+	o0 = font.Load(int3(unpack_texcoord(input), 0)) * float4(colour, 1);
 
 	// Uncomment to darken the background for contrast:
 	// o0.w = max(o0.w, 0.75);
