@@ -60,7 +60,7 @@ void main(
 				r6.yzw = r6.y ? float3(0,0,1) : float3(1,0,0);
 				r6.xyz = r6.x ? float3(0,1,0) : r6.yzw;
 				r7.xyz = mul(r2.xyz, cL2W_Rot);
-				r8.xyz = mul(r6.xyz, cL2W_Rot);
+				r8.zxy = mul(r6.xyz, cL2W_Rot);
 				r6.xyz = r8.xyz * r7.zxy;
 				r6.xyz = r7.yzx * r8.yzx + -r6.xyz;
 				r4.xyz = normalise(r6.xyz);
