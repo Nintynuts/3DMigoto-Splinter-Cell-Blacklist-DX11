@@ -41,8 +41,11 @@ void main(
 	float4 r0,r1,r2,r3,r4,r5;
 	uint4 bitmask, uiDest;
 	float4 fDest;
-
-	r0.yzw = normalise(v4.xyz);
+	
+	// manual normalise to keep length
+	r0.x = dot(v4.xyz, v4.xyz);
+	r0.x = rsqrt(r0.x);
+	r0.yzw = v4.xyz * r0.x;
 	r1.xyz = normalise(v3.xyz);
 	r2.y = dot(r0.yzw, r1.xyz);
 	r1.w = r2.y + r2.y;
