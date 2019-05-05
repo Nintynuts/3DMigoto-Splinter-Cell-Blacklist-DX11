@@ -1,4 +1,4 @@
-// Breath + Steam
+// Particles - Breath + Steam
 
 #include "CB_PerFrame.hlsl"
 

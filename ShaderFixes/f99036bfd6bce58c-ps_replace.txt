@@ -1,4 +1,4 @@
-// Moon Glow
+// Lighting - Moon Glow
 
 #include "CB_PerCamera.hlsl"
 

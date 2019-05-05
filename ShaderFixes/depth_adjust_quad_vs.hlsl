@@ -1,15 +1,6 @@
 // Depth Calculation and Caching for Goal Boundaries
 
-#ifdef BATCHED
-#define MVP_SIZE 192
-#else
-#define MVP_SIZE 8
-#endif
-
-cbuffer CB_VS_Scaleform : register(b7)
-{	
-	float4 mvp[MVP_SIZE] : packoffset(c0);
-}
+#include "CB_VS_Scaleform.hlsl"
 
 #include "goal_boundaries.hlsl"
 
@@ -32,14 +23,13 @@ int2 getVertexPosition(uint index)
 	return D3DX_R16G16_SINT_to_INT2(VertexBuffer[index].pos);
 }
 
-float2 transform(uint quad, uint vertex, float4 x_trans, float4 y_trans)
+float2 transform(uint quad, uint vertex, float4x4 trans)
 {
 	float4 vec;
 	vec.xy = getVertexPosition(quad+vertex);
 	vec.zw = float2(0,1);
 	float2 output;
-	output.x = dot(vec, x_trans);
-	output.y = dot(vec, y_trans);
+	output = mul(vec, trans).xy;
 	return output;
 }
 
@@ -56,14 +46,12 @@ void main(
 	#ifdef BATCHED
 		uint vertex = vID % 6;
 		uint quad = (vID - vertex)/6;
-		float r0 = (int)(2040.01001 * v1.x);
-		float4 x_trans = mvp[r0 + 0];
-		float4 y_trans = mvp[r0 + 1];
+		float r0 = (int)(2040.01001 * v1.x / 8);
+		float4x4 trans = sf[r0].pos;
 	#else
 		uint vertex = vID;
 		uint quad = 0;
-		float4 x_trans = mvp[0];
-		float4 y_trans = mvp[1];
+		float4x4 trans = sf.pos;
 	#endif
 
 	switch (vertex)
@@ -81,8 +69,8 @@ void main(
 		return;
 	}
 
-	float2 topLft = transform(quad,0,x_trans,y_trans);
-	float2 btmRgt = transform(quad,3,x_trans,y_trans);
+	float2 topLft = transform(quad,0,trans);
+	float2 btmRgt = transform(quad,3,trans);
 	centre = (topLft + btmRgt)/2;
 
 	if (texture_filter == -3)

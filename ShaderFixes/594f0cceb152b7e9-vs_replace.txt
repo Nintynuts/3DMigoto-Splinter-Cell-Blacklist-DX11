@@ -1,18 +1,12 @@
-// ---- Created with 3Dmigoto v1.3.14 on Thu Feb 21 23:35:47 2019
+// Mesh - Bones (POS3,NORM3,VID,TEXCOORDx6 TC5)
 
 #include "CB_PerCamera.hlsl"
 
 #include "CB_PerObject.hlsl"
 
-cbuffer CB_VS_Morphing : register(b5)
-{
-	float4 gForces : packoffset(c0);
-}
+#define MORPH b5
 
-cbuffer CB_BoneTransform : register(b2)
-{
-	float4 gBones[156] : packoffset(c0);
-}
+#include "CB_BoneTransform.hlsl"
 
 cbuffer CB_VS_ColorPalette : register(b4)
 {
@@ -46,14 +40,8 @@ void main(
 // unknown dcl_: dcl_input_sgv v8.x, vertex_id
 	float4 r0,r1,r2,r3,r4,r5,r6,r7;
 	
-	r1 = 0.00392156886 * (uint4)v7;
-	float3x3 BoneMatrix;
-	r0 = (int4)v6 * 3;
-	BoneMatrix[0] = gBones[r0.x] * r1.x + gBones[r0.y] * r1.y + gBones[r0.z] * r1.z + gBones[r0.w] * r1.w;
-	r2 = mad((int4)v6, 3, 1);
-	BoneMatrix[1] = gBones[r2.x] * r1.x + gBones[r2.y] * r1.y + gBones[r2.z] * r1.z + gBones[r2.w] * r1.w;
-	r5 = mad((int4)v6, 3, 2);
-	BoneMatrix[2] = gBones[r5.x] * r1.x + gBones[r5.y] * r1.y + gBones[r5.z] * r1.z + gBones[r5.w] * r1.w;
+	float3x4 BonesMtx = get_bones_mtx(v6, v7);
+
 	r2.x = gForces.z * v4.w;
 	r2.y = v5.w * gForces.w + gForces.x;
 	r2.yz = v0.xy * gForces.y + r2.y;
@@ -64,7 +52,7 @@ void main(
 	r4.z = v0.z;
 	r2.xyz = gDrawScale.xyz * r4.xyz;
 	r2.w = v0.w;
-	r4.xyz = mul(BoneMatrix, r2);
+	r4.xyz = mul(BonesMtx, r2);
 	r2.xyz = -cViewPos_VS.xyz + r4.xyz;
 	r5.xyz = mul(r2.xyz, gWorldToView);
 	r2.xyz = gViewViewPos.xyz + r5.xyz;
@@ -72,12 +60,12 @@ void main(
 	r5.xy = (int2)v1.xy;
 	r5.zw = (int2)v2.xy;
 	o3 = 0.00048828125 * r5;
-	r5.xyz = v4.zyx * 2 + -1;
-	r6.xyz = mul(r5.xyz, BoneMatrix);
-	r5.xyz = v3.zyx * 2 + -1;
-	r7.xyz = mul(r5.xyz, BoneMatrix);
-	r5.xyz = v5.zyx * 2 + -1;
-	r0.xyz = mul(r5.xyz, BoneMatrix);
+	r5.xyz = v4.zyx * 2 - 1;
+	r6.xyz = mul(BonesMtx, r5.xyz);
+	r5.xyz = v3.zyx * 2 - 1;
+	r7.xyz = mul(BonesMtx, r5.xyz);
+	r5.xyz = v5.zyx * 2 - 1;
+	r0.xyz = mul(BonesMtx, r5.xyz);
 	o5.xyz = mul(r6.xyz, gLocalToWorld);
 	o6.xyz = mul(r0.xyz, gLocalToWorld);
 	r0.xyz = mul(r7.xyz, gLocalToWorld);

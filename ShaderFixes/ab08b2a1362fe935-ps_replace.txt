@@ -1,4 +1,4 @@
-// God Rays Downsample (2)
+// Lighting - God Rays Downsample (2)
 
 cbuffer CB_PS_Downsample16x16 : register(b7)
 {

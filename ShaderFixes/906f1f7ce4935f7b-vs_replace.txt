@@ -1,4 +1,4 @@
-// Light Beams
+// Lighting - Beams
 
 #include "CB_PerCamera.hlsl"
 

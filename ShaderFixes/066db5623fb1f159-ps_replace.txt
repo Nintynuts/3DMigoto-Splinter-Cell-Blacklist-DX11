@@ -74,7 +74,7 @@ void main(
 		r1.xyz = r1.xyz * cNoiseTerms.z + -cNoiseTerms.z;
 		r1.yz = bPost ? r1.x : r1.yz;
 		r0.xyz = r1.xyz + r0.xyz;
-		r0.w = dot(r0.xyz, float3(0.300000012,0.600000024,0.100000001));
+		r0.w = dot(r0.xyz, float3(0.3,0.6,0.1));
 		r1.xyz = r0.xyz + -r0.w;
 		r1.xyz = cTint.w * r1.xyz + r0.w;
 		r1.xyz = r1.xyz * cMiscTerms.x + cMiscTerms.y;
@@ -84,7 +84,7 @@ void main(
 	r0.xyz = log2(r0.xyz);
 	r0.xyz = cLevelsGamma.xyz * r0.xyz;
 	r0.xyz = exp2(r0.xyz);
-	o0.w = dot(r0.xyz, float3(0.298999995,0.587000012,0.114));
+	o0.w = dot(r0.xyz, float3(0.299,0.587,0.114));
 	o0.xyz = r0.xyz;
 	return;
 }

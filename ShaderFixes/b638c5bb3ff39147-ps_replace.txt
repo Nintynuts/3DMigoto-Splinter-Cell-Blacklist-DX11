@@ -1,4 +1,4 @@
-// God Rays Compose (4)
+// Lighting - God Rays Compose (4)
 
 cbuffer CB_PS_GodRaysCompose : register(b7)
 {

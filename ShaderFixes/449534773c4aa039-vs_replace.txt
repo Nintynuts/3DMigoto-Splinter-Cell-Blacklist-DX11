@@ -1,4 +1,4 @@
-// Lighting Directional
+// Lighting - Directional
 
 #include "CB_PerCamera.hlsl"
 

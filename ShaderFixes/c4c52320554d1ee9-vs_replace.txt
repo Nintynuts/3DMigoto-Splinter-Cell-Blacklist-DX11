@@ -1,4 +1,4 @@
-// Light Flares
+// Lighting - Flares
 
 #include "CB_PerObject.hlsl"
 struct Vertex3D_UV 

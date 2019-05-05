@@ -1,4 +1,4 @@
-// Self-Illuminated
+// Mesh - Static - Self-Illuminated
 
 #include "CB_PerCamera.hlsl"
 

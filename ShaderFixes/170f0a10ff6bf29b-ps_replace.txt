@@ -1,4 +1,4 @@
-// Ambient Occlusion Character
+// Lighting - Ambient Occlusion Character
 
 #include "CB_PerFrame.hlsl"
 
@@ -45,7 +45,7 @@ void main(
 	r3.x += 0.01;
 	r2.xy = sAOSphereMap.SampleLevel(sAOSphereMap_s, r3.xy, 0).xy;
 	r1.x = 1;
-	r1 = r1 * r2.xyyy + float4(-1,-0,-0,-0);
+	r1 = r1 * r2.xyyy - float4(1,0,0,0);
 	r1 = cIDFactor.y * r1 + float4(1,0,0,0);
 	r2.x = dot(r1, r1);
 	r3.xyz = r2.x * r1.yzw;

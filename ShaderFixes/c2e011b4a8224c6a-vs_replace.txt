@@ -1,4 +1,4 @@
-// Lighting Textured
+// Lighting - Textured
 
 #include "CB_PerCamera.hlsl"
 

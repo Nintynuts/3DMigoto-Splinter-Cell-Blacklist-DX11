@@ -1,4 +1,4 @@
-// Lighting Spot (No Camera data)
+// Lighting - Spot (No Camera data)
 
 #include "CB_PS_PerLightBatch.hlsl"
 

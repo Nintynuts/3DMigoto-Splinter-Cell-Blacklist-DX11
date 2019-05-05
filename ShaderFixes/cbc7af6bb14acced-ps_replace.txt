@@ -1,4 +1,4 @@
-// Shoulder Pad (less broken, but still broken - disappears)
+// Mesh - Shoulder Pad (disabled)
 
 #include "CB_PerFrame.hlsl"
 
@@ -49,7 +49,6 @@ void main(
 
 	float4 r0,r1;
 	
-	
 	r0.x = sSelfAOMap.Sample(sSelfAOMap_s, v1.zw).x;
 	r0.y = r0.x * r0.x + -1;
 	r0.y = gAOControl * r0.y + 1;
@@ -86,7 +85,7 @@ void main(
 	r0.xyz = v6.xyz * r0.xyz;
 	r0.xyz = gCubemapScale.y * r0.xyz;
 	r0.xyz = sqrt(r0.xyz);
-	r0.xyz = max(float3(9.99999975e-005,9.99999975e-005,9.99999975e-005), r0.xyz);
+	r0.xyz = max(0.0001, r0.xyz);
 	r0.w = max(r0.x, r0.y);
 	r0.w = max(r0.w, r0.z);
 	r0.w = min(1, r0.w);

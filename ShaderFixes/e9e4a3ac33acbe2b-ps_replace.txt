@@ -1,4 +1,4 @@
-// God Rays Blur (3)
+// Lighting - God Rays Blur (3)
 
 cbuffer CB_PS_GodRaysBlur : register(b7)
 {

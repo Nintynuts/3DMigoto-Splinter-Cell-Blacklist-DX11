@@ -1,4 +1,4 @@
-// Baked shadows
+// Lighting - Shadows - Baked
 
 #include "CB_PS_PerLightBatch.hlsl"
 

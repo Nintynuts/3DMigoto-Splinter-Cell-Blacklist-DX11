@@ -1,4 +1,4 @@
-// Lighting Spot
+// Lighting - Spot
 
 #include "CB_PerCamera.hlsl"
 
@@ -45,12 +45,9 @@ void main(
 	r3.w = 1;
 	r2 = sNormal.Sample(sNormal_s, r0.zw);
 	r4.xyz = sShadowSamples.Sample(sShadowSamples_s, r0.zw).xyz;
-	r0.x = dot(r3, cSpot0.proj._m00_m10_m20_m30);
-	r0.y = dot(r3, cSpot0.proj._m01_m11_m21_m31);
-	r1.x = dot(r3, cSpot0.proj._m02_m12_m22_m32);
-	r1.z = dot(r3, cSpot0.proj._m03_m13_m23_m33);
-	r1.x = cmp(abs(r1.x) < 1);
-	r0.xy = r0.xy / r1.z;
+	r5 = mul(r3, cSpot0.proj);
+	r1.x = cmp(abs(r5.z) < 1);
+	r0.xy = r5.xy / r5.w;
 	r5.xyz = sSpotTex0.Sample(sSpotTex0_s, r0.xy).xyz;
 	if (r1.x != 0) {
 		r1.xzw = cViewPos.xyz + -r3.xyz;
@@ -80,7 +77,7 @@ void main(
 		r4.xyz = cSpot0.dCol.xyz * r4.xyz;
 		r1.y = saturate(4 * r1.y);
 		r3.xyz = r3.xyz * r1.y;
-		r0.y = max(9.99999975e-006, r0.y);
+		r0.y = max(0.00001, r0.y);
 		r1.xyz = r1.xzw * r0.x + r6.xyz;
 		r1.xyz = normalise(r1.xyz);
 		r0.x = saturate(dot(r1.xyz, r2.xyz));
@@ -98,7 +95,7 @@ void main(
 	}
 	r0 = sSceneAlbedo.Sample(sSceneAlbedo_s, r0.zw);
 	r0 = r0 * r0;
-	r0.w = 2.66666675 * r0.w;
+	r0.w = 8.0/3 * r0.w;
 	r1.xyz = r1.xyz * r0.w;
 	o0.xyz = r4.xyz * r0.xyz + r1.xyz;
 	o0.w = 1;

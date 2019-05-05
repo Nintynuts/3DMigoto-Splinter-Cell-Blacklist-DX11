@@ -1,18 +1,10 @@
-// Skin mesh (un-culled)
+// Mesh - Bones (POS4,TEXCOORDx6 TC5)
 
 #include "CB_PerCamera.hlsl"
 
 #include "CB_PerObject.hlsl"
 
-cbuffer CB_VS_Morphing : register(b0)
-{
-	float4 gForces : packoffset(c0);
-}
-
-cbuffer CB_BoneTransform : register(b2)
-{
-	float4 gBones[156] : packoffset(c0);
-}
+#include "CB_BoneTransform.hlsl"
 
 cbuffer CB_VS_ColorPalette : register(b4)
 {
@@ -32,32 +24,17 @@ void main(
 	int4 v6 : BLENDINDICES0,
 	uint4 v7 : BLENDWEIGHT0,
 	out float4 o0 : SV_Position0,
-	out float4 r5s : TEXCOORD0,
-	out float4 r2min : TEXCOORD1,
-	out float4 r6w : TEXCOORD2,
-	out float4 r0w : TEXCOORD3,
-	out float4 r7w : TEXCOORD4,
-	out float4 colour : TEXCOORD5)
+	out float4 o1 : TEXCOORD0,
+	out float4 o2 : TEXCOORD1,
+	out float4 o3 : TEXCOORD2,
+	out float4 o4 : TEXCOORD3,
+	out float4 o5 : TEXCOORD4,
+	out float4 o6 : TEXCOORD5)
 {
 	float4 r0,r1,r2,r3,r4,r5,r6,r7;
 	
-	r0 = (int4)v6 * 3;
-	r1 = (uint4)v7;
-	r1 = 0.00392156886 * r1;
-	r2 = mad((int4)v6.xxyy, 3, int4(1,2,1,2));
-	r3 = gBones[r0.y] * r1.y;
-	r4 = gBones[r2.z] * r1.y;
-	r5 = gBones[r2.w] * r1.y;
-	r3 = gBones[r0.x] * r1.x + r3;
-	r4 = gBones[r2.x] * r1.x + r4;
-	r2 = gBones[r2.y] * r1.x + r5;
-	r5 = mad((int4)v6.zzww, 3, int4(1,2,1,2));
-	r3 = gBones[r0.z] * r1.z + r3;
-	r4 = gBones[r5.x] * r1.z + r4;
-	r2 = gBones[r5.y] * r1.z + r2;
-	r0 = gBones[r0.w] * r1.w + r3;
-	r3 = gBones[r5.z] * r1.w + r4;
-	r1 = gBones[r5.w] * r1.w + r2;
+	float3x4 BonesMtx = get_bones_mtx(v6, v7);
+
 	r2.x = gForces.z * v4.w;
 	r2.y = v5.w * gForces.w + gForces.x;
 	r2.yz = v0.xy * gForces.y + r2.y;
@@ -68,49 +45,35 @@ void main(
 	r4.z = v0.z;
 	r2.xyz = gDrawScale.xyz * r4.xyz;
 	r2.w = v0.w;
-	r4.x = dot(r0, r2);
-	r4.y = dot(r3, r2);
-	r4.z = dot(r1, r2);
+	r4.xyz = mul(BonesMtx, r2);
 	r2.xyz = -cViewPos_VS.xyz + r4.xyz;
 	r5 = mul(r2.xyz, gWorldToProj);
 	r2 = cProjSkinMesh + r5;
-	r2min.w = min(64000, r2.w);
+	o2.w = min(64000, r2.w);
 	r5.xy = (int2)v1.xy;
 	r5.zw = (int2)v2.xy;
-	r5s = 0.00048828125 * r5;
-	r5.xyz = v4.zyx * 2 + -1;
-	r6.x = dot(r5.xyz, r0.xyz);
-	r6.y = dot(r5.xyz, r3.xyz);
-	r6.z = dot(r5.xyz, r1.xyz);
-	r5.xyz = v3.zyx * 2 + -1;
-	r7.x = dot(r5.xyz, r0.xyz);
-	r7.y = dot(r5.xyz, r3.xyz);
-	r7.z = dot(r5.xyz, r1.xyz);
-	r5.xyz = v5.zyx * 2 + -1;
-	r0.x = dot(r5.xyz, r0.xyz);
-	r0.y = dot(r5.xyz, r3.xyz);
-	r0.z = dot(r5.xyz, r1.xyz);
-	r6w.x = dot(r6.xyz, gLocalToWorld._m00_m10_m20);
-	r6w.y = dot(r6.xyz, gLocalToWorld._m01_m11_m21);
-	r6w.z = dot(r6.xyz, gLocalToWorld._m02_m12_m22);
-	r0w.x = dot(r0.xyz, gLocalToWorld._m00_m10_m20);
-	r0w.y = dot(r0.xyz, gLocalToWorld._m01_m11_m21);
-	r0w.z = dot(r0.xyz, gLocalToWorld._m02_m12_m22);
-	r7w.x = dot(r7.xyz, gLocalToWorld._m00_m10_m20);
-	r7w.y = dot(r7.xyz, gLocalToWorld._m01_m11_m21);
-	r7w.z = dot(r7.xyz, gLocalToWorld._m02_m12_m22);
+	o1 = 0.00048828125 * r5;
+	r5.xyz = v4.zyx * 2 - 1;
+	r6.xyz = mul(BonesMtx, r5.xyz);
+	r5.xyz = v3.zyx * 2 - 1;
+	r7.xyz = mul(BonesMtx, r5.xyz);
+	r5.xyz = v5.zyx * 2 - 1;
+	r0.xyz = mul(BonesMtx, r5.xyz);
+	o3.xyz = mul(r6.xyz, gLocalToWorld);
+	o4.xyz = mul(r0.xyz, gLocalToWorld);
+	o5.xyz = mul(r7.xyz, gLocalToWorld);
 	if (bUseColorPalette != 0) {
 		r0.x = 255 * v3.w;
 		r0.x = (int)r0.x;
-		colour = cColorPalette[r0.x];
+		o6 = cColorPalette[r0.x];
 	} else {
-		colour = 1;
+		o6 = 1;
 	}
 	o0 = r2;
-	r2min.xyz = r4.xyz;
-	r6w.w = 0;
-	r0w.w = 0;
-	r7w.w = 0;
+	o2.xyz = r4.xyz;
+	o3.w = 0;
+	o4.w = 0;
+	o5.w = 0;
 	
 	//correct_orientation(o0);
 	return;

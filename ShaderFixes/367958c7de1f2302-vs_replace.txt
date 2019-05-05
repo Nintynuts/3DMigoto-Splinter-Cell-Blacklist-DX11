@@ -1,4 +1,4 @@
-// Lighting Indoor
+// Lighting - Indoor
 
 #include "CB_PerCamera.hlsl"
 

@@ -1,4 +1,4 @@
-// Smoke
+// Particles - Smoke
 
 cbuffer CB_PerPass : register(b12)
 {
@@ -56,7 +56,7 @@ void main(
 		r3 = cCorners[r0.y].zwzw * cTextureProperties.xyxy;
 		o3 = r2 * cTextureProperties.xyxy + r3;
 		r2.xyz = v1.zyx * 2 + -1;
-		r0.y = cmp(cUseDirectionFrom.x == 0.000000);
+		r0.y = cmp(cUseDirectionFrom.x == 0.0);
 		if (r0.y != 0) {
 			r3.xyz = cProjection_Right.yzx * cProjection_Up.zxy;
 			r3.xyz = cProjection_Up.yzx * cProjection_Right.zxy + -r3.xyz;
@@ -64,9 +64,9 @@ void main(
 			r4.xyz = cProjection_Up.xyz;
 			r5.xyz = cProjection_Right.xyz;
 		} else {
-			r0.y = cmp(cUseDirectionFrom.x == 1.000000);
+			r0.y = cmp(cUseDirectionFrom.x == 1.0);
 			if (r0.y != 0) {
-				r6.xy = cmp(0.569999993 < abs(r2.xy));
+				r6.xy = cmp(0.57 < abs(r2.xy));
 				r6.yzw = r6.y ? float3(0,0,1) : float3(1,0,0);
 				r6.xyz = r6.x ? float3(0,1,0) : r6.yzw;
 				r7.xyz = mul(r2.xyz, cL2W_Rot);
@@ -206,17 +206,13 @@ void main(
 		r8.xyz = mul(r2.xyz, gLocalToWorld);
 		r2.xyz = normalise(r8.xyz);
 		r2.w = 1;
-		r8.x = dot(cSHParams[0], r2);
-		r8.y = dot(cSHParams[1], r2);
-		r8.z = dot(cSHParams[2], r2);
+		r8.xyz = mul(cMtx1, r2);
 		r9 = r2.xyzz * r2.yzzx;
-		r10.x = dot(cSHParams[3], r9);
-		r10.y = dot(cSHParams[4], r9);
-		r10.z = dot(cSHParams[5], r9);
+		r10.xyz = mul(cMtx2, r9);
 		r0.y = r2.y * r2.y;
 		r0.y = r2.x * r2.x + -r0.y;
 		r2.xyz = r10.xyz + r8.xyz;
-		r0.yzw = cSHParams[6].xyz * r0.y + r2.xyz;
+		r0.yzw = cExtra * r0.y + r2.xyz;
 		r0.yzw = max(0, r0.yzw);
 		r0.yzw = cSHScale * r0.yzw;
 		r0.yzw = bUseSH ? r0.yzw : cAmbientColor.xyz;

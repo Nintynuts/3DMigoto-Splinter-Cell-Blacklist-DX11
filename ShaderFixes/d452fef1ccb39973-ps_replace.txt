@@ -1,4 +1,4 @@
-// Ambient Occlusion Object
+// Lighting - Ambient Occlusion Object
 
 #include "CB_PerFrame.hlsl"
 

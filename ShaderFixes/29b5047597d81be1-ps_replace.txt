@@ -1,4 +1,4 @@
-// Lighting Omni
+// Lighting - Omni
 
 #include "CB_PerCamera.hlsl"
 
@@ -49,7 +49,7 @@ void main(
 	r2.xyz = r2.xyz * 2 + -1;
 	r0.w = 11 * r2.w;
 	r0.w = exp2(r0.w);
-	r0.w = max(9.99999975e-006, r0.w);
+	r0.w = max(0.00001, r0.w);
 	r2.xyz = normalise(r2.xyz);
 	r0.x = saturate(dot(r0.xyz, r2.xyz));
 	r0.y = dot(r2.xyz, r3.xyz);
@@ -78,7 +78,7 @@ void main(
 	r0.x = 0.125 * r0.x;
 	r0.xyz = cOmni0.sCol.xyz * r0.x;
 	r0.xyz = r0.w ? r0.xyz : 0;
-	r0.w = 2.66666675 * r4.w;
+	r0.w = 8.0/3 * r4.w;
 	r0.xyz = r0.xyz * r0.w;
 	o0.xyz = r1.xyz * r4.xyz + r0.xyz;
 	o0.w = 1;

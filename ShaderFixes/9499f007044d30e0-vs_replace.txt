@@ -1,4 +1,4 @@
-// Coloured mesh with bones
+// Mesh - Bones (POS4,TEXCOORDx3 TC6)
 
 cbuffer CB_PerPass : register(b12)
 {
@@ -11,15 +11,7 @@ cbuffer CB_PerPass : register(b12)
 
 #include "CB_PerObject.hlsl"
 
-cbuffer CB_VS_Morphing : register(b0)
-{
-	float4 gForces : packoffset(c0);
-}
-
-cbuffer CB_BoneTransform : register(b2)
-{
-	float4 gBones[156] : packoffset(c0);
-}
+#include "CB_BoneTransform.hlsl"
 
 #include "3Dmigoto.hlsl"
 
@@ -37,7 +29,7 @@ void main(
 	out float4 o2 : TEXCOORD1,
 	out float4 o3 : TEXCOORD6)
 {
-	float4 r0,r1,r2,r3,r4,r5,r6,r7;
+	float4 r0,r1,r2,r3;
 	
 	r0.x = v5.w * gForces.w + gForces.x;
 	r0.xy = v0.xy * gForces.y + r0.x;
@@ -48,27 +40,11 @@ void main(
 	r1.y = r0.y * r0.z + v0.y;
 	r1.z = v0.z;
 	r0.xyz = gDrawScale.xyz * r1.xyz;
-	r1 = (int4)v6 * 3;
-	r2 = (uint4)v7;
-	r2 = 0.00392156886 * r2;
-	r3 = gBones[r1.y] * r2.y;
-	r3 = gBones[r1.x] * r2.x + r3;
-	r3 = gBones[r1.z] * r2.z + r3;
-	r1 = gBones[r1.w] * r2.w + r3;
 	r0.w = v0.w;
-	r3.x = dot(r1, r0);
-	r4 = mad((int4)v6.xxyy, 3, int4(1,2,1,2));
-	r5 = gBones[r4.z] * r2.y;
-	r5 = gBones[r4.x] * r2.x + r5;
-	r6 = mad((int4)v6.zzww, 3, int4(1,2,1,2));
-	r5 = gBones[r6.x] * r2.z + r5;
-	r5 = gBones[r6.z] * r2.w + r5;
-	r3.y = dot(r5, r0);
-	r7 = gBones[r4.w] * r2.y;
-	r4 = gBones[r4.y] * r2.x + r7;
-	r4 = gBones[r6.y] * r2.z + r4;
-	r2 = gBones[r6.w] * r2.w + r4;
-	r3.z = dot(r2, r0);
+	
+	float3x4 BonesMtx = get_bones_mtx(v6, v7);
+
+	r3.xyz = mul(BonesMtx, r0);
 	r0.xyz = -cViewPos_VS.xyz + r3.xyz;
 	o2.xyz = r3.xyz;
 	r3 = mul(r0.xyz, gWorldToProj);
@@ -79,22 +55,16 @@ void main(
 	r0.zw = (int2)v2.xy;
 	o1 = 0.00048828125 * r0;
 	r0.xyz = v3.zyx * 2 + -1;
-	r3.y = dot(r0.xyz, r5.xyz);
-	r3.z = dot(r0.xyz, r2.xyz);
-	r3.x = dot(r0.xyz, r1.xyz);
+	r3.xyz = mul(BonesMtx, r0.xyz);
 	r0.xyz = normalise(r3.xyz);
 	r0.w = 1;
-	r1.x = dot(cSHParams[0], r0);
-	r1.y = dot(cSHParams[1], r0);
-	r1.z = dot(cSHParams[2], r0);
+	r1.xyz = mul(cMtx1, r0);
 	r2 = r0.xyzz * r0.yzzx;
-	r3.x = dot(cSHParams[3], r2);
-	r3.y = dot(cSHParams[4], r2);
-	r3.z = dot(cSHParams[5], r2);
+	r3.xyz = mul(cMtx2, r2);
 	r1.xyz = r3.xyz + r1.xyz;
 	r0.y = r0.y * r0.y;
 	r0.x = r0.x * r0.x + -r0.y;
-	r0.xyz = cSHParams[6].xyz * r0.x + r1.xyz;
+	r0.xyz = cExtra * r0.x + r1.xyz;
 	r0.xyz = max(0, r0.xyz);
 	r0.w = 1;
 	r0 = cSHScale * r0;

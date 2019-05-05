@@ -1,4 +1,4 @@
-// God Rays
+// Lighting - God Rays
 
 #include "CB_PerCamera.hlsl"
 

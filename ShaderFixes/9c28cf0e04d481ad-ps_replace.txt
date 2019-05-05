@@ -1,4 +1,4 @@
-// Video
+// GUI - Video
 
 cbuffer CB_PS_SimpleVCTexMux : register(b7)
 {

@@ -1,9 +1,6 @@
 // GUI - Text
 
-cbuffer CB_VS_Scaleform : register(b7)
-{
-	float4 mvp[8] : packoffset(c0);
-}
+#include "CB_VS_Scaleform.hlsl"
 
 #include "CB_PerCamera.hlsl"
 
@@ -20,12 +17,11 @@ void main(
 	out float2 o1 : TEXCOORD0,
 	out float4 o2 : COLOR0)
 {
-	o0.x = dot(v0, mvp[0]);
-	o0.y = dot(v0, mvp[1]);
+	o0.xy = mul(v0, sf.pos).xy;
 	o0.zw = v0.zw;
 	o1.xy = v1.xy;
 	o2 = v2.zyxw;
-		
+	
 	if (!rt_res_size_match()) // Render Target
 		return;
 	o0.x += depth[0] * -eye;
