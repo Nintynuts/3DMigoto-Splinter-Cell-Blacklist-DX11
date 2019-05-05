@@ -1,0 +1,118 @@
+// Sonar
+
+#include "CB_PerCamera.hlsl"
+
+cbuffer CB_PerFogControl : register(b8)
+{
+	bool bFog : packoffset(c0);
+	float4 cFog_Density_Start_Range : packoffset(c1);
+	float4 cFogCol : packoffset(c2);
+}
+
+struct Points
+{
+	float4 m_Fade;
+	float4 m_Color;
+};
+
+cbuffer CB_PS_ViewModeUtilSonar : register(b5)
+{
+	float4 cMatInfo : packoffset(c0);
+
+	struct GlobalParams
+	{
+		float4 m_EmitPosDir;
+		float4 m_WaveInfo;
+		float4 m_FogAndNoise;
+	} cGlobalParams : packoffset(c1);
+
+	struct WaveParams
+	{
+		float4 m_Params;
+		float4 m_FogColor;
+		Points m_Points[3];
+	} cWaveParams : packoffset(c4);
+
+}
+
+cbuffer CB_PS_ViewModeUtilThermal : register(b4)
+{
+	float4 cGlowColorAlphaInvert : packoffset(c0);
+	float4 cColdColor : packoffset(c1);
+	float4 cViewModeDiffCol : packoffset(c2);
+}
+
+cbuffer CB_PS_ThermalViewMaterial_Static : register(b0)
+{
+	bool bAlphaTest : packoffset(c0);
+	float4 cAlphaRef : packoffset(c1);
+	float4 cVisionModeFlags : packoffset(c2);
+	float4 cThermalBaseColor : packoffset(c3);
+	float4 cThermalBaseParams : packoffset(c4);
+	float4 cThermalAmbientColor : packoffset(c5);
+	float4 cThermalAmbientParams : packoffset(c6);
+	float4 cThermalShadowColor : packoffset(c7);
+	float4 cThermalLightColor : packoffset(c8);
+	float4 cThermalLightParams : packoffset(c9);
+	float4 cThermalDiffuseScale : packoffset(c10);
+	float4 cThermalDiffuseBias : packoffset(c11);
+}
+
+SamplerState sSceneDepth_s : register(s11);
+Texture2D<float4> sSceneDepth : register(t0);
+
+#include "3Dmigoto.hlsl"
+
+void main(
+	float4 v0 : SV_Position0,
+	float4 v1 : TEXCOORD0,
+	float4 v2 : TEXCOORD1,
+	float4 v3 : TEXCOORD2,
+	float4 v4 : TEXCOORD3,
+	float4 v5 : TEXCOORD4,
+	float4 v6 : TEXCOORD5,
+	out float4 o0 : SV_Target0)
+{
+	float4 r0,r1,r2;
+
+	v6.x += separation * (v6.w - convergence) * 0.5;
+
+	r0.xy = v6.xy / v6.w;
+	r0.x = sSceneDepth.Sample(sSceneDepth_s, r0.xy).x;
+	r0.x = max(0, r0.x);
+	r0.x = min(64000, r0.x);
+	r0.x = v6.w + -r0.x;
+	r0.x = -5 + r0.x;
+	r0.y = 20 + -r0.x;
+	r0.x = cColdColor.z * r0.y + r0.x;
+	r0.x = saturate(0.05 * r0.x);
+	r0.y = 1 + -cColdColor.z;
+	r1.xyz = cThermalBaseColor.xyz + -r0.y;
+	r0.xzw = r0.x * r1.xyz + r0.y;
+	r1.xyz = cWaveParams.m_Points[1].m_Color.xyz * r0.xzw + -r0.y;
+	r2.xy = -cGlobalParams.m_EmitPosDir.xy + v2.xy;
+	r1.w = dot(r2.xy, r2.xy);
+	r1.w = sqrt(r1.w);
+	r2.x = cGlobalParams.m_WaveInfo.w + -r1.w;
+	r1.w = saturate(r1.w * cGlobalParams.m_WaveInfo.x + cGlobalParams.m_WaveInfo.y);
+	r2.y = saturate(r2.x * cWaveParams.m_Points[0].m_Fade.x + cWaveParams.m_Points[0].m_Fade.y);
+	r1.xyz = r2.y * r1.xyz + r0.y;
+	r0.xzw = cWaveParams.m_Points[2].m_Color.xyz * r0.xzw + -r1.xyz;
+	r2.y = saturate(r2.x * cWaveParams.m_Points[1].m_Fade.x + cWaveParams.m_Points[1].m_Fade.y);
+	r2.x = saturate(r2.x * cWaveParams.m_Points[2].m_Fade.x + cWaveParams.m_Points[2].m_Fade.y);
+	r0.xzw = r2.y * r0.xzw + r1.xyz;
+	r1.xyz = r0.y + -r0.xzw;
+	r0.xzw = r2.x * r1.xyz + r0.xzw;
+	r1.xyz = r0.y + -r0.xzw;
+	r0.xzw = r1.w * r1.xyz + r0.xzw;
+	r1.xyz = r0.y + -r0.xzw;
+	r2.xyz = cViewPos.xyz + -v2.xyz;
+	r1.w = dot(r2.xyz, r2.xyz);
+	r1.w = sqrt(r1.w);
+	r1.w = saturate(cFogCol.w * r1.w);
+	r0.xzw = r1.w * r1.xyz + r0.xzw;
+	r0.xzw = r0.xzw + -r0.y;
+	o0.xyz = cColdColor.w * r0.xzw + r0.y;
+	o0.w = 1;
+	return;
+}
