@@ -113,9 +113,7 @@ float4 particle_common(
 						r6.xyz = normalise(r6.xyz);
 						r9.xyz = float3(0,1,0) * r2.zxy;
 						r9.xyz = r2.yzx * float3(1,0,0) - r9.xyz;
-						r2.w = dot(r9.xy, r9.xy);
-						r2.w = rsqrt(r2.w);
-						r9.xyz = r9.xyz * r2.w;
+						r9.xyz = normalise(r9.xyz);
 						r10.xyz = r9.zxy * r2.yzx;
 						r10.xyz = r9.yzx * r2.zxy - r10.xyz;
 						r10.xyz = normalise(r10.xyz);

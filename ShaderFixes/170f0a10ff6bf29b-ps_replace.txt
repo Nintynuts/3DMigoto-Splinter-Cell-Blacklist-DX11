@@ -37,10 +37,9 @@ void main(
 	
 	r2.wyz = mul(r1, cScreenToWorld);
 	r0.w = dot(r2.yzw, r2.yzw);
-	r1.x = rsqrt(r0.w);
 	r0.w = 4 * r0.w;
 	r3.x = min(1, r0.w);
-	r1.yzw = r2.yzw * r1.x;
+	r1.yzw = r2.yzw * rsqrt(r0.w);
 	r3.y = 0.5;
 	r3.x += 0.01;
 	r2.xy = sAOSphereMap.SampleLevel(sAOSphereMap_s, r3.xy, 0).xy;

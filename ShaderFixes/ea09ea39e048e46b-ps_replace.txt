@@ -48,8 +48,6 @@ void main(
 	r5.xyz = sSpotTex0.Sample(sSpotTex0_s, r0.xy).xyz;
 	if (r1.x != 0) {
 		r1.xzw = cViewPos.xyz - r3.xyz;
-		r0.x = dot(r1.xzw, r1.xzw);
-		r0.x = rsqrt(r0.x);
 		r2.xyz = r2.xyz * 2 - 1;
 		r2.xyz = normalise(r2.xyz);
 		r0.y = 11 * r2.w;
@@ -75,7 +73,7 @@ void main(
 		r1.y = saturate(4 * r1.y);
 		r3.xyz = r3.xyz * r1.y;
 		r0.y = max(0.00001, r0.y);
-		r1.xyz = r1.xzw * r0.x + r6.xyz;
+		r1.xyz = normalise(r1.xzw) + r6.xyz;
 		r1.xyz = normalise(r1.xyz);
 		r0.x = saturate(dot(r1.xyz, r2.xyz));
 		r0.x = log2(r0.x);

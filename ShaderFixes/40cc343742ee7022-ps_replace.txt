@@ -46,9 +46,7 @@ void main(
 
 	r2.xyz = mul(r0, cScreenToWorld);
 	r0.xyz = cViewPos.xyz - r2.xyz;
-	r0.w = dot(r0.xyz, r0.xyz);
-	r0.w = rsqrt(r0.w);
-	r0.xyz = r0.xyz * r0.w + cDir0.dir.xyz;
+	r0.xyz = normalise(r0.xyz) + cDir0.dir.xyz;
 	r0.xyz = normalise(r0.xyz);
 	r2 = sNormal.Sample(sNormal_s, r1.zw);
 	r2.xyz = r2.xyz * 2 - 1;

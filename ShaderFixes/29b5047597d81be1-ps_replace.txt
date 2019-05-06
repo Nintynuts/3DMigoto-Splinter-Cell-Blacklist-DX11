@@ -37,11 +37,9 @@ void main(
 	r2.xyz = mul(r0, cScreenToWorld);
 	r0.xyz = cViewPos.xyz - r2.xyz;
 	r2.xyz = cOmni0.pos.xyz - r2.xyz;
-	r0.w = dot(r0.xyz, r0.xyz);
-	r0.w = rsqrt(r0.w);
 	r3.xyz = normalise(r2.xyz);
 	r1.x = dot(r2.xyz, r3.xyz);
-	r0.xyz = r0.xyz * r0.w + r3.xyz;
+	r0.xyz = normalise(r0.xyz) + r3.xyz;
 	r0.xyz = normalise(r0.xyz);
 	r2 = sNormal.Sample(sNormal_s, r1.zw);
 	r4 = sSceneAlbedo.Sample(sSceneAlbedo_s, r1.zw);
