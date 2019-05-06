@@ -43,7 +43,8 @@ void main(
 	float4 fDest;
 	
 	// manual normalise to keep length
-	r0.yzw = normalise(v4.xyz);
+	r0.x = rsqrt(dot(v4.xyz, v4.xyz));
+	r0.yzw = v4.xyz * r0.x;
 	r1.xyz = normalise(v3.xyz);
 	r2.y = dot(r0.yzw, r1.xyz);
 	r1.w = r2.y + r2.y;
