@@ -45,13 +45,13 @@ void main(
 	stereo_unfix(r0);
 
 	r2.xyz = mul(r0, cScreenToWorld);
-	r0.xyz = cViewPos.xyz + -r2.xyz;
+	r0.xyz = cViewPos.xyz - r2.xyz;
 	r0.w = dot(r0.xyz, r0.xyz);
 	r0.w = rsqrt(r0.w);
 	r0.xyz = r0.xyz * r0.w + cDir0.dir.xyz;
 	r0.xyz = normalise(r0.xyz);
 	r2 = sNormal.Sample(sNormal_s, r1.zw);
-	r2.xyz = r2.xyz * 2 + -1;
+	r2.xyz = r2.xyz * 2 - 1;
 	r0.w = 11 * r2.w;
 	r0.w = exp2(r0.w);
 	r0.w = max(0.00001, r0.w);
@@ -66,7 +66,7 @@ void main(
 	r0.z = r0.y * 0.5 + 0.5;
 	r0.y = saturate(r0.y);
 	r0.z = r0.z * r0.z;
-	r0.z = r0.z * r0.z + -r0.y;
+	r0.z = r0.z * r0.z - r0.y;
 	r0.y = r1.y * r0.z + r0.y;
 	r0.z = saturate(r0.y);
 	r2.xyz = sShadowSamples.Sample(sShadowSamples_s, r1.zw).xyz;

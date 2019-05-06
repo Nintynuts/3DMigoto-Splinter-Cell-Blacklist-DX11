@@ -16,7 +16,7 @@ void main(
 {
 	float4 r0,r1,r2;
 
-	r0.xy = v0.xy * cTexelSizeDownsample.xy + -cTexelSizeDownsample.zw;
+	r0.xy = v0.xy * cTexelSizeDownsample.xy - cTexelSizeDownsample.zw;
 	r0 = sTex.Sample(sTex_s, r0.xy);
 	r1.xy = v0.xy * cTexelSizeDownsample.xy + cTexelSizeDownsample.zw;
 	r1 = sTex.Sample(sTex_s, r1.xy);

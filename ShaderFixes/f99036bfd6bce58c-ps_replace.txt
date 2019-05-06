@@ -41,7 +41,7 @@ void main(
 	stereo_unfix(r2);
 	
 	r3.xyz = mul(r2, cScreenToWorld);
-	r0.yzw = cViewPos.xyz + -r3.xyz;
+	r0.yzw = cViewPos.xyz - r3.xyz;
 	r2.x = dot(r0.yzw, r0.yzw);
 	r2.y = rsqrt(r2.x);
 	r2.x = sqrt(r2.x);
@@ -62,7 +62,7 @@ void main(
 	r0.y = cCst1.z * r0.y + r0.z;
 	r0.y = cCst1.y * r0.y;
 	r0.yzw = cESun.xyz * r0.y;
-	r2.x = 1 + -r0.x;
+	r2.x = 1 - r0.x;
 	r0.yzw = r2.x * r0.yzw;
 	o0.xyz = r1.xyz * r0.x + r0.yzw;
 	o0.w = r1.w;

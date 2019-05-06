@@ -53,11 +53,11 @@ void main(
 	r0.xyz = r0.xyz * r0.xyz;
 	r1 = sDiffuseMap.Sample(sDiffuseMap_s, v3.zw);
 	r1.xyz = r1.xyz * r1.xyz;
-	r2.x = 1 + -v4.z;
+	r2.x = 1 - v4.z;
 	r1 = r2.x * r1;
 	r0 = v4.z * r0 + r1;
 	r1.xyz = v1.xyz * r0.xyz;
-	r2.xyz = 1 + -cEmissiveMask.xyz;
+	r2.xyz = 1 - cEmissiveMask.xyz;
 	r3 = cEmissiveMask * v5;
 	r2.xyz = r2.xyz * cEmissive.xyz + r3.xyz;
 	r1.xyz = log2(abs(r1.xyz));
@@ -79,7 +79,7 @@ void main(
 	r0.w = v1.w * r0.w;
 	r1.x = dot(r0.xyz, cFadeTerms.x);
 	r1.x = cFadeTerms.z + r1.x;
-	r1.xyz = cFogCol.xyz * r1.x + -r0.xyz;
+	r1.xyz = cFogCol.xyz * r1.x - r0.xyz;
 	r0.xyz = r3.w * r1.xyz + r0.xyz;
 	o0.xyz = v2.w * r0.xyz;
 	o0.w = gColorControl.w * r0.w;

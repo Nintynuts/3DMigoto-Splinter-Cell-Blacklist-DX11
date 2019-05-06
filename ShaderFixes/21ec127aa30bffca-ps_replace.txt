@@ -33,21 +33,19 @@ void main(
 	stereo_unfix(r0);
 	
 	r2.xyz = mul(r0, cScreenToWorld);
-	r0.xyz = cOmni0.pos.xyz + -r2.xyz;
+	r0.xyz = cOmni0.pos.xyz - r2.xyz;
 	r2.xyz = normalise(r0.xyz);
 	r0.x = dot(r0.xyz, r2.xyz);
 	r0.yzw = sNormal.Sample(sNormal_s, r1.zw).xyz;
 	r1.xzw = sSceneAlbedo.Sample(sSceneAlbedo_s, r1.zw).xyz;
 	r1.xzw = r1.xzw * r1.xzw;
-	r0.yzw = r0.yzw * 2 + -1;
-	r2.w = dot(r0.yzw, r0.yzw);
-	r2.w = rsqrt(r2.w);
-	r0.yzw = r2.w * r0.yzw;
+	r0.yzw = r0.yzw * 2 - 1;
+	r0.yzw = normalise(r0.yzw);
 	r0.y = dot(r0.yzw, r2.xyz);
 	r0.z = r0.y * 0.5 + 0.5;
 	r0.y = saturate(r0.y);
 	r0.z = r0.z * r0.z;
-	r0.z = r0.z * r0.z + -r0.y;
+	r0.z = r0.z * r0.z - r0.y;
 	r0.y = r1.y * r0.z + r0.y;
 	r0.z = saturate(r0.x * cOmni0.atten.x + cOmni0.atten.z);
 	r0.x = cmp(r0.x < cOmni0.pos.w);

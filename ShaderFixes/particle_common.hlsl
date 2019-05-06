@@ -37,14 +37,14 @@ float4 particle_common(
 	if (r0.y != 0) {
 		r2 = (uint4)v2;
 		r0.y = v5.x;
-		r0.zw = cCorners[r0.y].xy + -cSize_Offset.xy;
+		r0.zw = cCorners[r0.y].xy - cSize_Offset.xy;
 		r3 = cCorners[r0.y].zwzw * cTextureProperties.xyxy;
 		o3 = r2 * cTextureProperties.xyxy + r3;
-		r2.xyz = v1.zyx * 2 + -1;
+		r2.xyz = v1.zyx * 2 - 1;
 		r0.y = cmp(cUseDirectionFrom.x == 0.0);
 		if (r0.y != 0) {
 			r3.xyz = cProjection_Right.yzx * cProjection_Up.zxy;
-			r3.xyz = cProjection_Up.yzx * cProjection_Right.zxy + -r3.xyz;
+			r3.xyz = cProjection_Up.yzx * cProjection_Right.zxy - r3.xyz;
 			r3.xyz = normalise(r3.xyz);
 			r4.xyz = cProjection_Up.xyz;
 			r5.xyz = cProjection_Right.xyz;
@@ -57,13 +57,13 @@ float4 particle_common(
 				r7.xyz = mul(r2.xyz, cL2W_Rot);
 				r8.zxy = mul(r6.xyz, cL2W_Rot);
 				r6.xyz = r8.xyz * r7.zxy;
-				r6.xyz = r7.yzx * r8.yzx + -r6.xyz;
+				r6.xyz = r7.yzx * r8.yzx - r6.xyz;
 				r4.xyz = normalise(r6.xyz);
 				r6.xyz = r7.zxy * r4.yzx;
-				r6.xyz = r7.yzx * r4.zxy + -r6.xyz;
+				r6.xyz = r7.yzx * r4.zxy - r6.xyz;
 				r5.xyz = normalise(r6.xyz);
 				r6.xyz = r5.yzx * r4.zxy;
-				r6.xyz = r4.yzx * r5.zxy + -r6.xyz;
+				r6.xyz = r4.yzx * r5.zxy - r6.xyz;
 				r3.xyz = normalise(r6.xyz);
 				r2.xyz = r7.xyz;
 			} else {
@@ -74,10 +74,10 @@ float4 particle_common(
 				if (r0.y != 0) {
 					r4.xyz = mul(r2.xyz, cAxisEffect);
 					r7.xyz = r4.zxy * r6.zxy;
-					r7.xyz = r4.yzx * r6.xyz + -r7.xyz;
+					r7.xyz = r4.yzx * r6.xyz - r7.xyz;
 					r5.xyz = normalise(r7.xyz);
 					r7.xyz = r5.yzx * r4.zxy;
-					r7.xyz = r4.yzx * r5.zxy + -r7.xyz;
+					r7.xyz = r4.yzx * r5.zxy - r7.xyz;
 					r3.xyz = normalise(r7.xyz);
 					r2.xyz = r4.xyz;
 				} else {
@@ -87,40 +87,40 @@ float4 particle_common(
 						r7.xyz = mul(r2.xyz, cAxisEffect);
 						r2.xyz = normalise(r7.xyz);
 						r7.xyz = r2.xyz * r6.xyz;
-						r7.xyz = r2.zxy * r6.yzx + -r7.xyz;
+						r7.xyz = r2.zxy * r6.yzx - r7.xyz;
 						r7.xyz = normalise(r7.xyz);
-						r0.y = 1 + -cUseDirectionFrom.y;
+						r0.y = 1 - cUseDirectionFrom.y;
 						r8.xyz = r7.zxy * r0.y;
 						r4.xyz = r2.xyz * cUseDirectionFrom.y + r8.xyz;
 						r8.xyz = cUseDirectionFrom.y * r7.zxy;
 						r5.xyz = r2.xyz * r0.y + r8.xyz;
 						r8.xyz = r7.xyz * r2.zxy;
-						r7.xyz = r2.yzx * r7.yzx + -r8.xyz;
+						r7.xyz = r2.yzx * r7.yzx - r8.xyz;
 						r3.xyz = normalise(r7.xyz);
 					} else {
 						r7.xyz = cmp(cUseDirectionFrom.x == float3(6,7,8));
 						r0.y = (int)r7.y | (int)r7.x;
 						r7.xyw = r6.xyz * r2.xyz;
-						r6.xyz = r2.zxy * r6.yzx + -r7.xyw;
+						r6.xyz = r2.zxy * r6.yzx - r7.xyw;
 						r6.xyz = normalise(r6.xyz);
-						r2.w = 1 + -cUseDirectionFrom.y;
+						r2.w = 1 - cUseDirectionFrom.y;
 						r7.xyw = r6.zxy * r2.w;
 						r7.xyw = r2.xyz * cUseDirectionFrom.y + r7.xyw;
 						r8.xyz = cUseDirectionFrom.y * r6.zxy;
 						r8.xyz = r2.xyz * r2.w + r8.xyz;
 						r9.xyz = r6.xyz * r2.zxy;
-						r6.xyz = r2.yzx * r6.yzx + -r9.xyz;
+						r6.xyz = r2.yzx * r6.yzx - r9.xyz;
 						r6.xyz = normalise(r6.xyz);
 						r9.xyz = float3(0,1,0) * r2.zxy;
-						r9.xyz = r2.yzx * float3(1,0,0) + -r9.xyz;
+						r9.xyz = r2.yzx * float3(1,0,0) - r9.xyz;
 						r2.w = dot(r9.xy, r9.xy);
 						r2.w = rsqrt(r2.w);
 						r9.xyz = r9.xyz * r2.w;
 						r10.xyz = r9.zxy * r2.yzx;
-						r10.xyz = r9.yzx * r2.zxy + -r10.xyz;
+						r10.xyz = r9.yzx * r2.zxy - r10.xyz;
 						r10.xyz = normalise(r10.xyz);
 						r11.xyz = r10.zxy * r9.yzx;
-						r11.xyz = r10.yzx * r9.zxy + -r11.xyz;
+						r11.xyz = r10.yzx * r9.zxy - r11.xyz;
 						r11.xyz = normalise(r11.xyz);
 						r10.xyz = r7.z ? r10.xyz : 0;
 						r9.xyz = r7.z ? r9.xyz : 0;
@@ -138,14 +138,14 @@ float4 particle_common(
 		r4.xyz = r6.xyz * cRotation_Offset.x + r4.xyz;
 		r6.xyz = r5.xyz * r0.w;
 		r5.xyz = r6.xyz * cRotation_Offset.y + r5.xyz;
-		r0.y = 1 + -v3.w;
+		r0.y = 1 - v3.w;
 		r6 = r3.xyzx * r3.xyzy;
 		r7.xy = r3.zy * r3.xz;
 		r8.xyz = v3.z * r3.yzx;
 		r9.x = r6.w * r0.y + r8.y;
-		r10.x = r6.w * r0.y + -r8.y;
+		r10.x = r6.w * r0.y - r8.y;
 		r10.yz = r7.yx * r0.y + r8.zx;
-		r9.yz = r7.xy * r0.y + -r8.xz;
+		r9.yz = r7.xy * r0.y - r8.xz;
 		r6.xyz = r6.xyz * r0.y + v3.w;
 		r10.w = r6.x;
 		r7.x = dot(r4.yzx, r10.xzw);
@@ -169,18 +169,18 @@ float4 particle_common(
 		
 		r6 = gViewportSB * r5.xyww;
 		o4.xy = r6.xy + r6.zw;
-		r0.yzw = cCamera_Position.xyz + -r1.xyz;
+		r0.yzw = cCamera_Position.xyz - r1.xyz;
 		r0.yzw = normalise(r0.yzw);
 		r0.y = dot(r0.yzw, r3.xyz);
 		r0.z = dot(cProjection_Front.xyz, r3.xyz);
-		r0.y = saturate(abs(r0.y) * abs(r0.z) + -cFadeParms.x);
+		r0.y = saturate(abs(r0.y) * abs(r0.z) - cFadeParms.x);
 		r0.y = cFadeParms.y * r0.y;
 		r0.y = r0.x * r0.y;
 		r0.x = bUsePerpendicularFade ? r0.y : r0.x;
 		r0.xy = saturate(cBlendModeMask.xy * r0.x + cBlendModeMask.yx);
 		o1.w = v4.w * r0.y;		
 	#ifndef SKIP_FOG
-		r0.yzw = cViewPos_VS.xyz + -r5.xyz;
+		r0.yzw = cViewPos_VS.xyz - r5.xyz;
 		r0.y = dot(r0.yzw, r0.yzw);
 		r0.y = sqrt(r0.y);
 		r0.y = -cFog_Density_Start_Range.y + r0.y;
@@ -197,7 +197,7 @@ float4 particle_common(
 		r9 = r2.xyzz * r2.yzzx;
 		r10.xyz = mul(cMtx2, r9);
 		r0.y = r2.y * r2.y;
-		r0.y = r2.x * r2.x + -r0.y;
+		r0.y = r2.x * r2.x - r0.y;
 		r2.xyz = r10.xyz + r8.xyz;
 		r0.yzw = cExtra * r0.y + r2.xyz;
 		r0.yzw = max(0, r0.yzw);

@@ -51,7 +51,7 @@ void process_omni_light(Omni cOmni, bool bOmni, float3 r1, float3 r2, inout floa
 	if (!bOmni)
 		return;
 	
-	float3 r4 = cOmni.pos.xyz + -r1;
+	float3 r4 = cOmni.pos.xyz - r1;
 	float3 r5 = 0.0001 + r4;
 	float r6 = dot(r4, r5 * rsqrt(dot(r5, r5)));
 	
@@ -80,12 +80,12 @@ void process_spot_light(Spot cSpot, bool bSpot, const float4 r1, const float3 r2
 	if (!cmp(abs(r5) < 1))
 		return;
 	
-	float3 r7 = cSpot.pos.xyz + -r1.xyz;
+	float3 r7 = cSpot.pos.xyz - r1.xyz;
 	float3 r8 = 0.0001 + r7;
 	
 	r8 = r8 * rsqrt(dot(r8, r8));
 	r4 = r4 / r6;
-	r4 = r4 * 2 + -1;
+	r4 = r4 * 2 - 1;
 	r4 = min(1, abs(r4));
 	r4 = -r4 * r4 + 1;
 	

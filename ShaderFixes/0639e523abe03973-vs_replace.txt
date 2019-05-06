@@ -47,7 +47,7 @@ void main(
 	r0.xy = (int2)v1.xy;
 	r0.zw = (int2)v2.xy;
 	o1 = 0.00048828125 * r0;
-	r0.xyz = v3.zyx * 2 + -1;
+	r0.xyz = v3.zyx * 2 - 1;
 	r3.xyz = mul(BonesMtx, r0.xyz);
 	o3.xyz = mul(r3.xyz, gLocalToWorld);
 	o3.w = 0;

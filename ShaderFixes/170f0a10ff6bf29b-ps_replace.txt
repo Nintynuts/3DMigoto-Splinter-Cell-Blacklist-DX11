@@ -30,7 +30,7 @@ void main(
 	r1.z = sIDMap.Sample(sIDMap_s, r0.zw).x;
 	r1.xy = r1.z * r0.xy;
 	r0.xyz = sNormalMap.Sample(sNormalMap_s, r0.zw).xyz;
-	r0.xyz = r0.yzx * 2 + -1;
+	r0.xyz = r0.yzx * 2 - 1;
 	r1.w = 1;
 			
 	stereo_unfix(r1);

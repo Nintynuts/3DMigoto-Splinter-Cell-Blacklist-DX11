@@ -30,15 +30,15 @@ void main(
 {
 	float4 r0,r1,r2,r3;
 	
-	r0.w = gLocalToWorld._m30 + -cViewPos_VS.x;
+	r0.w = gLocalToWorld._m30 - cViewPos_VS.x;
 	r0.xyz = gLocalToWorld._m00_m10_m20;
 	r1.xyz = gDrawScale.xyz * v0.xyz;
 	r1.w = v0.w;
 	r0.x = dot(r1, r0);
-	r2.w = gLocalToWorld._m31 + -cViewPos_VS.y;
+	r2.w = gLocalToWorld._m31 - cViewPos_VS.y;
 	r2.xyz = gLocalToWorld._m01_m11_m21;
 	r0.y = dot(r1, r2);
-	r2.w = gLocalToWorld._m32 + -cViewPos_VS.z;
+	r2.w = gLocalToWorld._m32 - cViewPos_VS.z;
 	r2.xyz = gLocalToWorld._m02_m12_m22;
 	r0.z = dot(r1, r2);
 	r1 = mul(r0.xyz, gWorldToProj);
@@ -50,13 +50,13 @@ void main(
 	r0.zw = (int2)v2.xy;
 	o1 = 0.00048828125 * r0;
 	o3.w = 0;
-	r0.xyz = v4.zyx * 2 + -1;
+	r0.xyz = v4.zyx * 2 - 1;
 	o3.xyz = mul(r0.xyz, gLocalToWorld);
 	o4.w = 0;
-	r0.xyz = v5.zyx * 2 + -1;
+	r0.xyz = v5.zyx * 2 - 1;
 	o4.xyz = mul(r0.xyz, gLocalToWorld);
 	o5.w = 0;
-	r0.xyz = v3.zyx * 2 + -1;
+	r0.xyz = v3.zyx * 2 - 1;
 	r1.xyz = mul(r0.xyz, gLocalToWorld);
 	o5.xyz = r1.xyz;
 	r0.xyz = normalise(r1.xyz);
@@ -66,7 +66,7 @@ void main(
 	r3.xyz = mul(cMtx2, r2);
 	r1.xyz = r3.xyz + r1.xyz;
 	r0.y = r0.y * r0.y;
-	r0.x = r0.x * r0.x + -r0.y;
+	r0.x = r0.x * r0.x - r0.y;
 	r0.xyz = cExtra * r0.x + r1.xyz;
 	r0.xyz = max(0, r0.xyz);
 	r0.w = 1;

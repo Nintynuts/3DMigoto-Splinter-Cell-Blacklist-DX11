@@ -71,11 +71,11 @@ void main(
 		r2.xyz = sNoise1.Sample(sNoise1_s, r1.xy * 1.5).xyz;
 		r1.xyz = sNoise1.Sample(sNoise1_s, r1.zw * 1.5).xyz;
 		r1.xyz = r2.xyz + r1.xyz;
-		r1.xyz = r1.xyz * cNoiseTerms.z + -cNoiseTerms.z;
+		r1.xyz = r1.xyz * cNoiseTerms.z - cNoiseTerms.z;
 		r1.yz = bPost ? r1.x : r1.yz;
 		r0.xyz = r1.xyz + r0.xyz;
 		r0.w = dot(r0.xyz, float3(0.3,0.6,0.1));
-		r1.xyz = r0.xyz + -r0.w;
+		r1.xyz = r0.xyz - r0.w;
 		r1.xyz = cTint.w * r1.xyz + r0.w;
 		r1.xyz = r1.xyz * cMiscTerms.x + cMiscTerms.y;
 		r0.xyz = cTint.xyz * r1.xyz;
