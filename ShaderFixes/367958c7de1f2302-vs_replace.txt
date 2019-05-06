@@ -22,6 +22,12 @@ void main(
 	r0.xyz = mul(v0, gLocalToWorld);
 	r0.w = 1;
 	r1 = mul(r0, gSimpleWorldToProj);
+
+	if (r1.w > 100)
+		stereo_fix(r1); 
+	else
+		r1.x += separation * r1.w;
+
 	o0 = r1;
 
 	stereo_unfix(o0);
