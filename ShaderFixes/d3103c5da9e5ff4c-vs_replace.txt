@@ -61,9 +61,9 @@ void main(
 	o5.xyz = r1.xyz;
 	r0.xyz = normalise(r1.xyz);
 	r0.w = 1;
-	r1.xyz = mul(cMtx1, r0);
+	r1.xyz = mul(r0, cMtx1);
 	r2 = r0.xyzz * r0.yzzx;
-	r3.xyz = mul(cMtx2, r2);
+	r3.xyz = mul(r2, cMtx2);
 	r1.xyz = r3.xyz + r1.xyz;
 	r0.y = r0.y * r0.y;
 	r0.x = r0.x * r0.x - r0.y;

@@ -191,9 +191,9 @@ float4 particle_common(
 		r8.xyz = mul(r2.xyz, gLocalToWorld);
 		r2.xyz = normalise(r8.xyz);
 		r2.w = 1;
-		r8.xyz = mul(cMtx1, r2);
+		r8.xyz = mul(r2, cMtx1);
 		r9 = r2.xyzz * r2.yzzx;
-		r10.xyz = mul(cMtx2, r9);
+		r10.xyz = mul(r9, cMtx2);
 		r0.y = r2.y * r2.y;
 		r0.y = r2.x * r2.x - r0.y;
 		r2.xyz = r10.xyz + r8.xyz;
