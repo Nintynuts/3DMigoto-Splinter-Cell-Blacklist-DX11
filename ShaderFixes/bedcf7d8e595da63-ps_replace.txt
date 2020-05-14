@@ -1,13 +1,7 @@
 // Particles - Breath + Steam
 
-#include "CB_PerFrame.hlsl"
-
-cbuffer CB_PerFogControl : register(b8)
-{
-	bool bFog : packoffset(c0);
-	float4 cFog_Density_Start_Range : packoffset(c1);
-	float4 cFogCol : packoffset(c2);
-}
+#include "CB/PerFrame.hlsl"
+#include "CB/PerFogControl.hlsl"
 
 cbuffer CB_PS_ParticleMaterialCommon : register(b0)
 {
@@ -28,11 +22,9 @@ cbuffer CB_PS_ParticleMaterial_Static : register(b7)
 	float4 cNormalScale : packoffset(c4);
 	float cAlphaTest : packoffset(c5);
 }
-
-SamplerState sDiffuseMap_s : register(s0);
-SamplerState sSceneDepth_s : register(s3);
-Texture2D<float4> sDiffuseMap : register(t0);
-Texture2D<float4> sSceneDepth : register(t1);
+#include "texture.hlsl"
+TEXTURE(_2D,sDiffuseMap,0,0);
+TEXTURE(_2D,sSceneDepth,3,1);
 
 #include "3Dmigoto.hlsl"
 
@@ -46,12 +38,10 @@ void main(
 	out float4 o0 : SV_Target0)
 {
 	float4 r0,r1,r2,r3;
-	uint4 bitmask, uiDest;
-	float4 fDest;
 
-	r0 = sDiffuseMap.Sample(sDiffuseMap_s, v3.xy);
+	r0 = SAMPLE(sDiffuseMap, v3.xy);
 	r0.xyz = r0.xyz * r0.xyz;
-	r1 = sDiffuseMap.Sample(sDiffuseMap_s, v3.zw);
+	r1 = SAMPLE(sDiffuseMap, v3.zw);
 	r1.xyz = r1.xyz * r1.xyz;
 	r2.x = 1 - v4.z;
 	r1 = r2.x * r1;
@@ -65,12 +55,8 @@ void main(
 	r1.xyz = exp2(r1.xyz);
 	r0.xyz = r1.xyz * r2.x + r2.y;
 	if (bSoftParticles != 0) {
-
-		// Code moved to VS
-		//r1.xy = v4.xy / v4.w;
-		//r1.x = sSceneDepth.Sample(sSceneDepth_s, r1.xy).x;
-
-		r1.x = sSceneDepth.Sample(sSceneDepth_s, v4.xy).x;
+		r1.xy = v4.xy / v4.w;
+		r1.x = SAMPLE(sSceneDepth, v4.xy).x;
 		r1.x = -v4.w + r1.x;
 		r1.x = saturate(cTranslucency.y * r1.x);
 		r1 = cFadeTerms.xxxy * r1.x + cFadeTerms.zzzw;

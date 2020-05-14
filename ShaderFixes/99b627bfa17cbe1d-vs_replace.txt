@@ -1,10 +1,6 @@
 // ShadowNet - Overlay 1-Colour
 
-cbuffer CB_VS_ScaleformBatched : register(b7)
-{
-	float4 mvp[192] : packoffset(c0);
-}
-
+#include "CB/VS_ScaleformBatched.hlsl"
 #include "3Dmigoto.hlsl"
 
 void main(
@@ -14,22 +10,16 @@ void main(
 	out float4 o1 : TEXCOORD0,
 	out float4 o2 : TEXCOORD1,
 	out float4 o3 : TEXCOORD2)
-{
-	float4 r0,r1,r2;
-	
-	r0.x = 2040.01001 * v1.x;
-	r0.x = (int)r0.x;
-	r1 = (int4)v0;
-	o0.x = dot(r1, mvp[r0.x]);
-	r2 = (int4)r0.x + int4(1,2,3,6);
-	r0.xyz = (int3)r0.x + int3(7,4,5);
-	o0.y = dot(r1, mvp[r2.x]);
-	o0.z = dot(r1, mvp[r2.y]);
-	o0.w = dot(r1, mvp[r2.z]);
-	o1.x = dot(r1, mvp[r2.w]);
-	o1.y = dot(r1, mvp[r0.x]);
-	o2 = mvp[r0.z];
-	o3 = mvp[r0.y];
+{	
+	int r0 = (int)(2040.01001 * v1.x);
+	o0.x = dot(v0, mvp[r0 + 0]);
+	o0.y = dot(v0, mvp[r0 + 1]);
+	o0.z = dot(v0, mvp[r0 + 2]);
+	o0.w = dot(v0, mvp[r0 + 3]);
+	o3 = mvp[r0 + 4];
+	o2 = mvp[r0 + 5];
+	o1.x = dot(v0, mvp[r0 + 6]);
+	o1.y = dot(v0, mvp[r0 + 7]);
 	
 	stereo_unfix(o0);
 	float layer = 5;

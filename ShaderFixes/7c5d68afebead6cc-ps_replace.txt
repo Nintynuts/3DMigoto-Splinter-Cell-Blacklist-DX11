@@ -1,4 +1,4 @@
-// Lighting - Indoor
+// Lighting - Shadow Map
 
 cbuffer CB_PS_Shadows : register(b7)
 {
@@ -22,18 +22,16 @@ cbuffer CB_PS_ShadowRender : register(b6)
 	float4x4 cMaskScreenToLight : packoffset(c7);
 	float4 cSpotLight : packoffset(c11);
 }
-
-SamplerState sSceneDepth_s : register(s15);
-SamplerComparisonState g_SampleLinearCmp_s : register(s14);
-Texture2D<float4> sSceneDepth : register(t0);
-Texture2D<float4> g_txLightDepth : register(t14);
+#include "texture.hlsl"
+TEXTURE(_2D,sSceneDepth,15,0);
+TEXTURE_CMP(_2D,g_txLightDepth,14,14);
 
 #include "3Dmigoto.hlsl"
 
 void main(
 	float4 v0 : SV_Position0,
 	float4 v1 : TEXCOORD0,
-	float v2 : TEXCOORD1,
+	float v2 : TEXCOORD1, 
 	out float4 o0 : SV_Target0)
 {
 	float4 r0,r1,r2;
@@ -41,30 +39,37 @@ void main(
 	r0.xy = -0.5 + v0.xy;
 	r0.xy = r0.xy * cVPSB.xy + cVPSB.zw;
 	r0.zw = v1.zw / v2.x;
-	r1.z = sSceneDepth.Sample(sSceneDepth_s, r0.zw).x;
+	r1.z = SAMPLE(sSceneDepth, r0.zw).x;
 	r1.xy = r1.z * r0.xy;
 	r1.w = 1;
-			
+
 	stereo_unfix(r1);
-	
+
+	#ifdef CLIP
+	r0.x = dot(r1, cClip0);
+	r0.y = dot(r1, cClip1);
+	r0.xy = cmp(r0.xy < 0);
+	r0.x = (int)r0.y | (int)r0.x;
+	if (r0.x != 0) discard;
+	#endif
 	r0 = mul(r1, cScreenToLight);
 	r0.xyz = r0.xyz / r0.w;
 	r1 = shadow_map_res.y * float4(-0.5,0,0.5,0) + r0.xyxy;
-	r0.w = g_txLightDepth.SampleCmpLevelZero(g_SampleLinearCmp_s, r1.xy, r0.z).x;
-	r1.x = g_txLightDepth.SampleCmpLevelZero(g_SampleLinearCmp_s, r1.zw, r0.z).x;
+	r0.w = SAMPLE_CMP_LVL(g_txLightDepth, r1.xy, r0.z).x;
+	r1.x = SAMPLE_CMP_LVL(g_txLightDepth, r1.zw, r0.z).x;
 	r0.w = r1.x + r0.w;
 	r1 = shadow_map_res.y * float4(0,0.5,0,-0.5) + r0.xyxy;
-	r1.x = g_txLightDepth.SampleCmpLevelZero(g_SampleLinearCmp_s, r1.xy, r0.z).x;
-	r1.y = g_txLightDepth.SampleCmpLevelZero(g_SampleLinearCmp_s, r1.zw, r0.z).x;
+	r1.x = SAMPLE_CMP_LVL(g_txLightDepth, r1.xy, r0.z).x;
+	r1.y = SAMPLE_CMP_LVL(g_txLightDepth, r1.zw, r0.z).x;
 	r0.w = r1.x + r0.w;
 	r0.w = r0.w + r1.y;
 	r1 = shadow_map_res.y * float4(-0.5,-0.5,0.5,0.5) + r0.xyxy;
-	r1.x = g_txLightDepth.SampleCmpLevelZero(g_SampleLinearCmp_s, r1.xy, r0.z).x;
-	r1.y = g_txLightDepth.SampleCmpLevelZero(g_SampleLinearCmp_s, r1.zw, r0.z).x;
+	r1.x = SAMPLE_CMP_LVL(g_txLightDepth, r1.xy, r0.z).x;
+	r1.y = SAMPLE_CMP_LVL(g_txLightDepth, r1.zw, r0.z).x;
 	r0.w = r1.x + r0.w;
 	r2 = shadow_map_res.y * float4(0.5,-0.5,-0.5,0.5) + r0.xyxy;
-	r1.x = g_txLightDepth.SampleCmpLevelZero(g_SampleLinearCmp_s, r2.xy, r0.z).x;
-	r0.z = g_txLightDepth.SampleCmpLevelZero(g_SampleLinearCmp_s, r2.zw, r0.z).x;
+	r1.x = SAMPLE_CMP_LVL(g_txLightDepth, r2.xy, r0.z).x;
+	r0.z = SAMPLE_CMP_LVL(g_txLightDepth, r2.zw, r0.z).x;
 	r0.xy = r0.xy * cScale.xy + cBias.xy;
 	r0.xy = saturate(abs(r0.xy) * cShadowFade.z + cShadowFade.w);
 	r0.w = r1.x + r0.w;

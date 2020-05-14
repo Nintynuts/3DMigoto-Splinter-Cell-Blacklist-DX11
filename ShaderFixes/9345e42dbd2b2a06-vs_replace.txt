@@ -1,14 +1,8 @@
 // Lighting - Shared
 
-#include "CB_PerCamera.hlsl"
-
-#include "CB_PerObject.hlsl"
-
-cbuffer CB_VS_SimpleTransform : register(b3)
-{
-	float4x4 gSimpleWorldToProj : packoffset(c0);
-}
-
+#include "CB/PerCamera.hlsl"
+#include "CB/PerObject.hlsl"
+#include "CB/VS_SimpleTransform.hlsl"
 #include "3Dmigoto.hlsl"
 
 void main(
@@ -25,7 +19,7 @@ void main(
 	r1 = mul(r0, gSimpleWorldToProj);
 	
 	if (ini(x,3)||ini(w,3)) // is_cutscene or loadout_open
-		r1.x += separation * (r1.w - 0.1);
+		r1.x += separation * r1.w;
 
 	o0 = r1;
 	

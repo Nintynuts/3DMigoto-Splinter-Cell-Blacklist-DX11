@@ -5,13 +5,10 @@ cbuffer CB_PS_SimpleVCTexMux : register(b7)
 	float4x3 mat : packoffset(c0);
 	float4 uv[4] : packoffset(c3);
 }
-
-SamplerState texX_s : register(s0);
-SamplerState texY_s : register(s1);
-SamplerState texZ_s : register(s2);
-Texture2D<float4> texX : register(t0);
-Texture2D<float4> texY : register(t1);
-Texture2D<float4> texZ : register(t2);
+#include "texture.hlsl"
+TEXTURE(_2D,texX,0,0);
+TEXTURE(_2D,texY,1,1);
+TEXTURE(_2D,texZ,2,2);
 
 #include "3Dmigoto.hlsl"
 
@@ -35,11 +32,11 @@ void main(
 		else
 			r1.x = abs(r1.x);
 	}
-	r1.x = texX.Sample(texX_s, r1.xy).x;
+	r1.x = SAMPLE(texX, r1.xy).x;
 	r2.xy = v2.xy * uv[1].xy + uv[1].zw;
-	r1.y = texY.Sample(texY_s, r2.xy).x;
+	r1.y = SAMPLE(texY, r2.xy).x;
 	r2.xy = v2.xy * uv[2].xy + uv[2].zw;
-	r1.z = texZ.Sample(texZ_s, r2.xy).x;
+	r1.z = SAMPLE(texZ, r2.xy).x;
 	r1.w = 1;
 	r0.xyz = mul(r1, mat);
 	o0 = v1 * r0;

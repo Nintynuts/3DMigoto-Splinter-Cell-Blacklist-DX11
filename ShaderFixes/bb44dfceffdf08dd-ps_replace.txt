@@ -1,6 +1,6 @@
-// Ignore 2
+// Ignore - Simple Colour
 
-#include "CB_PerFrame.hlsl"
+#include "CB/PerFrame.hlsl"
 
 cbuffer CB_PS_SimpleColor : register(b7)
 {

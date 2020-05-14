@@ -1,14 +1,8 @@
 // GUI - Text Batched
 
-cbuffer CB_VS_ScaleformBatched : register(b7)
-{
-	float4 mvp[192] : packoffset(c0);
-}
-
-#include "CB_PerCamera.hlsl"
-
+#include "CB/VS_ScaleformBatched.hlsl"
+#include "CB/PerCamera.hlsl"
 #include "3Dmigoto.hlsl"
-
 #include "goal_boundaries.hlsl"
 
 void main(
@@ -22,17 +16,14 @@ void main(
 	out float4 o2 : TEXCOORD1,
 	out float4 o3 : TEXCOORD2,
 	out float4 o4 : COLOR0)
-{
-	float4 r0;
-	
-	r0.x = 2040.01001 * v3.x;
-	r0.x = (int)r0.x;
-	o0.x = dot(v0, mvp[r0.x + 0]);
-	o0.y = dot(v0, mvp[r0.x + 1]);
+{	
+	int r0 = (int)(2040.01001 * v3.x);
+	o0.x = dot(v0, mvp[r0 + 0]);
+	o0.y = dot(v0, mvp[r0 + 1]);
 	o0.zw = v0.zw;
 	o1.xy = v1.xy;
-	o2 = mvp[r0.x + 5];
-	o3 = mvp[r0.x + 4];
+	o3 = mvp[r0 + 4];
+	o2 = mvp[r0 + 5];
 	o4 = v2.zyxw;
 	
 	if (!rt_res_size_match()) // Render Target

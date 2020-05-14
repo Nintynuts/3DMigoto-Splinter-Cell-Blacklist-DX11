@@ -1,4 +1,4 @@
-#include "..\3Dmigoto.hlsl"
+#include "../3Dmigoto.hlsl"
 
 #define amplify IniParams[0].x
 #define flip IniParams[0].y
@@ -38,9 +38,9 @@ void main(
 
 #ifdef PIXEL_SHADER
 
-#include "..\matrix.hlsl"
+#include "../matrix.hlsl"
 
-#include "..\CB_PerCamera.hlsl"
+#include "../CB/PerCamera.hlsl"
 
 Texture2D<float4> tex : register(t100);
 

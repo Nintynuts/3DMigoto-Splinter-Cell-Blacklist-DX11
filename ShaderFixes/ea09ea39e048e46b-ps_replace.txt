@@ -1,24 +1,14 @@
 // Lighting - Spot
 
-#include "CB_PerCamera.hlsl"
-
-#include "CB_PS_PerLightBatch.hlsl"
-
-cbuffer CB_PS_DeferredSpotLight : register(b7)
-{
-	float4x4 cScreenToWorld : packoffset(c0);
-}
-
-SamplerState sDepth_s : register(s0);
-SamplerState sNormal_s : register(s1);
-SamplerState sSceneAlbedo_s : register(s2);
-SamplerState sSpotTex0_s : register(s6);
-SamplerState sShadowSamples_s : register(s15);
-Texture2D<float4> sDepth : register(t0);
-Texture2D<float4> sNormal : register(t1);
-Texture2D<float4> sShadowSamples : register(t2);
-Texture2D<float4> sSpotTex0 : register(t3);
-Texture2D<float4> sSceneAlbedo : register(t4);
+#include "CB/PerCamera.hlsl"
+#include "CB/PS_PerLightBatch.hlsl"
+#include "CB/PS_DeferredSpotLight.hlsl"
+#include "texture.hlsl"
+TEXTURE(_2D,sDepth,0,0);
+TEXTURE(_2D,sNormal,1,1);
+TEXTURE(_2D,sSceneAlbedo,2,4);
+TEXTURE(_2D,sSpotTex0,6,3);
+TEXTURE(_2D,sShadowSamples,15,2);
 
 #include "3Dmigoto.hlsl"
 
@@ -33,19 +23,19 @@ void main(
 	r0 = v1 / v2.x;
 	r2.xy = r0.xy;
 	r2.zw = 1;
-	r1.xy = sDepth.Sample(sDepth_s, r0.zw).xw;
+	r1.xy = SAMPLE(sDepth, r0.zw).xw;
 	r2.xyz = r1.x * r2.xyz;
 
 	stereo_unfix(r2);
 	
 	r3.xyz = mul(r2, cScreenToWorld);
 	r3.w = 1;
-	r2 = sNormal.Sample(sNormal_s, r0.zw);
-	r4.xyz = sShadowSamples.Sample(sShadowSamples_s, r0.zw).xyz;
+	r2 = SAMPLE(sNormal, r0.zw);
+	r4.xyz = SAMPLE(sShadowSamples, r0.zw).xyz;
 	r5 = mul(r3, cSpot0.proj);
 	r1.x = cmp(abs(r5.z) < 1);
 	r0.xy = r5.xy / r5.w;
-	r5.xyz = sSpotTex0.Sample(sSpotTex0_s, r0.xy).xyz;
+	r5.xyz = SAMPLE(sSpotTex0, r0.xy).xyz;
 	if (r1.x != 0) {
 		r1.xzw = cViewPos.xyz - r3.xyz;
 		r2.xyz = r2.xyz * 2 - 1;
@@ -88,7 +78,7 @@ void main(
 		r4.xyz = 0;
 		r1.xyz = 0;
 	}
-	r0 = sSceneAlbedo.Sample(sSceneAlbedo_s, r0.zw);
+	r0 = SAMPLE(sSceneAlbedo, r0.zw);
 	r0 = r0 * r0;
 	r0.w = 8.0/3 * r0.w;
 	r1.xyz = r1.xyz * r0.w;

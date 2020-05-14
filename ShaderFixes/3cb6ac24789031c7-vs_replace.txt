@@ -1,10 +1,6 @@
 // ShadowNet - Overlay 2-Colour
 
-cbuffer CB_VS_ScaleformBatched : register(b7)
-{
-	float4 mvp[192] : packoffset(c0);
-}
-
+#include "CB/VS_ScaleformBatched.hlsl"
 #include "3Dmigoto.hlsl"
 
 void main(

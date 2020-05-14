@@ -6,11 +6,9 @@ cbuffer CB_PS_GodRaysBlur : register(b7)
   float3 cPassState : packoffset(c1);
   float2 cClampMax : packoffset(c2);
 }
-
-SamplerState sSourceMask_s : register(s0);
-SamplerState sFalloffMap_s : register(s1);
-Texture2D<float4> sSourceMask : register(t0);
-Texture2D<float4> sFalloffMap : register(t1);
+#include "texture.hlsl"
+TEXTURE(_2D,sSourceMask,0,0);
+TEXTURE(_2D,sFalloffMap,1,1);
 
 #include "3Dmigoto.hlsl"
 
@@ -32,13 +30,13 @@ void main(
     if (r2.y != 0) break;
     r2.yz = max(0, r1.yz);
     r2.yz = min(cClampMax.xy, r2.yz);
-    r2.w = sSourceMask.Sample(sSourceMask_s, r2.yz).y;
+    r2.w = SAMPLE(sSourceMask, r2.yz).y;
     r1.w = r2.w * 0.125 + r1.w;
     r1.yz = -r0.xy * r1.x + r2.yz;
     r2.x = (int)r2.x + 1;
   }
   r0.xy = 0.5 + r0.xy;
-  r0.x = sFalloffMap.Sample(sFalloffMap_s, r0.xy).x;
+  r0.x = SAMPLE(sFalloffMap, r0.xy).x;
   r0.x = r1.w * r0.x;
   o0.y = cPassState.x * r0.x;
   o0.xzw = float3(0,0,1);

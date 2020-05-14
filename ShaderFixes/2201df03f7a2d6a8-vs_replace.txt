@@ -1,7 +1,6 @@
 // GUI - Block Colour
 
-#include "CB_VS_Scaleform.hlsl"
-
+#include "CB/VS_Scaleform.hlsl"
 #include "3Dmigoto.hlsl"
 
 void main(

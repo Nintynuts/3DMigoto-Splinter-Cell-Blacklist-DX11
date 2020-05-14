@@ -1,6 +1,6 @@
 // Night Vision
 
-#include "CB_PerFrame.hlsl"
+#include "CB/PerFrame.hlsl"
 
 cbuffer CB_PS_PostFinal : register(b7)
 {
@@ -21,15 +21,11 @@ cbuffer CB_PS_PostFinal : register(b7)
 	bool bNoiseLum : packoffset(c11.w);
 	bool bWaves : packoffset(c12);
 }
-
-SamplerState sSceneTexPoint_s : register(s0);
-SamplerState sBloom_s : register(s1);
-SamplerState sNoise1_s : register(s2);
-SamplerState sTonemap_s : register(s4);
-Texture2D<float4> sSceneTexPoint : register(t0);
-Texture2D<float4> sTonemap : register(t1);
-Texture2D<float4> sBloom : register(t2);
-Texture2D<float4> sNoise1 : register(t3);
+#include "texture.hlsl"
+TEXTURE(_2D,sSceneTexPoint,0,0);
+TEXTURE(_2D,sBloom,1,2);
+TEXTURE(_2D,sNoise1,2,3);
+TEXTURE(_2D,sTonemap,4,1);
 
 #include "3Dmigoto.hlsl"
 
@@ -40,20 +36,20 @@ void main(
 {
 	float4 r0,r1,r2;
 	
-	r0.xyz = sSceneTexPoint.Sample(sSceneTexPoint_s, v1.zw).xzy;
+	r0.xyz = SAMPLE(sSceneTexPoint, v1.zw).xzy;
 	if (bWaves != 0) {
 		r1.xy = cMiscTerms.zw + v1.zw;
-		r0.x = sSceneTexPoint.Sample(sSceneTexPoint_s, r1.xy).x;
+		r0.x = SAMPLE(sSceneTexPoint, r1.xy).x;
 		r1.xy = -cMiscTerms.zw + v1.zw;
-		r0.y = sSceneTexPoint.Sample(sSceneTexPoint_s, r1.xy).z;
+		r0.y = SAMPLE(sSceneTexPoint, r1.xy).z;
 	}
 	r0.w = cmp(cHdrControl < 0);
 	r1.xyz = r0.w ? r0.xzy : 1;
 	r0.xyz = r1.xyz * r0.xzy;
-	r0.w = sTonemap.Sample(sTonemap_s, 0).x;
+	r0.w = SAMPLE(sTonemap, 0).x;
 	r0.xyz = r0.xyz * r0.w;
 	if (bPost != 0) {
-		r1.xyz = sBloom.Sample(sBloom_s, v1.xy).xyz;
+		r1.xyz = SAMPLE(sBloom, v1.xy).xyz;
 		r1.xyz = cBloomWeights.x * r1.xyz + r0.xyz;
 		r0.xyz = gColorControl.z * r1.xyz;
 	}

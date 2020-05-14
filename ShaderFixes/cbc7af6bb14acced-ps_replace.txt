@@ -1,6 +1,6 @@
 // Mesh - Shoulder Pad (disabled)
 
-#include "CB_PerFrame.hlsl"
+#include "CB/PerFrame.hlsl"
 
 cbuffer CB_PS_FullDeferredMaterial_Static : register(b7)
 {
@@ -15,20 +15,12 @@ cbuffer CB_PS_FullDeferredMaterial_Static : register(b7)
 	bool bEnvPass : packoffset(c8);
 	bool bFresnel : packoffset(c8.y);
 }
-
-cbuffer CB_PerCubeMapRenderCell : register(b0)
-{
-	float2 gCubemapScale : packoffset(c0);
-}
-
-SamplerState sDiffuseMap_s : register(s0);
-SamplerState sNormalMap_s : register(s1);
-SamplerState sSpecularMap_s : register(s2);
-SamplerState sSelfAOMap_s : register(s12);
-Texture2D<float4> sDiffuseMap : register(t0);
-Texture2D<float4> sNormalMap : register(t1);
-Texture2D<float4> sSpecularMap : register(t2);
-Texture2D<float4> sSelfAOMap : register(t3);
+#include "CB/PerCubeMapRenderCell.hlsl"
+#include "texture.hlsl"
+TEXTURE(_2D,sDiffuseMap,0,0);
+TEXTURE(_2D,sNormalMap,1,1);
+TEXTURE(_2D,sSpecularMap,2,2);
+TEXTURE(_2D,sSelfAOMap,12,3);
 
 #include "3Dmigoto.hlsl"
 
@@ -49,13 +41,13 @@ void main(
 
 	float4 r0,r1;
 	
-	r0.x = sSelfAOMap.Sample(sSelfAOMap_s, v1.zw).x;
+	r0.x = SAMPLE(sSelfAOMap, v1.zw).x;
 	r0.y = r0.x * r0.x - 1;
 	r0.y = gAOControl * r0.y + 1;
 	o0.y = r0.x * r0.y;
 	o0.x = v2.w;
 	o0.zw = 0;
-	r0.xy = sNormalMap.Sample(sNormalMap_s, v1.xy).xy;
+	r0.xy = SAMPLE(sNormalMap, v1.xy).xy;
 	r0.xy = r0.xy * 2 - 1;
 	r1.xyz = v4.xyz * r0.y;
 	r1.xyz = r0.x * v3.xyz + r1.xyz;
@@ -67,7 +59,7 @@ void main(
 	r0.xyz = normalise(r0.xyz);
 	o1.xyz = r0.xyz * 0.5 + 0.5;
 	r0.x = 1 - data0.w;
-	r0.yzw = sSpecularMap.Sample(sSpecularMap_s, v1.xy).xyz;
+	r0.yzw = SAMPLE(sSpecularMap, v1.xy).xyz;
 	r0.x = r0.w * r0.x + data0.w;
 	r0.x = r0.w * r0.x;
 	r0.x = data0.x * r0.x;
@@ -78,7 +70,7 @@ void main(
 	r0.y = sqrt(r0.y);
 	o2.w = min(1, r0.y);
 	o1.w = saturate(0.0909090936 * r0.x);
-	r0.xyz = sDiffuseMap.Sample(sDiffuseMap_s, v1.xy).xyz;
+	r0.xyz = SAMPLE(sDiffuseMap, v1.xy).xyz;
 	r0.xyz = r0.xyz * r0.xyz;
 	r0.xyz = cDiffCol.xyz * r0.xyz;
 	o2.xyz = sqrt(r0.xyz);

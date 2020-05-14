@@ -1,19 +1,10 @@
 // Mesh - Bones (POS3,NORM3,VID,TEXCOORDx6 TC6)
 
-#include "CB_PerCamera.hlsl"
-
-#include "CB_PerObject.hlsl"
-
+#include "CB/PerCamera.hlsl"
+#include "CB/PerObject.hlsl"
 #define MORPH b5
-
-#include "CB_BoneTransform.hlsl"
-
-cbuffer CB_VS_ColorPalette : register(b4)
-{
-	float4 cColorPalette[16] : packoffset(c0);
-	bool bUseColorPalette : packoffset(c16);
-}
-
+#include "CB/BoneTransform.hlsl"
+#include "CB/VS_ColorPalette.hlsl"
 #include "3Dmigoto.hlsl"
 
 void main(
@@ -85,7 +76,5 @@ void main(
 	o7.w = 0;
 	o0.xyz = r2.xyz;
 	o2.x = v8.x;
-	
-	//correct_orientation(o0);
 	return;
 }

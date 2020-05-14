@@ -1,4 +1,4 @@
-#include "..\3Dmigoto.hlsl"
+#include "../3Dmigoto.hlsl"
 
 #define mode IniParams[0].x
 

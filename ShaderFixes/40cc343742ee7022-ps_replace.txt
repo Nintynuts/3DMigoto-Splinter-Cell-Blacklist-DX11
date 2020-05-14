@@ -1,30 +1,17 @@
 // Lighting - Directional
 
-#include "CB_PerCamera.hlsl"
-
-cbuffer CB_PerCubeMapRenderCell : register(b0)
-{
-	float2 gCubemapScale : packoffset(c0);
-}
+#include "CB/PerCamera.hlsl"
+#include "CB/PerCubeMapRenderCell.hlsl"
 
 #define LIGHT_REG b1
-#include "CB_PS_PerLightBatch.hlsl"
-
-cbuffer CB_PS_DeferredDirLight : register(b7)
-{
-	float4x4 cScreenToWorld : packoffset(c0);
-}
-
-SamplerState sDepth_s : register(s0);
-SamplerState sNormal_s : register(s1);
-SamplerState sSceneAlbedo_s : register(s2);
-SamplerState sSceneLight_s : register(s3);
-SamplerState sShadowSamples_s : register(s15);
-Texture2D<float4> sDepth : register(t0);
-Texture2D<float4> sNormal : register(t1);
-Texture2D<float4> sShadowSamples : register(t2);
-Texture2D<float4> sSceneAlbedo : register(t3);
-Texture2D<float4> sSceneLight : register(t4);
+#include "CB/PS_PerLightBatch.hlsl"
+#include "CB/PS_DeferredDirLight.hlsl"
+#include "texture.hlsl"
+TEXTURE(_2D,sDepth,0,0);
+TEXTURE(_2D,sNormal,1,1);
+TEXTURE(_2D,sSceneAlbedo,2,3);
+TEXTURE(_2D,sSceneLight,3,4);
+TEXTURE(_2D,sShadowSamples,15,2);
 
 #include "3Dmigoto.hlsl"
 
@@ -39,7 +26,7 @@ void main(
 	r0.zw = 1;
 	r1 = v1 / v2.x;
 	r0.xy = r1.xy;
-	r1.xy = sDepth.Sample(sDepth_s, r1.zw).xw;
+	r1.xy = SAMPLE(sDepth, r1.zw).xw;
 	r0.xyz = r1.x * r0.xyz;
 
 	stereo_unfix(r0);
@@ -48,7 +35,7 @@ void main(
 	r0.xyz = cViewPos.xyz - r2.xyz;
 	r0.xyz = normalise(r0.xyz) + cDir0.dir.xyz;
 	r0.xyz = normalise(r0.xyz);
-	r2 = sNormal.Sample(sNormal_s, r1.zw);
+	r2 = SAMPLE(sNormal, r1.zw);
 	r2.xyz = r2.xyz * 2 - 1;
 	r0.w = 11 * r2.w;
 	r0.w = exp2(r0.w);
@@ -67,7 +54,7 @@ void main(
 	r0.z = r0.z * r0.z - r0.y;
 	r0.y = r1.y * r0.z + r0.y;
 	r0.z = saturate(r0.y);
-	r2.xyz = sShadowSamples.Sample(sShadowSamples_s, r1.zw).xyz;
+	r2.xyz = SAMPLE(sShadowSamples, r1.zw).xyz;
 	r2.w = 1;
 	r0.w = dot(cDir0.mask, r2);
 	r0.z = r0.w * r0.z;
@@ -75,8 +62,8 @@ void main(
 	r2.xyz = cDir0.dCol.xyz * r0.y;
 	r0.x = 0.125 * r0.x;
 	r0.xyz = cDir0.sCol.xyz * r0.x;
-	r3 = sSceneLight.Sample(sSceneLight_s, r1.zw);
-	r1 = sSceneAlbedo.Sample(sSceneAlbedo_s, r1.zw);
+	r3 = SAMPLE(sSceneLight, r1.zw);
+	r1 = SAMPLE(sSceneAlbedo, r1.zw);
 	r1 = r1 * r1;
 	r3.xyz = r3.xyz * r3.w;
 	r3.xyz = r3.xyz * r3.xyz;

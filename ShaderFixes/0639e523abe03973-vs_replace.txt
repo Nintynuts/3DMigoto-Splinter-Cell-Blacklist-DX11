@@ -1,12 +1,10 @@
 // Mesh - Bones (POS4,TEXCOORDx3)
 
-#include "CB_PerCamera.hlsl"
-
-#include "CB_PerObject.hlsl"
-
-#include "CB_BoneTransform.hlsl"
-
+#include "CB/PerCamera.hlsl"
+#include "CB/PerObject.hlsl"
+#include "CB/BoneTransform.hlsl"
 #include "3Dmigoto.hlsl"
+#include "matrix.hlsl"
 
 void main(
 	float4 v0 : POSITION0,
@@ -51,7 +49,5 @@ void main(
 	r3.xyz = mul(BonesMtx, r0.xyz);
 	o3.xyz = mul(r3.xyz, gLocalToWorld);
 	o3.w = 0;
-	
-	//correct_orientation(o0);
 	return;
 }

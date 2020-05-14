@@ -1,7 +1,6 @@
 // Lighting - God Rays
 
-#include "CB_PerCamera.hlsl"
-
+#include "CB/PerCamera.hlsl"
 #include "3Dmigoto.hlsl"
 
 void main(

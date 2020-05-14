@@ -4,9 +4,8 @@ cbuffer CB_PS_GodRaysCompose : register(b7)
 {
 	float4 cColor : packoffset(c0);
 }
-
-SamplerState sGodRays_s : register(s0);
-Texture2D<float4> sGodRays : register(t0);
+#include "texture.hlsl"
+TEXTURE(_2D,sGodRays,0,0);
 
 #include "3Dmigoto.hlsl"
 
@@ -19,7 +18,7 @@ void main(
 
 	v1.z -= separation / 2;
 
-	r0.x = sGodRays.Sample(sGodRays_s, v1.zw).y;
+	r0.x = SAMPLE(sGodRays, v1.zw).y;
 	r0 = cColor * r0.x;
 	r1.x = dot(r0.xyz, 1);
 	o0 = r0;

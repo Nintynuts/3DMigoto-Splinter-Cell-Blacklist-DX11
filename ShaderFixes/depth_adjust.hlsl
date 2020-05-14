@@ -1,6 +1,6 @@
 // Depth buffer copied from other shaders to this input with 3Dmigoto:
 
-#include "CB_PerCamera.hlsl"
+#include "CB/PerCamera.hlsl"
 #include "3Dmigoto.hlsl"
 #include "matrix.hlsl"
 

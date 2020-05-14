@@ -1,14 +1,8 @@
 // Lighting - Directional
 
-#include "CB_PerCamera.hlsl"
-
-#include "CB_PerObject.hlsl"
-
-cbuffer CB_VS_SimpleTransform : register(b3)
-{
-	float4x4 gSimpleWorldToProj : packoffset(c0);
-}
-
+#include "CB/PerCamera.hlsl"
+#include "CB/PerObject.hlsl"
+#include "CB/VS_SimpleTransform.hlsl"
 #include "3Dmigoto.hlsl"
 
 void main(

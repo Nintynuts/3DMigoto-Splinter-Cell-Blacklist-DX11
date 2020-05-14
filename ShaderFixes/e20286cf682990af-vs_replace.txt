@@ -1,10 +1,9 @@
 // Mesh - Static - Self-Illuminated
 
-#include "CB_PerCamera.hlsl"
-
-#include "CB_PerObject.hlsl"
-
+#include "CB/PerCamera.hlsl"
+#include "CB/PerObject.hlsl"
 #include "3Dmigoto.hlsl"
+#include "matrix.hlsl"
 
 void main(
 	float4 v0 : POSITION0,

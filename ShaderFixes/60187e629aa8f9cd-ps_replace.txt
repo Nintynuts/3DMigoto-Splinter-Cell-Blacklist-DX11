@@ -1,0 +1,47 @@
+// Lighting - Shadow Blur
+
+cbuffer CB_PS_ShadowBlur : register(b7)
+{
+  float3 cData : packoffset(c0);
+}
+#include "texture.hlsl"
+TEXTURE(_2D,sShadows,0,0);
+TEXTURE(_2D,sDepth,1,1);
+
+#include "3Dmigoto.hlsl"
+
+void main(
+  float4 v0 : SV_Position0,
+  float4 v1 : TEXCOORD0,
+  out float4 o0 : SV_Target0)
+{
+  float4 r0,r1,r2,r3,r4;
+
+  r0.x = SAMPLE(sDepth, v1.zw).x;
+  r1 = cData.xyxy * float4(-1.5,-1.5,1.5,-1.5) + v1.zwzw;
+  r2.x = SAMPLE(sDepth, r1.xy).x;
+  r2.y = SAMPLE(sDepth, r1.zw).x;
+  r3 = cData.xyxy * float4(-1.5,1.5,1.5,1.5) + v1.zwzw;
+  r2.z = SAMPLE(sDepth, r3.xy).x;
+  r2.w = SAMPLE(sDepth, r3.zw).x;
+  r0 = r2 - r0.x;  
+  r2.x = 1 / cData.z;
+  r0 = saturate(r2.x * abs(r0));
+  r2 = r0 * -2 + 3;
+  r0 = r0 * r0;
+  r0 = -r2 * r0 + 1;
+  r2 = SAMPLE(sShadows, v1.zw);
+  r4.xyz = SAMPLE(sShadows, r1.xy).xyz;
+  r1.xyz = SAMPLE(sShadows, r1.zw).xyz;
+  r2.xyz = r4.xyz * r0.x + r2.xyz;
+  o0.w = r2.w;
+  r1.xyz = r1.xyz * r0.y + r2.xyz;
+  r2.xyz = SAMPLE(sShadows, r3.xy).xyz;
+  r3.xyz = SAMPLE(sShadows, r3.zw).xyz;
+  r1.xyz = r2.xyz * r0.z + r1.xyz;
+  r1.xyz = r3.xyz * r0.w + r1.xyz;
+  r0.x = dot(r0, 1);
+  r0.x = 1 + r0.x;
+  o0.xyz = r1.xyz / r0.x;
+  return;
+}

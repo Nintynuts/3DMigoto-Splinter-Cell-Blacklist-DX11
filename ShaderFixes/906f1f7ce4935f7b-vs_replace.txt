@@ -1,9 +1,7 @@
 // Lighting - Beams
 
-#include "CB_PerCamera.hlsl"
-
-#include "CB_PerObject.hlsl"
-
+#include "CB/PerCamera.hlsl"
+#include "CB/PerObject.hlsl"
 #include "3Dmigoto.hlsl"
 
 void main(

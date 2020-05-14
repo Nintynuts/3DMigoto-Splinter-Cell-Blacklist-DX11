@@ -1,18 +1,11 @@
-// Lighting - Shadows - Baked
+// Lighting - Baked
 
-#include "CB_PS_PerLightBatch.hlsl"
-
-cbuffer CB_PS_DeferredOmniLight : register(b7)
-{
-	float4x4 cScreenToWorld : packoffset(c0);
-}
-
-SamplerState sDepth_s : register(s0);
-SamplerState sNormal_s : register(s1);
-SamplerState sSceneAlbedo_s : register(s2);
-Texture2D<float4> sDepth : register(t0);
-Texture2D<float4> sNormal : register(t1);
-Texture2D<float4> sSceneAlbedo : register(t2);
+#include "CB/PS_PerLightBatch.hlsl"
+#include "CB/PS_DeferredOmniLight.hlsl"
+#include "texture.hlsl"
+TEXTURE(_2D,sDepth,0,0);
+TEXTURE(_2D,sNormal,1,1);
+TEXTURE(_2D,sSceneAlbedo,2,2);
 
 #include "3Dmigoto.hlsl"
 
@@ -27,17 +20,17 @@ void main(
 	r0.zw = 1;
 	r1 = v1 / v2.x;
 	r0.xy = r1.xy;
-	r1.xy = sDepth.Sample(sDepth_s, r1.zw).xw;
+	r1.xy = SAMPLE(sDepth, r1.zw).xw;
 	r0.xyz = r1.x * r0.xyz;
-	
+
 	stereo_unfix(r0);
-	
+
 	r2.xyz = mul(r0, cScreenToWorld);
 	r0.xyz = cOmni0.pos.xyz - r2.xyz;
 	r2.xyz = normalise(r0.xyz);
 	r0.x = dot(r0.xyz, r2.xyz);
-	r0.yzw = sNormal.Sample(sNormal_s, r1.zw).xyz;
-	r1.xzw = sSceneAlbedo.Sample(sSceneAlbedo_s, r1.zw).xyz;
+	r0.yzw = SAMPLE(sNormal, r1.zw).xyz;
+	r1.xzw = SAMPLE(sSceneAlbedo, r1.zw).xyz;
 	r1.xzw = r1.xzw * r1.xzw;
 	r0.yzw = r0.yzw * 2 - 1;
 	r0.yzw = normalise(r0.yzw);

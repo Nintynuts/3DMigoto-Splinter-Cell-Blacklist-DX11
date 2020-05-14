@@ -1,17 +1,10 @@
 // Mesh - Static (POS4,TEXCOORDx6 TC6)
 
-cbuffer CB_PerPass : register(b12)
-{
-	float4 cAmbientColor : packoffset(c0);
-	float3 cEnvMapAtten : packoffset(c1);
-	float cSHScale : packoffset(c1.w);
-}
-
-#include "CB_PerCamera.hlsl"
-
-#include "CB_PerObject.hlsl"
-
+#include "CB/PerPass.hlsl"
+#include "CB/PerCamera.hlsl"
+#include "CB/PerObject.hlsl"
 #include "3Dmigoto.hlsl"
+#include "matrix.hlsl"
 
 void main(
 	float4 v0 : POSITION0,
@@ -72,7 +65,5 @@ void main(
 	r0.w = 1;
 	r0 = cSHScale * r0;
 	o6 = bUseSH ? r0 : cAmbientColor;
-	
-	//correct_orientation(o0);
 	return;
 }

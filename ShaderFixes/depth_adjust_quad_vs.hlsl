@@ -1,6 +1,6 @@
 // Depth Calculation and Caching for Goal Boundaries
 
-#include "CB_VS_Scaleform.hlsl"
+#include "CB/VS_Scaleform.hlsl"
 
 #include "goal_boundaries.hlsl"
 

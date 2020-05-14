@@ -1,6 +1,6 @@
 // Lighting - Moon Glow
 
-#include "CB_PerCamera.hlsl"
+#include "CB/PerCamera.hlsl"
 
 cbuffer CB_PS_Atmosphere : register(b7)
 {
@@ -11,11 +11,9 @@ cbuffer CB_PS_Atmosphere : register(b7)
 	float4 cCst2 : packoffset(c4);
 	float4x4 cScreenToWorld : packoffset(c5);
 }
-
-SamplerState sSceneTex_s : register(s0);
-SamplerState sDepthTex_s : register(s1);
-Texture2D<float4> sSceneTex : register(t0);
-Texture2D<float4> sDepthTex : register(t1);
+#include "texture.hlsl"
+TEXTURE(_2D,sSceneTex,0,0);
+TEXTURE(_2D,sDepthTex,1,1);
 
 #include "3Dmigoto.hlsl"
 
@@ -26,14 +24,12 @@ void main(
 	out float4 o0 : SV_Target0)
 {
 	float4 r0,r1,r2,r3;
-	uint4 bitmask, uiDest;
-	float4 fDest;
 
 	r0.z = 1;
 	r1 = v1 / v2.x;
 	r0.xy = r1.xy;
-	r0.w = sDepthTex.Sample(sDepthTex_s, r1.zw).x;
-	r1 = sSceneTex.Sample(sSceneTex_s, r1.zw);
+	r0.w = SAMPLE(sDepthTex, r1.zw).x;
+	r1 = SAMPLE(sSceneTex, r1.zw);
 	r2.xyz = r0.xyz * r0.w;
 	r0.x = cmp(r0.w >= 64000);
 	r2.w = 1;

@@ -1,7 +1,6 @@
-// GUI - HUD + Images 2
+// GUI - Load Screen Images + Menu Icons
 
-#include "CB_VS_Scaleform.hlsl"
-
+#include "CB/VS_Scaleform.hlsl"
 #include "3Dmigoto.hlsl"
 
 void main(

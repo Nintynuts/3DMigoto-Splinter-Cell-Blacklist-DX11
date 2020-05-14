@@ -1,13 +1,7 @@
 // Sonar
 
-#include "CB_PerCamera.hlsl"
-
-cbuffer CB_PerFogControl : register(b8)
-{
-	bool bFog : packoffset(c0);
-	float4 cFog_Density_Start_Range : packoffset(c1);
-	float4 cFogCol : packoffset(c2);
-}
+#include "CB/PerCamera.hlsl"
+#include "CB/PerFogControl.hlsl"
 
 struct Points
 {
@@ -57,9 +51,8 @@ cbuffer CB_PS_ThermalViewMaterial_Static : register(b0)
 	float4 cThermalDiffuseScale : packoffset(c10);
 	float4 cThermalDiffuseBias : packoffset(c11);
 }
-
-SamplerState sSceneDepth_s : register(s11);
-Texture2D<float4> sSceneDepth : register(t0);
+#include "texture.hlsl"
+TEXTURE(_2D,sSceneDepth,11,0);
 
 #include "3Dmigoto.hlsl"
 
@@ -78,7 +71,7 @@ void main(
 	v6.x += separation * (v6.w - convergence) * 0.5;
 
 	r0.xy = v6.xy / v6.w;
-	r0.x = sSceneDepth.Sample(sSceneDepth_s, r0.xy).x;
+	r0.x = SAMPLE(sSceneDepth, r0.xy).x;
 	r0.x = max(0, r0.x);
 	r0.x = min(64000, r0.x);
 	r0.x = v6.w - r0.x;

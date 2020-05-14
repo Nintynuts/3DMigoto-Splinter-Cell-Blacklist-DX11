@@ -1,11 +1,7 @@
 // GUI - Block Colour Batched
 
-cbuffer CB_VS_ScaleformBatched : register(b7)
-{
-	float4 mvp[192] : packoffset(c0);
-}
-
-#include "CB_PerCamera.hlsl"
+#include "CB/VS_ScaleformBatched.hlsl"
+#include "CB/PerCamera.hlsl"
 #include "3Dmigoto.hlsl"
 #include "depth_adjust.hlsl" 
 
@@ -18,20 +14,15 @@ void main(
 	out float4 o2 : COLOR1,
 	out float4 o3 : TEXCOORD1,
 	out float4 o4 : TEXCOORD2)
-{
-	float4 r0,r1;
-	
-	r0.x = 2040.01001 * v2.x;
-	r0.x = (int)r0.x;
-	r1 = (int4)v0;
-	o0.x = dot(r1, mvp[r0.x]);
-	r0.xyz = (int3)r0.x + int3(1,4,5);
-	o0.y = dot(r1, mvp[r0.x]);
-	o0.zw = r1.zw;
+{	
+	int r0 = (int)(2040.01001 * v2.x);
+	o0.x = dot(v0, mvp[r0 + 0]);
+	o0.y = dot(v0, mvp[r0 + 1]);
+	o0.zw = v0.zw;
 	o1 = v1.zyxw;
 	o2 = v2.zyxw;
-	o3 = mvp[r0.z];
-	o4 = mvp[r0.y];
+	o4 = mvp[r0 + 4];
+	o3 = mvp[r0 + 5];
 	
 	if (!rt_res_size_match()) // Render Target
 		return;

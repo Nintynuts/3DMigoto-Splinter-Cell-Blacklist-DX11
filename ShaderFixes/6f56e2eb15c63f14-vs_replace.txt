@@ -1,11 +1,8 @@
 // GUI - Text
 
-#include "CB_VS_Scaleform.hlsl"
-
-#include "CB_PerCamera.hlsl"
-
+#include "CB/VS_Scaleform.hlsl"
+#include "CB/PerCamera.hlsl"
 #include "3Dmigoto.hlsl"
-
 #include "goal_boundaries.hlsl"
 
 void main(

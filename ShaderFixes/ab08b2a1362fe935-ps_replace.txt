@@ -4,9 +4,8 @@ cbuffer CB_PS_Downsample16x16 : register(b7)
 {
 	float4 cTexelSizeDownsample : packoffset(c0);
 }
-
-SamplerState sTex_s : register(s0);
-Texture2D<float4> sTex : register(t0);
+#include "texture.hlsl"
+TEXTURE(_2D,sTex,0,0);
 
 #include "3Dmigoto.hlsl"
 
@@ -17,14 +16,14 @@ void main(
 	float4 r0,r1,r2;
 
 	r0.xy = v0.xy * cTexelSizeDownsample.xy - cTexelSizeDownsample.zw;
-	r0 = sTex.Sample(sTex_s, r0.xy);
+	r0 = SAMPLE(sTex, r0.xy);
 	r1.xy = v0.xy * cTexelSizeDownsample.xy + cTexelSizeDownsample.zw;
-	r1 = sTex.Sample(sTex_s, r1.xy);
+	r1 = SAMPLE(sTex, r1.xy);
 	r0 = r1 + r0;
 	r1.xy = cTexelSizeDownsample.xy * v0.xy;
 	r1 = cTexelSizeDownsample.zwzw * float4(-1,1,1,-1) + r1.xyxy;
-	r2 = sTex.Sample(sTex_s, r1.xy);
-	r1 = sTex.Sample(sTex_s, r1.zw);
+	r2 = SAMPLE(sTex, r1.xy);
+	r1 = SAMPLE(sTex, r1.zw);
 	r0 = r2 + r0;
 	r0 = r0 + r1;
 	o0 = 0.25 * r0;

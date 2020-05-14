@@ -1,0 +1,297 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"__DISC__": true,
+			"_CommonRedist": true,
+			"Challenges": true,
+			"Books": true,
+			"Maps": true,
+			"Resources": true,
+			"Kits": true,
+			"UMDs": true,
+			"*.backup": true,
+			"*.dll": true,
+			"*.exe": true,
+			"*.umd": true,
+			"*.ico": true,
+			"_dvd.layout": true,
+			"pcidevs.txt": true,
+			"extendedpcidevs.txt": true,
+			"steam.txt": true,
+			"Blacklist.ini": true,
+			"Manifest_659468057.ini": true,
+			"uninstall.bat": true,
+		},
+		"files.associations": {
+			"*_replace.txt": "hlsl"
+		},
+		"replacerules.rules": {
+			"Known structs": {
+				"find": "\\ncbuffer CB_(BoneTransform|Per(Camera|CubeMapRenderCall|FogControl|Frame|Object|Pass)|PS_(PerLightBatch|Deferred(Omni|Spot|Dir)Light)|VS_(ColorPalette|ParticleTransforms|Scaleform(?:Batched)?|SimpleTransform)) : register\\(\\w+\\)[\\r\\n\\s]+\\{[\\w\\W]*?(?:^)\\}",
+				"replace": "#include \"CB/$1.hlsl\"",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"3Dmigoto resources": {
+				"find": "\n\\/\\/ 3Dmigoto declarations\\n#define cmp -\nTexture1D<float4> IniParams : register\\(t120\\);\nTexture2D<float4> StereoParams : register\\(t125\\);",
+				"replace": "#include \"3Dmigoto.hlsl\"",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Old convergence": {
+				"find": "stereo\\.y",
+				"replace": "convergence",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Old separation": {
+				"find": "stereo\\.x",
+				"replace": "separation",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Old StereoParams": {
+				"find": "^[ \\t]+float4 stereo = StereoParams.Load\\(0\\);\\n",
+				"replace": "",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Old IniParams": {
+				"find": "^[ \\t]+float4 iniParams = IniParams.Load\\(0\\);\\n",
+				"replace": "",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Stereo Fix with Scale": {
+				"find": "(?<var>-?[vro]\\d+)\\.x \\+= separation \\* \\(\\1\\.[zw] - convergence\\) \\* (.*?);",
+				"replace": "stereo_fix($1, $2);",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Stereo Fix": {
+				"find": "(?<var>-?[vro]\\d+)\\.x \\+= separation \\* \\(\\1\\.[zw] - convergence\\);",
+				"replace": "stereo_fix($1);",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Stereo Unfix with Scale": {
+				"find": "(?<var>-?[vro]\\d+)\\.x -= separation \\* \\(\\1\\.[zw] - convergence\\) \\* (.*?);",
+				"replace": "stereo_unfix($1, $2);",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Stereo Unfix": {
+				"find": "(?<var>-?[vro]\\d+)\\.x -= separation \\* \\(\\1\\.[zw] - convergence\\);",
+				"replace": "stereo_unfix($1);",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify single-axis use": {
+				"find": "(\\.([xyzw]))\\2+\\b",
+				"replace": "$1",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify all-axis use": {
+				"find": "\\.xyzw",
+				"replace": "",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify constants": {
+				"find": "(?:int|float)[234]\\(((-?[\\d\\.e\\-]+),?)\\1*\\2\\)",
+				"replace": "$2",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify zeros": {
+				"find": "(?<=\\.\\d)0+\\b",
+				"replace": "",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify subtraction": {
+				"find": " \\+ -(?=\\w)",
+				"replace": " - ",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify 0.01": {
+				"find": "0\\.00999999978",
+				"replace": "0.01",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify 0.005": {
+				"find": "0\\.00499999989",
+				"replace": "0.005",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify Square Magnitude (dot product with self)": {
+				"find": "dot\\(((?<var>-?[vro]\\d+)(?:\\.(?<axis>[xyzw]{3})))?, \\1\\)",
+				"replace": "sq_mag($1)",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify 3x3 matrix multiply": {
+				"find": "(\\w{2}\\.[xyzw]{3}) = (?<mtx>[\\w\\.]+)\\._m10_m11_m12 \\* (?<src>\\w{2})\\.y+;\n\\s+(\\w{2}\\.[xyzw]{3}) = \\k<src>\\.x+ \\* \\k<mtx>\\._m00_m01_m02 \\+ \\1;\n\\s+(?<tgt>\\w{2}\\.[xyzw]{3}) = \\k<src>\\.z+ \\* \\k<mtx>\\._m20_m21_m22 \\+ \\4;",
+				"replace": "$5 = mul3x3($3.xyz, $2);",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify 3x4 matrix multiply": {
+				"find": "(\\w{2}\\.[xyzw]{3}) = (?<mtx>[\\w\\.]+)\\._m10_m11_m12 \\* (?<src>\\w{2})\\.y+;\n\\s+(\\w{2}\\.[xyzw]{3}) = \\k<src>\\.x+ \\* \\k<mtx>\\._m00_m01_m02 \\+ \\1;\n\\s+(\\w{2}\\.[xyzw]{3}) = \\k<src>\\.z+ \\* \\k<mtx>\\._m20_m21_m22 \\+ \\4;\n\\s+(?<tgt>\\w{2}\\.[xyzw]{3}) = (?:\\k<src>\\.(w)+ \\* )?\\k<mtx>\\._m30_m31_m32 \\+ \\5;",
+				"replace": "$6 = mul3x4($3.xyz$7, $2);",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify 4x4 matrix multiply": {
+				"find": "(\\w{2}(?:\\.xyzw)?) = (?<mtx>[\\w\\.]+)\\._m10_m11_m12_m13 \\* (?<src>\\w{2})\\.y+;\n\\s+(\\w{2}(?:\\.xyzw)?) = \\k<src>\\.x+ \\* \\k<mtx>\\._m00_m01_m02_m03 \\+ \\1;\n\\s+(\\w{2}(?:\\.xyzw)?) = \\k<src>\\.z+ \\* \\k<mtx>\\._m20_m21_m22_m23 \\+ \\4;\n\\s+(?<tgt>\\w{2}(?:\\.xyzw)?) = (?:\\k<src>\\.(w)+ \\* )?\\k<mtx>\\._m30_m31_m32_m33 \\+ \\5;",
+				"replace": "$6 = mul4x4($3.xyz$7, $2);",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify 3x4 matrix multiply SpotLight": {
+			  "find": "(\\w{2}\\.[xyzw]{3}) = (?<mtx>[\\w\\.]+)\\._m10_m11_m13 \\* (?<src>\\w{2})\\.y+;\n\\s+(\\w{2}\\.[xyzw]{3}) = \\k<src>\\.x+ \\* \\k<mtx>\\._m00_m01_m03 \\+ \\1;\n\\s+(\\w{2}\\.[xyzw]{3}) = \\k<src>\\.z+ \\* \\k<mtx>\\._m20_m21_m23 \\+ \\4;\n\\s+(?<tgt>\\w{2}\\.[xyzw]{3}) = \\k<mtx>\\._m30_m31_m33 \\+ \\5;",
+			  "replace": "$6 = mul_spot($3.xyz, $2);",
+			  "languages": [
+				"hlsl"
+			  ]
+			},
+			"Add Texture Sampler Header": {
+			  "find": "(?<=\\n)(?=\\nSamplerState)",
+			  "replace": "#include \"texture.hlsl\"",
+			  "languages": [
+				"hlsl"
+			  ]
+			},
+			"Simplify Texture Sampler Definition": {
+			  "find": "SamplerState (\\w+)_s : register\\(s(\\d+)\\);([\\w\\W]+?)Texture(\\w+)<float4> \\1 : register\\(t(\\d+)\\);\\n",
+			  "replace": "TEXTURE(_$4,$1,$2,$5);$3",
+			  "languages": [
+				"hlsl"
+			  ]
+			},
+			"Simplify Texture Sampler Comparison Definition": {
+			  "find": "SamplerComparisonState (\\w+)_s : register\\(s(\\d+)\\);([\\w\\W]+?)Texture(\\w+)<float4> \\1 : register\\(t(\\d+)\\);\\n",
+			  "replace": "TEXTURE_CMP(_$4,$1,$2,$5);$3",
+			  "languages": [
+				"hlsl"
+			  ]
+			},
+			"Simplify Texture Sampler Sample call": {
+			  "find": "(\\w+)\\.Sample\\(\\1_s, (\\S+?)\\)",
+			  "replace": "SAMPLE($1, $2)",
+			  "languages": [
+				"hlsl"
+			  ]
+			},
+			"Simplify Texture Sampler SampleLevel call": {
+			  "find": "(\\w+)\\.SampleLevel\\(\\1_s, (\\S+?), (\\S+?)\\)",
+			  "replace": "SAMPLE_LVL($1, $2, $3)",
+			  "languages": [
+				"hlsl"
+			  ]
+			},
+			"Simplify Texture Sampler SampleCmpLevelZero call": {
+			  "find": "(\\w+)\\.SampleCmpLevelZero\\(\\1_s, (\\S+?), (\\S+?)\\)",
+			  "replace": "SAMPLE_CMP_LVL($1, $2, $3)",
+			  "languages": [
+				"hlsl"
+			  ]
+			}
+		},
+		"replacerules.rulesets": {
+			"Tidy newly dumped shader": {
+				"rules": [
+					"Known structs",
+					"3Dmigoto resources",
+					"Simplify Square Magnitude (dot product with self)",
+					"Simplify 4x4 matrix multiply",
+					"Simplify 3x4 matrix multiply",
+					"Simplify 3x3 matrix multiply",
+					"Simplify 3x4 matrix multiply SpotLight",
+					"Simplify single-axis use",
+					"Simplify all-axis use",
+					"Simplify constants",
+					"Simplify zeros",
+					"Simplify subtraction",
+					"Simplify 0.01",
+					"Simplify 0.005",
+				]
+			},
+			"Tidy existing shader": {
+				"rules": [
+					"Known structs",
+					"3Dmigoto resources",
+					"Old convergence",
+					"Old separation",
+					"Old StereoParams",
+					"Old IniParams",
+					"Stereo Fix with Scale",
+					"Stereo Fix",
+					"Stereo Unfix with Scale",
+					"Stereo Unfix",
+					"Simplify Square Magnitude (dot product with self)",
+					"Simplify 4x4 matrix multiply",
+					"Simplify 3x4 matrix multiply",
+					"Simplify 3x3 matrix multiply",
+					"Simplify 3x4 matrix multiply SpotLight",
+					"Simplify single-axis use",
+					"Simplify all-axis use",
+					"Simplify constants",
+					"Simplify zeros",
+					"Simplify subtraction",
+					"Simplify 0.01",
+					"Simplify 0.005"
+				]
+			},
+			"Tidy Texture Samplers": {
+				"rules": [
+					"Add Texture Sampler Header",
+					"Simplify Texture Sampler Definition",
+					"Simplify Texture Sampler Definition",
+					"Simplify Texture Sampler Definition",
+					"Simplify Texture Sampler Definition",
+					"Simplify Texture Sampler Definition",
+					"Simplify Texture Sampler Definition",
+					"Simplify Texture Sampler Definition",
+					"Simplify Texture Sampler Definition",
+					"Simplify Texture Sampler Definition",
+					"Simplify Texture Sampler Definition",
+					"Simplify Texture Sampler Comparison Definition",
+					"Simplify Texture Sampler Sample call",
+					"Simplify Texture Sampler SampleLevel call",
+					"Simplify Texture Sampler SampleCmpLevelZero call"
+				]
+			}
+		}
+	}
+}

@@ -1,6 +1,6 @@
 // Lighting - Ambient Occlusion Object
 
-#include "CB_PerFrame.hlsl"
+#include "CB/PerFrame.hlsl"
 
 cbuffer CB_PS_AORender : register(b7)
 {
@@ -12,15 +12,11 @@ cbuffer CB_PS_AORender : register(b7)
 	float4 cAtlasB : packoffset(c11);
 	float cAlphaTest : packoffset(c12);
 }
-
-SamplerState sIDMap_s : register(s0);
-SamplerState sNormalMap_s : register(s1);
-SamplerState sAOField_s : register(s4);
-SamplerState sAOField_ba_s : register(s5);
-Texture2D<float4> sIDMap : register(t0);
-Texture2D<float4> sNormalMap : register(t1);
-Texture3D<float4> sAOField : register(t2);
-Texture3D<float4> sAOField_ba : register(t3);
+#include "texture.hlsl"
+TEXTURE(_2D,sIDMap,0,0);
+TEXTURE(_2D,sNormalMap,1,1);
+TEXTURE(_3D,sAOField,4,2);
+TEXTURE(_3D,sAOField_ba,5,3);
 
 #include "3Dmigoto.hlsl"
 
@@ -33,12 +29,12 @@ void main(
 	float4 r0,r1,r2,r3,r4;
 
 	r0 = v1 / v2.x;
-	r1.xyz = sNormalMap.Sample(sNormalMap_s, r0.zw).xyz;
+	r1.xyz = SAMPLE(sNormalMap, r0.zw).xyz;
 	r1.xyz = r1.yzx * 2 - 1;
 	r1.yzw = normalise(r1.xyz);
 	r2.xyz = 6 * r1.wyz;
 	r3.xyz = mul(r2.xyz, (float3x3)cRealWorldToOccluder);
-	r2.z = sIDMap.Sample(sIDMap_s, r0.zw).x;
+	r2.z = SAMPLE(sIDMap, r0.zw).x;
 	r2.xy = r2.z * r0.xy;
 	r2.w = 1;
 		
@@ -46,8 +42,8 @@ void main(
 		
 	r0.xyz = mul(r2, cScreenToWorld);
 	r0.xyz = r0.xyz + r3.xyz;
-	r2.xy = sAOField.SampleLevel(sAOField_s, r0.xyz, 0).xy;
-	r2.zw = sAOField_ba.SampleLevel(sAOField_ba_s, r0.xyz, 0).xy;
+	r2.xy = SAMPLE_LVL(sAOField, r0.xyz, 0).xy;
+	r2.zw = SAMPLE_LVL(sAOField_ba, r0.xyz, 0).xy;
 	r0.x = 2.00787401 * r2.x;
 	r2.xyz = r2.wyz * 2.00787401 - 1;
 	r0.wyz = mul(r2.xyz, (float3x3)cOccluderToWorld);

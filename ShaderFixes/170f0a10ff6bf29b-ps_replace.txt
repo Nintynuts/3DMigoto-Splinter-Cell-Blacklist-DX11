@@ -1,6 +1,6 @@
 // Lighting - Ambient Occlusion Character
 
-#include "CB_PerFrame.hlsl"
+#include "CB/PerFrame.hlsl"
 
 cbuffer CB_PS_AOSphere : register(b7)
 {
@@ -8,13 +8,10 @@ cbuffer CB_PS_AOSphere : register(b7)
 	float2 cIDFactor : packoffset(c3);
 	float cAlphaTest : packoffset(c3.z);
 }
-
-SamplerState sIDMap_s : register(s0);
-SamplerState sNormalMap_s : register(s1);
-SamplerState sAOSphereMap_s : register(s3);
-Texture2D<float4> sIDMap : register(t0);
-Texture2D<float4> sNormalMap : register(t1);
-Texture2D<float4> sAOSphereMap : register(t2);
+#include "texture.hlsl"
+TEXTURE(_2D,sIDMap,0,0);
+TEXTURE(_2D,sNormalMap,1,1);
+TEXTURE(_2D,sAOSphereMap,3,2);
 
 #include "3Dmigoto.hlsl"
 
@@ -27,9 +24,9 @@ void main(
 	float4 r0,r1,r2,r3,r4;
 	
 	r0 = v1 / v2.x;
-	r1.z = sIDMap.Sample(sIDMap_s, r0.zw).x;
+	r1.z = SAMPLE(sIDMap, r0.zw).x;
 	r1.xy = r1.z * r0.xy;
-	r0.xyz = sNormalMap.Sample(sNormalMap_s, r0.zw).xyz;
+	r0.xyz = SAMPLE(sNormalMap, r0.zw).xyz;
 	r0.xyz = r0.yzx * 2 - 1;
 	r1.w = 1;
 			
@@ -42,7 +39,7 @@ void main(
 	r1.yzw = r2.yzw * rsqrt(r0.w);
 	r3.y = 0.5;
 	r3.x += 0.01;
-	r2.xy = sAOSphereMap.SampleLevel(sAOSphereMap_s, r3.xy, 0).xy;
+	r2.xy = SAMPLE_LVL(sAOSphereMap, r3.xy, 0).xy;
 	r1.x = 1;
 	r1 = r1 * r2.xyyy - float4(1,0,0,0);
 	r1 = cIDFactor.y * r1 + float4(1,0,0,0);

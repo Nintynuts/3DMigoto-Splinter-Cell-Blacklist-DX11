@@ -126,7 +126,7 @@ void main(
 		process_spot_light(cSpot0, bSpot0, r1, r2, r3.xyz);
 		process_spot_light(cSpot1, bSpot1, r1, r2, r3.xyz);
 		process_spot_light(cSpot1, bSpot2, r1, r2, r3.xyz);
-		// process dir light*/
+		/* process dir light*/
 		if (bDir0) {
 			float temp = dot(r2, cDir0.dir.xyz);
 			r1.w = saturate(max(cTranslucency.x, r1.w));
@@ -135,9 +135,6 @@ void main(
 		}
 
 		o1.xyz *= (r3.xyz + o2.xyz);
-		
-		// Moved from PS
-		o4.xy = o4.xy / o4.w;
 	}
 	return;
 }

@@ -1,8 +1,7 @@
 // Lighting - Textured
 
-#include "CB_PerCamera.hlsl"
-
-#include "CB_PerObject.hlsl"
+#include "CB/PerCamera.hlsl"
+#include "CB/PerObject.hlsl"
 
 #include "3Dmigoto.hlsl"
 
@@ -23,7 +22,7 @@ void main(
 	r1.xyz = mul(r0, gLocalToWorld);
 	r1.w = 1;
 	r0 = mul(r1, gWorldToProj);
-	o0 = r0;	
+	o0 = r0;
 	o1.zw = r0.zw;
 	r0.xy = (int2)v1.xy;
 	o1.xy = 0.00048828125 * r0.xy;
