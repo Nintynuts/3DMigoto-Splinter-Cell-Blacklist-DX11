@@ -28,5 +28,11 @@ bool rt_res_size_match() { return rt_width == res_width && rt_height == res_heig
 
 void gui_element(inout float4 vertex, float layer, float magnitude) { vertex.x -= separation * gui_depth * (layer - 5) * magnitude; }
 
-float3 normalise(float3 input) { return input * rsqrt(dot(input,input)); }
+float sq_mag(float2 input) { return dot(input, input); }
+float mag(float2 input) { return rsqrt(sq_mag(input)); }
+float2 normalise(float2 input) { return input * mag(input); }
+
+float sq_mag(float3 input) { return dot(input, input); }
+float mag(float3 input) { return rsqrt(sq_mag(input)); }
+float3 normalise(float3 input) { return input * mag(input); }
 #endif

@@ -226,6 +226,22 @@
 			  "languages": [
 				"hlsl"
 			  ]
+			},
+			"Numbers to 2dp": {
+			  "find": "(?<=\\.\\d\\d)\\d+",
+			  "replace": ""
+			},
+			"Make tiny numbers 0": {
+			  "find": "-?\\d\\.\\d+e-\\d+",
+			  "replace": "0"
+			},
+			"Make +-0.00 just 0": {
+			  "find": "-?0\\.00",
+			  "replace": "0"
+			},
+			"CB float4 inline": {
+			  "find": "\\ncb11\\[\\d+\\]\\.[yzw]:",
+			  "replace": ""
 			}
 		},
 		"replacerules.rulesets": {
@@ -290,6 +306,14 @@
 					"Simplify Texture Sampler Sample call",
 					"Simplify Texture Sampler SampleLevel call",
 					"Simplify Texture Sampler SampleCmpLevelZero call"
+				]
+			},
+			"Tidy dumped CB": {
+				"rules": [
+					"Numbers to 2dp",
+					"Make tiny numbers 0",
+					"Make +-0.00 just 0",
+					"CB float4 inline"
 				]
 			}
 		}
