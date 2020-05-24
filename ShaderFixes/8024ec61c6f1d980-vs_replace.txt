@@ -21,7 +21,7 @@ void main(
 	if (texture_filter > 0)
 		layer = texture_filter;
 
-	if (texture_filter == -3) // Loadout character
+	if (texture_filter == -5) // Loadout character
 		layer = 5;
 
 	if (texture_filter == 2.1)

@@ -1,4 +1,4 @@
-// Mesh - Bones (POS4,TEXCOORDx1)
+// Lighting - Mesh with Bones
 
 #include "CB/PerCamera.hlsl"
 #include "CB/PerObject.hlsl"
