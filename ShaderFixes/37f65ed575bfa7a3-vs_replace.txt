@@ -1,0 +1,58 @@
+// Lighting - Unknown Shadow 
+#include "CB/PerPass.hlsl"
+#include "CB/PerCamera.hlsl"
+#include "CB/PerObject.hlsl"
+#include "3Dmigoto.hlsl"
+#include "loadout.hlsl"
+
+void main(
+  float4 v0 : POSITION0,
+  int4 v1 : TEXCOORD0,
+  int2 v2 : TEXCOORD1,
+  float4 v3 : NORMAL0,
+  float4 v4 : TANGENT0,
+  float4 v5 : BINORMAL0,
+  out float4 o0 : SV_Position0,
+  out float4 o1 : TEXCOORD0,
+  out float4 o2 : TEXCOORD1,
+  out float4 o3 : TEXCOORD6)
+{
+  float4 r0,r1,r2,r3;
+
+  r0.w = gLocalToWorld._m30 - cViewPos_VS.x;
+  r0.xyz = gLocalToWorld._m00_m10_m20;
+  r1.xyz = gDrawScale.xyz * v0.xyz;
+  r1.w = v0.w;
+  r0.x = dot(r1, r0);
+  r2.w = gLocalToWorld._m31 - cViewPos_VS.y;
+  r2.xyz = gLocalToWorld._m01_m11_m21;
+  r0.y = dot(r1, r2);
+  r2.w = gLocalToWorld._m32 - cViewPos_VS.z;
+  r2.xyz = gLocalToWorld._m02_m12_m22;
+  r0.z = dot(r1, r2);
+  r1 = mul(r0.xyz, reorientate(gWorldToProj));
+  o2.xyz = cViewPos_VS.xyz + r0.xyz;
+  r0 = cProjSkinMesh + r1;
+  o0 = reorientate(r0);
+  o2.w = min(64000, r0.w);
+  r0.xy = (int2)v1.xy;
+  r0.zw = (int2)v2.xy;
+  o1 = 0.00048828125 * r0;
+  r0.xyz = v3.zyx * 2 - 1;
+  r0.w = sq_mag(r0.xyz);
+  r0.w = rsqrt(r0.w);
+  r0.xyz = r0.xyz * r0.w;
+  r0.w = 1;
+  r1.xyz = mul(cMtx1, r0);
+  r2 = r0.xyzz * r0.yzzx;
+  r3.xyz = mul(cMtx2, r2);
+  r1.xyz = r3.xyz + r1.xyz;
+  r0.y = r0.y * r0.y;
+  r0.x = r0.x * r0.x - r0.y;
+  r0.xyz = cExtra.xyz * r0.x + r1.xyz;
+  r0.xyz = max(0, r0.xyz);
+  r0.w = 1;
+  r0 = cSHScale * r0;
+  o3 = bUseSH ? r0 : cAmbientColor;  
+  return;
+}

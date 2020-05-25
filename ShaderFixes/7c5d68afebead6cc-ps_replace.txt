@@ -27,6 +27,8 @@ TEXTURE(_2D,sSceneDepth,15,0);
 TEXTURE_CMP(_2D,g_txLightDepth,14,14);
 
 #include "3Dmigoto.hlsl"
+#define in_loadout ini(x,3)
+#include "loadout.hlsl"
 
 void main(
 	float4 v0 : SV_Position0,
@@ -36,6 +38,8 @@ void main(
 {
 	float4 r0,r1,r2;
 	
+	if (separation && in_loadout) discard; // Temporary
+
 	r0.xy = -0.5 + v0.xy;
 	r0.xy = r0.xy * cVPSB.xy + cVPSB.zw;
 	r0.zw = v1.zw / v2.x;
@@ -43,7 +47,7 @@ void main(
 	r1.xy = r1.z * r0.xy;
 	r1.w = 1;
 
-	stereo_unfix(r1);
+	stereo_unfix_(r1);
 
 	#ifdef CLIP
 	r0.x = dot(r1, cClip0);

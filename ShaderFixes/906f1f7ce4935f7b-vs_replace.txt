@@ -3,6 +3,7 @@
 #include "CB/PerCamera.hlsl"
 #include "CB/PerObject.hlsl"
 #include "3Dmigoto.hlsl"
+#include "loadout.hlsl"
 
 void main(
 	float4 v0 : POSITION0,
@@ -25,7 +26,7 @@ void main(
 	r1.w = 1;
 	r0 = mul(r1, gWorldToProj);
 	o2 = r1;
-	o0 = r0;
+	o0 = reorientate(r0);
 		
 	stereo_fix(r0);
 	
@@ -37,6 +38,6 @@ void main(
 	o1.zw = 1;
 	o4.w = 0;
 	r0.xyz = v3.zyx * 2 - 1;
-	o4.xyz = mul(r0.xyz, gLocalToWorld);
+	o4.xyz = mul(r0.xyz, gLocalToWorld);	
 	return;
 }

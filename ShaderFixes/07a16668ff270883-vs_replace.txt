@@ -5,6 +5,8 @@
 #include "3Dmigoto.hlsl"
 #include "depth_adjust.hlsl" 
 
+#define in_cutscene ini(x,3)
+
 void main(
 	int4 v0 : POSITION0,
 	float4 v1 : COLOR0,
@@ -27,7 +29,7 @@ void main(
 	if (!rt_res_size_match()) // Render Target
 		return;
 		
-	if (!(menu_open || ini(x,3))) // cutscene
+	if (!(menu_open || in_cutscene))
 		o0.x += adjust_from_depth_buffer(0.0, 0.2);
 	else
 	{	

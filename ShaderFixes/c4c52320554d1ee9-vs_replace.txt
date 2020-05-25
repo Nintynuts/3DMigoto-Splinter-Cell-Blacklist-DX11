@@ -10,6 +10,7 @@ struct Vertex3D_UV
 StructuredBuffer<Vertex3D_UV> VertexBuffer : register(t13);
 
 #include "3Dmigoto.hlsl"
+#include "loadout.hlsl"
 #include "depth_adjust.hlsl"
 
 void main(
@@ -24,7 +25,7 @@ void main(
 	r0.w = 1;
 	r1.xyz = mul(r0, gLocalToWorld);
 	r1.w = 1;
-	o0 = mul(r1, gWorldToProj);
+	r1 = mul(r1, gWorldToProj);
 	o1.xy = v1.xy;
 		
 	float4 centre;
@@ -34,7 +35,14 @@ void main(
 	centre.w = 1;
 	centre = mul(centre, gWorldToProj);
 	
-	o0.x += adjust_from_depth_buffer(centre.x,centre.y);
+	float depth = adjust_from_depth_buffer(centre.x,centre.y);
+
+	if (in_loadout)
+		r1.y += depth;
+	else
+		r1.x += depth;
+
+	o0 = reorientate(r1);
 	
 	return;
 }

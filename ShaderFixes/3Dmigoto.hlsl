@@ -12,8 +12,10 @@ Texture2D<float4> StereoParams : register(t125);
 #define convergence StereoParams.Load(0).y
 #define eye StereoParams.Load(0).z
 
-void stereo_fix(inout float4 vertex) { vertex.x += separation * ((vertex.w == 1? vertex.z : vertex.w) - convergence); }
-void stereo_unfix(inout float4 vertex) { vertex.x -= separation * ((vertex.w == 1? vertex.z : vertex.w) - convergence); }
+void stereo_fix(inout float4 vertex, bool no_convergence = false) 
+{ vertex.x += separation * ((vertex.w == 1? vertex.z : vertex.w) - (no_convergence ? 0 : convergence)); }
+void stereo_unfix(inout float4 vertex, bool no_convergence = false) 
+{ vertex.x -= separation * ((vertex.w == 1? vertex.z : vertex.w) - (no_convergence ? 0 : convergence)); }
 
 #define rt_width   ini(x,0)
 #define rt_height  ini(y,0)

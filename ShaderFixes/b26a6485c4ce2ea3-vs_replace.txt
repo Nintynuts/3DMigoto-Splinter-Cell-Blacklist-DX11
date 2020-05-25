@@ -4,7 +4,7 @@
 #include "CB/PerObject.hlsl"
 #include "CB/BoneTransform.hlsl"
 #include "3Dmigoto.hlsl"
-#include "matrix.hlsl"
+#include "loadout.hlsl" 
 
 void main(
 	float4 v0 : POSITION0,
@@ -37,7 +37,7 @@ void main(
 	r0.xyz = -cViewPos_VS.xyz + r1.xyz;
 	r1 = mul(r0.xyz, gWorldToProj);
 	r0 = cProjSkinMesh + r1;
-	o0 = r0;
+	o0 = reorientate(r0);
 	o1.zw = r0.zw;
 	r0.xy = (int2)v1.xy;
 	o1.xy = 0.00048828125 * r0.xy;

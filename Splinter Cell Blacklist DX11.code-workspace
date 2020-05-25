@@ -240,7 +240,7 @@
 			  "replace": "0"
 			},
 			"CB float4 inline": {
-			  "find": "\\ncb11\\[\\d+\\]\\.[yzw]:",
+			  "find": "\\n(cb\\d+|buf)\\[\\d+\\]\\.[yzw]:",
 			  "replace": ""
 			}
 		},

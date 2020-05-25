@@ -5,7 +5,7 @@
 #include "CB/BoneTransform.hlsl"
 #include "CB/VS_ColorPalette.hlsl"
 #include "3Dmigoto.hlsl"
-#include "matrix.hlsl"
+#include "loadout.hlsl" 
 
 void main(
 	float4 v0 : POSITION0,
@@ -62,7 +62,7 @@ void main(
 	} else {
 		o6 = 1;
 	}
-	o0 = r2;
+	o0 = reorientate(r2);
 	o2.xyz = r4.xyz;
 	o3.w = 0;
 	o4.w = 0;

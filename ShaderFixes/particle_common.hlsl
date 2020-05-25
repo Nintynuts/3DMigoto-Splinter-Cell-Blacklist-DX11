@@ -2,7 +2,7 @@
 
 #include "particles.hlsl"
 
-float4 particle_common(
+void particle_common(
 	// Original input/output
 	float4 v0,
 	float4 v1,
