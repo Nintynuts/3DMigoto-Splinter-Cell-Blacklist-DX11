@@ -21,7 +21,6 @@ void main(
 	if (!rt_res_size_match()) // Render Target
 		return;
 	
-	o0.x += depth[0] * -eye;
 	if (texture_filter > -1)
 	{	
 		float layer = 4;
@@ -32,6 +31,10 @@ void main(
 			layer = texture_filter;
 
 		gui_element(o0, layer, 0.002);
+	}
+	else
+	{
+		o0.x += depth[0] * -eye;
 	}
 	
 	return;
