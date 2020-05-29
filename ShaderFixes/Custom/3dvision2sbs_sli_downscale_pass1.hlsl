@@ -1,4 +1,4 @@
-#include "..\3Dmigoto.hlsl"
+#include "../3Dmigoto.hlsl"
 
 Texture2D<float4> t100 : register(t100);
 

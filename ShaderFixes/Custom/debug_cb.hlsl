@@ -13,7 +13,7 @@ static int2 meta_pos_start;
 
 Texture2D<float> font : register(t100);
 
-#include "..\3Dmigoto.hlsl"
+#include "../3Dmigoto.hlsl"
 
 struct vs2gs {
 	uint idx : TEXCOORD0;
