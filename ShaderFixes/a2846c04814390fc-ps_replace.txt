@@ -1,0 +1,75 @@
+// Particles - Fire
+#include "CB/PerFrame.hlsl"
+#include "CB/PerFogControl.hlsl"
+
+cbuffer CB_PS_ParticleMaterialCommon : register(b0)
+{
+  float4 cEmissive : packoffset(c0);
+  float4 cEmissiveMask : packoffset(c1);
+  float4 cFadeTerms : packoffset(c2);
+  float4x4 cScreenToWorld : packoffset(c3);
+  float4x4 cWorldToProj : packoffset(c7);
+}
+
+cbuffer CB_PS_ParticleMaterial_Static : register(b7)
+{
+  bool bSoftParticles : packoffset(c0);
+  bool bEnvPass : packoffset(c0.y);
+  float4 cTranslucency : packoffset(c1);
+  float4 cDistortion : packoffset(c2);
+  float4 cEnvCol : packoffset(c3);
+  float4 cNormalScale : packoffset(c4);
+  float cAlphaTest : packoffset(c5);
+}
+#include "texture.hlsl"
+TEXTURE(_2D,sDiffuseMap,0,0);
+TEXTURE(_2D,sSceneDepth,3,1);
+
+#include "3Dmigoto.hlsl"
+
+void main(
+  float4 v0 : SV_Position0,
+  float4 v1 : TEXCOORD7,
+  float4 v2 : COLOR1,
+  float4 v3 : TEXCOORD0,
+  float4 v4 : TEXCOORD1,
+  float4 v5 : TEXCOORD2,
+  out float4 o0 : SV_Target0)
+{
+  float4 r0,r1,r2;
+
+  r0.xyz = SAMPLE(sDiffuseMap, v3.xy).xyz;
+  r0.xyz = r0.xyz * r0.xyz;
+  r1.xyz = SAMPLE(sDiffuseMap, v3.zw).xyz;
+  r1.xyz = r1.xyz * r1.xyz;
+  r0.w = 1 - v4.z;
+  r1.xyz = r0.w * r1.xyz;
+  r0.xyz = v4.z * r0.xyz + r1.xyz;
+  r0.xyz = v1.xyz * r0.xyz;
+  r1.xyz = 1 - cEmissiveMask.xyz;
+  r2 = cEmissiveMask * v5;
+  r1.xyz = r1.xyz * cEmissive.xyz + r2.xyz;
+  r0.xyz = log2(abs(r0.xyz));
+  r0.xyz = r1.z * r0.xyz;
+  r0.xyz = exp2(r0.xyz);
+  r0.xyz = r0.xyz * r1.x + r1.y;
+  if (bSoftParticles != 0) {
+    r1.xy = v4.xy / v4.w;
+    r0.w = SAMPLE(sSceneDepth, r1.xy).x;
+    r0.w = -v4.w + r0.w;
+    r0.w = saturate(cTranslucency.y * r0.w);
+    r0.w = cFadeTerms.x * r0.w + cFadeTerms.z;
+    r0.xyz = r0.xyz * r0.w;
+  }
+  r0.w = dot(r0.xyz, cFadeTerms.x);
+  r0.w = cFadeTerms.z + r0.w;
+  r1.xyz = cFogCol.xyz * r0.w - r0.xyz;
+  r0.xyz = r2.w * r1.xyz + r0.xyz;
+  r0.xyw = v2.w * r0.xyz;
+  r1.x = r0.x + r0.y;
+  r0.z = r0.z * v2.w + r1.x;
+  r0.z = saturate(0.333333343 * r0.z);
+  o0.w = gColorControl.w * r0.z;
+  o0.xyz = r0.xyw;
+  return;
+}

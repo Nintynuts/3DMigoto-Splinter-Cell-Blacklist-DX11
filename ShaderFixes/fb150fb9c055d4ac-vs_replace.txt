@@ -1,4 +1,4 @@
-// Particles - Breath
+// Particles - Breath + Fire
 
 #include "particles.hlsl"
 
@@ -20,11 +20,5 @@ void main(
 
 	#include "particle_common.hlsl"
 
-	if (!all(o2 == 0)) {
-		// Moved from PS
-		o4.xy = o4.xy / o4.w;
-		// Halo Fix
-		stereo_unfix(o4);
-	}
 	return;
 }
