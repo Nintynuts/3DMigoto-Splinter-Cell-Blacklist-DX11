@@ -65,5 +65,8 @@ void main(
 	r0.w = 1;
 	r0 = cSHScale * r0;
 	o6 = bUseSH ? r0 : cAmbientColor;
+
+	// slightly increase z to prevent z-fighting for drains in Abandoned Mill
+	o0.z-=0.01;
 	return;
 }
