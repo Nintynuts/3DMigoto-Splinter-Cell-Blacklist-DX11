@@ -1,9 +1,5 @@
 // Lighting - Directional
-
-cbuffer CB_PerCubeMapRenderCell : register(b0)
-{
-  float2 gCubemapScale : packoffset(c0);
-}
+#include "CB/PerCubeMapRenderCell.hlsl"
 #include "texture.hlsl"
 TEXTURE(_2D,sSceneLight,3,0);
 

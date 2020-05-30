@@ -32,7 +32,7 @@
 		},
 		"replacerules.rules": {
 			"Known structs": {
-				"find": "\\ncbuffer CB_(BoneTransform|Per(Camera|CubeMapRenderCall|FogControl|Frame|Object|Pass)|PS_(PerLightBatch|Deferred(Omni|Spot|Dir)Light)|VS_(ColorPalette|ParticleTransforms|Scaleform(?:Batched)?|SimpleTransform)) : register\\(\\w+\\)[\\r\\n\\s]+\\{[\\w\\W]*?(?:^)\\}",
+				"find": "\\ncbuffer CB_(BoneTransform|Per(Camera|CubeMapRenderCell|FogControl|Frame|Object|Pass)|PS_(PerLightBatch|Deferred(Omni|Spot|Dir)Light)|VS_(ColorPalette|ParticleTransforms|Scaleform(?:Batched)?|SimpleTransform)) : register\\(\\w+\\)[\\r\\n\\s]+\\{[\\w\\W]*?(?:^)\\}",
 				"replace": "#include \"CB/$1.hlsl\"",
 				"languages": [
 					"hlsl"
