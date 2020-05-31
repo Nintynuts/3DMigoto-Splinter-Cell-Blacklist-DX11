@@ -26,8 +26,6 @@ cbuffer CB_PS_ShadowRender : register(b6)
 TEXTURE(_2D,sSceneDepth,15,0);
 TEXTURE_CMP(_2D,g_txLightDepth,14,14);
 
-#include "3Dmigoto.hlsl"
-#define in_loadout ini(x,3)
 #include "loadout.hlsl"
 
 void main(
