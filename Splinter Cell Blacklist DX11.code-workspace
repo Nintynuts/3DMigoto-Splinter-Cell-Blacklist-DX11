@@ -28,7 +28,8 @@
 			"uninstall.bat": true,
 		},
 		"files.associations": {
-			"*_replace.txt": "hlsl"
+			"*_replace.txt": "hlsl",
+			"Log.txt": "c"
 		},
 		"replacerules.rules": {
 			"Known structs": {
