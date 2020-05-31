@@ -3,7 +3,6 @@
 #include "CB/PerPass.hlsl"
 #include "CB/PerCamera.hlsl"
 #include "CB/PerObject.hlsl"
-#include "3Dmigoto.hlsl"
 #include "loadout.hlsl" 
 
 void main(
@@ -67,6 +66,7 @@ void main(
 	o6 = bUseSH ? r0 : cAmbientColor;
 
 	// slightly increase z to prevent z-fighting for drains in Abandoned Mill
-	o0.z-=0.01;
+	if (filter_index == 1)
+		o0.z-=0.01;
 	return;
 }

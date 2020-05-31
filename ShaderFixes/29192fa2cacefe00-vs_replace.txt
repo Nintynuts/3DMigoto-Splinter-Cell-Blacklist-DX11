@@ -4,7 +4,6 @@
 #include "CB/PerObject.hlsl"
 #include "CB/BoneTransform.hlsl"
 #include "CB/VS_ColorPalette.hlsl"
-#include "3Dmigoto.hlsl"
 #include "loadout.hlsl" 
 
 void main(

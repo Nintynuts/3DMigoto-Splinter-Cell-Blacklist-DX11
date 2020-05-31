@@ -242,7 +242,43 @@
 			"CB float4 inline": {
 			  "find": "\\n(cb\\d+|buf)\\[\\d+\\]\\.[yzw]:",
 			  "replace": ""
-			}
+			},
+			"Simplify scope name": { 
+				"find": "[sS]hader[cC]onfigs\\\\(.*?)\\.ini",
+				"replace": "$1"
+			},
+			"Combine command and inspection": { 
+				"find": "(?<!pre|post) (\\[.*?\\] .*)(?<!else \\{|true|false)(?:[\\r\\n]+\\d{6} 3DMigoto\\s+)(?!else|\\[|\\})([^ ].*)(?=[\\r\\n])",
+				"replace": " $1 : $2"
+			},
+			"Copy scope after pre/post": { 
+				"find": "(pre|post) {(?=[\\r\\n]+\\d{6} 3DMigoto\\s+(\\[.*?\\]))",
+				"replace": "$1 $2 {"
+			},
+			"Remove repeated scopes": { 
+				"find": "(?<!pre|post) (\\[.*?\\])",
+				"replace": ""
+			},
+			"Remove zero fractionals": { 
+				"find": "(\\d+)\\.0+\\b",
+				"replace": "$1"
+			},
+			"Simplify assignment inspection": { 
+				"find": "(?<=:)( ini param override)? =",
+				"replace": ""
+			},
+			"Remove constant inspection": { 
+				"find": " = (-?\\d+(?:\\.\\d+)?) : \\1",
+				"replace": " = $1"
+			},
+			"Remove Empty Else-EndIf": { 
+				"find": "(?:([\\r\\n]\\d{6} 3DMigoto\\s+)else \\{\\1\\})? endif",
+				"replace": ""
+			},
+			"Remove pointer addresses": {
+				"find": "0x[0-9A-F]{8}",
+				"replace": ""
+			},
 		},
 		"replacerules.rulesets": {
 			"Tidy newly dumped shader": {
@@ -314,6 +350,19 @@
 					"Make tiny numbers 0",
 					"Make +-0.00 just 0",
 					"CB float4 inline"
+				]
+			},
+			"Tidy 3Dmigoto Log": {
+				"rules": [
+					"Simplify scope name",
+					"Combine command and inspection",
+					"Copy scope after pre/post",
+					"Remove repeated scopes",
+					"Remove zero fractionals",
+					"Simplify assignment inspection",
+					"Remove constant inspection",
+					"Remove Empty Else-EndIf",
+					"Remove pointer addresses",
 				]
 			}
 		}

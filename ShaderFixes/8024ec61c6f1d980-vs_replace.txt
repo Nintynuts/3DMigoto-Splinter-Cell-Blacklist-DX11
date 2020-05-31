@@ -1,7 +1,6 @@
 // ShadowNet - Decorations
 
 #include "CB/VS_Scaleform.hlsl"
-#include "3Dmigoto.hlsl"
 #include "loadout.hlsl"
 
 void main(
