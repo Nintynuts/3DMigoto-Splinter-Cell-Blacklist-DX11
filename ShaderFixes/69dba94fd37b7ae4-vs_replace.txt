@@ -26,8 +26,8 @@ void main(
 	
 	stereo_unfix(o0);
 
-	if (texture_filter > 0)
-		gui_element(o0,texture_filter,50);
+	if (filter_index > 0)
+		gui_element(o0,filter_index,50);
 	
 	return;
 }

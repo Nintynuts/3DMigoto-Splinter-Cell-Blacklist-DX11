@@ -24,10 +24,10 @@ void main(
 	stereo_unfix(o0);
 	float layer = 5;
 
-	if (texture_filter > 2)
-		layer = texture_filter;
+	if (filter_index > 2)
+		layer = filter_index;
 
-	if (texture_filter == 3.1)
+	if (filter_index == 3.1)
 		layer = 4;
 	
 	gui_element(o0,layer,50);

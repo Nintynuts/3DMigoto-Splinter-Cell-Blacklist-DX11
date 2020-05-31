@@ -25,7 +25,7 @@ void main(
 	
 	if (ini(x,3)) // is_title_screen
 	{
-		r1.x -= separation * gui_depth / 500;
+		r1.x -= separation * gui_separation / 500;
 		// Wrap around
 		if (r1.x > 1)
 			r1.x = 2-r1.x;

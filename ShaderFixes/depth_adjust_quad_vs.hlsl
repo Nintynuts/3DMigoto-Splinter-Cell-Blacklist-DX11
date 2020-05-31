@@ -63,7 +63,7 @@ void main(
 		default: o0 = 0; break;
 	}
 
-	if (texture_filter == -1)
+	if (filter_index == -1)
 	{
 		centre = float2(0,0.2);
 		return;
@@ -73,7 +73,7 @@ void main(
 	float2 btmRgt = transform(quad,3,trans);
 	centre = (topLft + btmRgt)/2;
 
-	if (texture_filter == -3)
+	if (filter_index == -3)
 		centre.y -= 0.1;
 
 	return;

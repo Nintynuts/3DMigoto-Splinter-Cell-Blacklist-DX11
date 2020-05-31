@@ -29,7 +29,8 @@ void main(
 	if (!rt_res_size_match()) // Render Target
 		return;
 
-	o0.x += depth[0] * -eye;
+	if (filter_index < 0)
+		o0.x += depth[0] * -eye;
 
 	return;
 }

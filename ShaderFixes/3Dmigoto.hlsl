@@ -24,11 +24,11 @@ void stereo_unfix(inout float4 vertex, bool no_convergence = false)
 
 bool rt_res_size_match() { return rt_width == res_width && rt_height == res_height; }
 
-#define texture_filter ini(x,2)
-#define gui_depth      ini(z,2)
+#define filter_index   ini(x,2)
+#define gui_separation ini(z,2)
 #define menu_open      ini(w,2)
 
-void gui_element(inout float4 vertex, float layer, float magnitude) { vertex.x -= separation * gui_depth * (layer - 5) * magnitude; }
+void gui_element(inout float4 vertex, float layer, float magnitude) { vertex.x -= separation * gui_separation * (layer - 5) * magnitude; }
 
 float sq_mag(float2 input) { return dot(input, input); }
 float mag(float2 input) { return rsqrt(sq_mag(input)); }

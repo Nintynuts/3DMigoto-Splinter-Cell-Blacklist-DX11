@@ -26,9 +26,9 @@ void main(
 	if (!rt_res_size_match()) // Render Target
 		return;
 
-	if (texture_filter > 0)
-		gui_element(o0,texture_filter,0.002);
-	else
+	if (filter_index > 0)
+		gui_element(o0,filter_index,0.002);
+	else if (filter_index < 0)
 		o0.x += depth[0] * -eye;
 		
 	return;

@@ -21,14 +21,14 @@ void main(
 	if (!rt_res_size_match()) // Render Target
 		return;
 	
-	if (texture_filter > -1)
+	if (filter_index > 0)
 	{	
 		float layer = 4;
 	
 		if (o0.x == 0 || o0.x == 1 || o0.y == 0 || o0.y == 1)
 			layer = 1; // Background Map
-		else if (texture_filter > 0)
-			layer = texture_filter;
+		else if (filter_index > 0)
+			layer = filter_index;
 
 		gui_element(o0, layer, 0.002);
 	}
