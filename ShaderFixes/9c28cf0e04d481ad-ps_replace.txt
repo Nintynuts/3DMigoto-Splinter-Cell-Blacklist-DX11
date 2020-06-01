@@ -23,7 +23,7 @@ void main(
 	r0.w = 1;
 	r1.xy = v2.xy * uv[0].xy + uv[0].zw;
 	
-	if (ini(x,3)) // is_title_screen
+	if (menu_open)
 	{
 		r1.x -= separation * gui_separation / 500;
 		// Wrap around

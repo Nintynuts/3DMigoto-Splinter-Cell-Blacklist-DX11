@@ -3,10 +3,7 @@
 #include "CB/PerCamera.hlsl"
 #include "CB/PerObject.hlsl"
 #include "CB/VS_SimpleTransform.hlsl"
-#include "3Dmigoto.hlsl"
 #include "loadout.hlsl"
-
-#define is_cutscene ini(x,3)
 
 void main(
 	float4 v0 : POSITION0,
