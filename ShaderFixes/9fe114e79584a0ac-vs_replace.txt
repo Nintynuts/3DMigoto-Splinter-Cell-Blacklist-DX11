@@ -2,7 +2,6 @@
 
 #include "CB/VS_ScaleformBatched.hlsl"
 #include "CB/PerCamera.hlsl"
-#include "3Dmigoto.hlsl"
 #include "goal_boundaries.hlsl"
 
 void main(
@@ -29,7 +28,7 @@ void main(
 	if (!rt_res_size_match()) // Render Target
 		return;
 
-	if (filter_index < 0)
+	if (use_depth)
 		o0.x += depth[0] * -eye;
 
 	return;

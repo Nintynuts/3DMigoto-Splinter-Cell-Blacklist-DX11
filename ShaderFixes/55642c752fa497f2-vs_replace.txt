@@ -1,9 +1,7 @@
-// GUI - Decorations Batched (Crosshair)
+// GUI - Sprites Batched
 
 #include "CB/VS_ScaleformBatched.hlsl"
-#include "3Dmigoto.hlsl"
 #include "goal_boundaries.hlsl"
-#include "depth_adjust.hlsl" 
 
 void main(
 	int4 v0 : POSITION0,
@@ -26,10 +24,10 @@ void main(
 	if (!rt_res_size_match()) // Render Target
 		return;
 
-	if (filter_index > 0)
+	if (use_depth)
+		o0.x += depth[(vID - (vID % 6))/6] * -eye;
+	else if (filter_index > 0)
 		gui_element(o0,filter_index,0.002);
-	else if (filter_index < 0)
-		o0.x += depth[0] * -eye;
 		
 	return;
 }
