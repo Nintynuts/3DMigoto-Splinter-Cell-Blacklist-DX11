@@ -2,16 +2,12 @@
 
 #include "CB/VS_Scaleform.hlsl"
 
-#include "goal_boundaries.hlsl"
+#include "markers.hlsl"
 
 struct Vertex
 {
 	uint pos; // R16G16_SINT
 	uint colour; // R8G8B8A8_UNORM
-#ifdef TEXT
-	uint colour2; // R8G8B8A8_UNORM
-	float2 uv;
-#endif
 };
 
 StructuredBuffer<Vertex> VertexBuffer : register(t13);
@@ -44,7 +40,7 @@ void main(
 {
 	#ifdef BATCHED
 		uint vertex = vID % 6;
-		quad = (vID - vertex)/6;
+		quad = quad_id(vID);
 		float r0 = (int)(2040.01001 * v1.x);
 		float4x4 trans = sf[r0].pos;
 	#else

@@ -1,5 +1,5 @@
 #define WRITE
-#include "goal_boundaries.hlsl"
+#include "markers.hlsl"
 #include "depth_adjust.hlsl" 
 
 void main(
@@ -10,7 +10,10 @@ void main(
 {	
 	o0 = 1;
 
-	depth[quad] = adjust_from_depth_buffer(centre.x,centre.y);
+	uint idx = marker_index + quad;
+	markers[idx].screenPos = centre;
+	markers[idx].depth = adjust_from_depth_buffer(centre.x,centre.y);
+	markers[idx].chars = num_chars;
 
 	return;
 }

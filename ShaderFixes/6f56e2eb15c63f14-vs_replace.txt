@@ -2,7 +2,7 @@
 
 #include "CB/VS_Scaleform.hlsl"
 #include "CB/PerCamera.hlsl"
-#include "goal_boundaries.hlsl"
+#include "markers.hlsl"
 
 void main(
 	float4 v0 : POSITION0,
@@ -20,9 +20,9 @@ void main(
 	
 	if (!rt_res_size_match()) // Render Target
 		return;
-	
+
 	if (use_depth)
-		o0.x += depth[0] * -eye;
+		o0.x += markers[marker_index].depth * -eye;
 	
 	return;
 }

@@ -1,7 +1,7 @@
 // GUI - Sprites Batched
 
 #include "CB/VS_ScaleformBatched.hlsl"
-#include "goal_boundaries.hlsl"
+#include "markers.hlsl"
 
 void main(
 	int4 v0 : POSITION0,
@@ -25,7 +25,7 @@ void main(
 		return;
 
 	if (use_depth)
-		o0.x += depth[(vID - (vID % 6))/6] * -eye;
+		o0.x += markers[marker_index + quad_id(vID)].depth * -eye;
 	else if (filter_index > 0)
 		gui_element(o0,filter_index,0.002);
 		

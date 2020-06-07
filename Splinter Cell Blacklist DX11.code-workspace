@@ -29,7 +29,6 @@
 		},
 		"files.associations": {
 			"*_replace.txt": "hlsl",
-			"Log.txt": "c"
 		},
 		"replacerules.rules": {
 			"Known structs": {
@@ -245,15 +244,15 @@
 			  "replace": ""
 			},
 			"Simplify scope name": { 
-				"find": "[sS]hader[cC]onfigs\\\\(.*?)\\.ini",
+				"find": "[cC]onfigs\\\\(.*?)\\.ini",
 				"replace": "$1"
 			},
 			"Combine command and inspection": { 
-				"find": "(?<!pre|post) (\\[.*?\\] .*)(?<!else \\{|true|false)(?:[\\r\\n]+\\d{6} 3DMigoto\\s+)(?!else|\\[|\\})([^ ].*)(?=[\\r\\n])",
+				"find": "(?<!pre|post) (\\[.*?\\] .*)(?<!else \\{|true|false)(?:[\\r\\n]+(?:\\d+\\.)?\\d{6} 3DMigoto\\s+)(?!else|\\[|\\})([^ ].*)(?=[\\r\\n])",
 				"replace": " $1 : $2"
 			},
 			"Copy scope after pre/post": { 
-				"find": "(pre|post) {(?=[\\r\\n]+\\d{6} 3DMigoto\\s+(\\[.*?\\]))",
+				"find": "(pre|post) {(?=[\\r\\n]+(?:\\d+\\.)?\\d{6} 3DMigoto\\s+(\\[.*?\\]))",
 				"replace": "$1 $2 {"
 			},
 			"Remove repeated scopes": { 
@@ -273,7 +272,15 @@
 				"replace": " = $1"
 			},
 			"Remove Empty Else-EndIf": { 
-				"find": "(?:([\\r\\n]\\d{6} 3DMigoto\\s+)else \\{\\1\\})? endif",
+				"find": "(?:([\\r\\n](?:\\d+\\.)?\\d{6} 3DMigoto\\s+)else \\{\\1\\})? endif",
+				"replace": ""
+			},
+			"Remove useless lines": {
+				"find": "\\d+\\.\\d{6} (Map|Unmap|RS|DS|HS|OM(Set(?!Render)|GetRender)|.SSetSamplers|IASet(Prim|Input)|GetData).*\\n",
+				"replace": ""
+			},
+			"Remove samplers": {
+				"find": "\\s+\\d+: handle=.*\\n",
 				"replace": ""
 			},
 			"Remove pointer addresses": {
@@ -353,6 +360,13 @@
 					"CB float4 inline"
 				]
 			},
+			"Clean 3Dmigoto Log": {
+				"rules": [
+					"Remove useless lines",
+					"Remove samplers",
+					"Remove pointer addresses",
+				]
+			},
 			"Tidy 3Dmigoto Log": {
 				"rules": [
 					"Simplify scope name",
@@ -363,7 +377,6 @@
 					"Simplify assignment inspection",
 					"Remove constant inspection",
 					"Remove Empty Else-EndIf",
-					"Remove pointer addresses",
 				]
 			}
 		}

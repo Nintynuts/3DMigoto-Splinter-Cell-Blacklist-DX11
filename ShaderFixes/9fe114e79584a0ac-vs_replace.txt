@@ -2,7 +2,7 @@
 
 #include "CB/VS_ScaleformBatched.hlsl"
 #include "CB/PerCamera.hlsl"
-#include "goal_boundaries.hlsl"
+#include "markers.hlsl"
 
 void main(
 	float4 v0 : POSITION0,
@@ -29,7 +29,21 @@ void main(
 		return;
 
 	if (use_depth)
-		o0.x += depth[0] * -eye;
+	{
+		uint quad = quad_id(vID);
+		// start with any left-over elements from a partial batch
+		uint sum_elements = num_chars;
+		int idx = marker_index - 1; // -1 because of do loop
+		// loop through goals
+		do {
+			idx++;
+			uint goal_elements = markers[idx].chars;
+			if (goal_elements == 0)
+				break;
+			sum_elements += goal_elements;
+		} while (quad > sum_elements);
+		o0.x += markers[idx].depth * -eye;
+	}
 
 	return;
 }
