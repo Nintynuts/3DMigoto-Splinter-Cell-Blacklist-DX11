@@ -60,6 +60,7 @@ void main(
 
 	if (tracker_type == crosshair)
 	{
+		quad = 0;
 		centre = float2(0,0.2);
 		return;
 	}
