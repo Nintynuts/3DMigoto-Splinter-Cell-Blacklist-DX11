@@ -24,9 +24,10 @@ void main(
 	if (!rt_res_size_match()) // Render Target
 		return;
 
-	if (use_depth)
-		o0.x += markers[marker_index + quad_id(vID)].depth * -eye;
-	else if (filter_index > 0)
+	if (use_depth) {
+		uint idx = marker_index + (marker_type == crosshair ? 0 : quad_id(vID));
+		o0.x += markers[idx].depth * -eye;
+	} else if (filter_index > 0)
 		gui_element(o0,filter_index,0.002);
 		
 	return;

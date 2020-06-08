@@ -30,17 +30,17 @@ void main(
 
 	if (use_depth)
 	{
-		uint quad = quad_id(vID);
-		// start with any left-over elements from a partial batch
-		uint sum_elements = num_chars;
+		// offset by any chars from a partial batch
+		uint quad = quad_id(vID) + num_chars;
+		uint sum_elements = 0;
 		int idx = marker_index - 1; // -1 because of do loop
 		// loop through goals
 		do {
 			idx++;
-			uint goal_elements = markers[idx].chars;
-			if (goal_elements == 0)
+			uint marker_chars = markers[idx].chars;
+			if (marker_chars == 0)
 				break;
-			sum_elements += goal_elements;
+			sum_elements += marker_chars;
 		} while (quad > sum_elements);
 		o0.x += markers[idx].depth * -eye;
 	}

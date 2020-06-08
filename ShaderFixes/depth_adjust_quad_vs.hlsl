@@ -58,7 +58,7 @@ void main(
 		default: o0 = 0; break;
 	}
 
-	if (tracker_type == crosshair)
+	if (marker_type == crosshair)
 	{
 		quad = 0;
 		centre = float2(0,0.2);
@@ -69,7 +69,7 @@ void main(
 	float2 btmRgt = transform(quad,3,trans);
 	centre = (topLft + btmRgt)/2;
 
-	if (tracker_type == execute_mark)
+	if (marker_type == execute)
 		centre.y -= 0.1;
 
 	return;
