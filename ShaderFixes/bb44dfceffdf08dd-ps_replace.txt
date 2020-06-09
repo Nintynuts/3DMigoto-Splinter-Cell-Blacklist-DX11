@@ -5,7 +5,7 @@
 cbuffer CB_PS_SimpleColor : register(b7)
 {
 	float4 cColor : packoffset(c0);
-	float cAlphaTest : packoffset(c1);
+	float cAlphaTest : packoffset(c1.x);
 }
 
 #include "3Dmigoto.hlsl"

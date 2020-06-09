@@ -14,13 +14,13 @@ cbuffer CB_PS_ParticleMaterialCommon : register(b0)
 
 cbuffer CB_PS_ParticleMaterial_Static : register(b7)
 {
-	bool bSoftParticles : packoffset(c0);
+	bool bSoftParticles : packoffset(c0.x);
 	bool bEnvPass : packoffset(c0.y);
 	float4 cTranslucency : packoffset(c1);
 	float4 cDistortion : packoffset(c2);
 	float4 cEnvCol : packoffset(c3);
 	float4 cNormalScale : packoffset(c4);
-	float cAlphaTest : packoffset(c5);
+	float cAlphaTest : packoffset(c5.x);
 }
 #include "texture.hlsl"
 TEXTURE(_2D,sDiffuseMap,0,0);

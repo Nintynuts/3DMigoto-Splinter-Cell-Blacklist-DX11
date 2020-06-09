@@ -7,7 +7,7 @@ cbuffer CB_PS_Depth_Static : register(b7)
 
 cbuffer CB_PS_DepthAlphaTest_Static : register(b6)
 {
-	bool bAlphaTest : packoffset(c0);
+	bool bAlphaTest : packoffset(c0.x);
 	float cAlphaTest : packoffset(c0.y);
 }
 #include "texture.hlsl"

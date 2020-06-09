@@ -101,6 +101,10 @@
 					"hlsl"
 				]
 			},
+			"Fix missing x in cb packoffset":{
+				"find": "((?:float|bool|u?int)(?<!\\d) [_\\w]+ : packoffset\\(c\\d+)(?!\\.)\\)",
+				"replace": "$1.x)"
+			},
 			"Simplify single-axis use": {
 				"find": "(\\.([xyzw]))\\2+\\b",
 				"replace": "$1",
@@ -297,6 +301,7 @@
 				"rules": [
 					"Known structs",
 					"3Dmigoto resources",
+					"Fix missing x in cb packoffset",
 					"Simplify Square Magnitude (dot product with self)",
 					"Simplify 4x4 matrix multiply",
 					"Simplify 3x4 matrix multiply",
@@ -323,6 +328,7 @@
 					"Stereo Fix",
 					"Stereo Unfix with Scale",
 					"Stereo Unfix",
+					"Fix missing x in cb packoffset",
 					"Simplify Square Magnitude (dot product with self)",
 					"Simplify 4x4 matrix multiply",
 					"Simplify 3x4 matrix multiply",

@@ -1,6 +1,6 @@
 cbuffer CB_VS_ParticleTransforms : register(b6)
 {
-	bool bUseCubeMapAmbient : packoffset(c0);
+	bool bUseCubeMapAmbient : packoffset(c0.x);
 	bool bUsePerpendicularFade : packoffset(c0.y);
 	float4 cTextureProperties : packoffset(c1);
 	float4 cSize_Offset : packoffset(c2);

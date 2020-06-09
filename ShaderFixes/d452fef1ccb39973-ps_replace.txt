@@ -10,7 +10,7 @@ cbuffer CB_PS_AORender : register(b7)
 	float2 cIDFactor : packoffset(c9);
 	float4 cAtlasS : packoffset(c10);
 	float4 cAtlasB : packoffset(c11);
-	float cAlphaTest : packoffset(c12);
+	float cAlphaTest : packoffset(c12.x);
 }
 #include "texture.hlsl"
 TEXTURE(_2D,sIDMap,0,0);
