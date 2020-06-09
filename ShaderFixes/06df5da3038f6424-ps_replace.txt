@@ -4,7 +4,7 @@
 
 cbuffer CB_PS_FakeGlassMaterial_Static : register(b7)
 {
-	bool bEnvGammaControl : packoffset(c0);
+	bool bEnvGammaControl : packoffset(c0.x);
 	bool bEnvPass : packoffset(c0.y);
 	bool bFresnel : packoffset(c0.z);
 	float4 data0 : packoffset(c1);
