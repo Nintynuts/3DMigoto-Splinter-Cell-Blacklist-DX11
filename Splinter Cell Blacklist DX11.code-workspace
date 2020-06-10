@@ -288,7 +288,7 @@
 				"replace": ""
 			},
 			"Remove samplers": {
-				"find": "\\s+\\d+: handle=.*\\n",
+				"find": "\\n\\s+\\d+: handle=.*",
 				"replace": ""
 			},
 			"Remove pointer addresses": {
