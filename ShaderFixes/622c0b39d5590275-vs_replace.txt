@@ -1,0 +1,94 @@
+// Puddle
+#include "CB/PerPass.hlsl"
+#include "CB/PerCamera.hlsl"
+#include "CB/PerObject.hlsl"
+#include "CB/PerFogControl.hlsl"
+#include "3Dmigoto.hlsl"
+
+void main(
+  float4 v0 : POSITION0,
+  int4 v1 : TEXCOORD0,
+  int2 v2 : TEXCOORD1,
+  float4 v3 : NORMAL0,
+  float4 v4 : TANGENT0,
+  float4 v5 : BINORMAL0,
+  out float4 o0 : SV_Position0,
+  out float4 o1 : TEXCOORD0,
+  out float4 o2 : TEXCOORD1,
+  out float4 o3 : TEXCOORD2,
+  out float4 o4 : TEXCOORD3,
+  out float4 o5 : TEXCOORD4,
+  out float4 o6 : TEXCOORD5,
+  out float4 o7 : TEXCOORD6)
+{
+  float4 r0,r1,r2,r3;
+
+  r0.w = gLocalToWorld._m30 - cViewPos_VS.x;
+  r0.xyz = gLocalToWorld._m00_m10_m20;
+  r1.xyz = gDrawScale.xyz * v0.xyz;
+  r1.w = v0.w;
+  r0.x = dot(r1, r0);
+  r2.w = gLocalToWorld._m31 - cViewPos_VS.y;
+  r2.xyz = gLocalToWorld._m01_m11_m21;
+  r0.y = dot(r1, r2);
+  r2.w = gLocalToWorld._m32 - cViewPos_VS.z;
+  r2.xyz = gLocalToWorld._m02_m12_m22;
+  r0.z = dot(r1, r2);
+  r1.x = dot(r0.xyz, gWorldToProj._m00_m10_m20);
+  r1.y = dot(r0.xyz, gWorldToProj._m01_m11_m21);
+  r1.z = dot(r0.xyz, gWorldToProj._m02_m12_m22);
+  r1.w = dot(r0.xyz, gWorldToProj._m03_m13_m23);
+  r0.xyz = cViewPos_VS.xyz + r0.xyz;
+  r1 = cProjSkinMesh + r1;
+  o0 = r1;
+  r2.xy = (int2)v1.xy;
+  r2.zw = (int2)v2.xy;
+  o1 = 0.00048828125 * r2;
+
+  stereo_fix(r0, true);
+
+  o2.xyz = r0.xyz;
+  r0.xyz = cViewPos_VS.xyz - r0.xyz;
+  r0.x = sq_mag(r0.xyz);
+  r0.x = sqrt(r0.x);
+  r0.x = -cFog_Density_Start_Range.y + r0.x;
+  r0.x = saturate(r0.x / cFog_Density_Start_Range.z);
+  r0.x = cFog_Density_Start_Range.x * r0.x;
+  o6.z = bFog ? r0.x : 0;
+  o2.w = 1;
+  o3.w = 0;
+  r0.xyz = v4.zyx * 2 - 1;
+  o3.x = dot(r0.xyz, gLocalToWorld._m00_m10_m20);
+  o3.y = dot(r0.xyz, gLocalToWorld._m01_m11_m21);
+  o3.z = dot(r0.xyz, gLocalToWorld._m02_m12_m22);
+  o4.w = 0;
+  r0.xyz = v5.zyx * 2 - 1;
+  o4.x = dot(r0.xyz, gLocalToWorld._m00_m10_m20);
+  o4.y = dot(r0.xyz, gLocalToWorld._m01_m11_m21);
+  o4.z = dot(r0.xyz, gLocalToWorld._m02_m12_m22);
+  o5.w = 0;
+  r0.xyz = v3.zyx * 2 - 1;
+  r2.x = dot(r0.xyz, gLocalToWorld._m00_m10_m20);
+  r2.y = dot(r0.xyz, gLocalToWorld._m01_m11_m21);
+  r2.z = dot(r0.xyz, gLocalToWorld._m02_m12_m22);
+  o5.xyz = r2.xyz;
+  r0 = gViewportSB * r1.xyww;
+  o6.w = r1.w;
+  o6.xy = r0.xy + r0.zw;
+  r0.x = sq_mag(r2.xyz);
+  r0.x = rsqrt(r0.x);
+  r0.xyz = r2.xyz * r0.x;
+  r0.w = 1;
+  r1.xyz = mul(r0, cMtx1);
+  r2 = r0.xyzz * r0.yzzx;
+  r3.xyz = mul(r2, cMtx2);
+  r1.xyz = r3.xyz + r1.xyz;
+  r0.y = r0.y * r0.y;
+  r0.x = r0.x * r0.x - r0.y;
+  r0.xyz = cExtra * r0.x + r1.xyz;
+  r0.xyz = max(0, r0.xyz);
+  r0.w = 1;
+  r0 = cSHScale * r0;
+  o7 = bUseSH ? r0 : cAmbientColor;
+  return;
+}
