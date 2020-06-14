@@ -11,7 +11,7 @@ void main(
 	o0 = 1;
 
 	uint idx = marker_index + quad;
-	markers[idx].depth = adjust_from_depth_buffer(centre.x,centre.y);
+	markers[idx].depth = adjust_from_stereo2mono_depth_buffer(centre.x,centre.y);
 	centre = (centre + 1) / 2;
 	centre.x *= res_width;
 	centre.y *= res_height;

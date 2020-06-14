@@ -28,7 +28,7 @@ void main(
 		return;
 		
 	if (!(menu_open || is_cutscene))
-		o0.x += adjust_from_depth_buffer(0.0, 0.2);
+		o0.x += adjust_from_stereo2mono_depth_buffer(0.0, 0.2);
 	else
 	{	
 		float layer = 2;
