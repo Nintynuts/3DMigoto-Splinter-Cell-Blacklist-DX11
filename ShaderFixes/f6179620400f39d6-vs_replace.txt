@@ -2,7 +2,6 @@
 #include "CB/PerCamera.hlsl"
 #include "CB/PerObject.hlsl"
 #include "CB/PerFogControl.hlsl"
-
 #include "3Dmigoto.hlsl"
 
 void main(
@@ -21,31 +20,23 @@ void main(
   out float4 o6 : TEXCOORD5)
 {
   float4 r0,r1,r2;
-  uint4 bitmask, uiDest;
-  float4 fDest;
 
-  r0.w = gLocalToWorld._m30 - cViewPos_VS.x;
-  r0.xyz = gLocalToWorld._m00_m10_m20;
-  r1.xyz = gDrawScale.xyz * v0.xyz;
-  r1.w = v0.w;
-  r0.x = dot(r1, r0);
-  r2.w = gLocalToWorld._m31 - cViewPos_VS.y;
-  r2.xyz = gLocalToWorld._m01_m11_m21;
-  r0.y = dot(r1, r2);
-  r2.w = gLocalToWorld._m32 - cViewPos_VS.z;
-  r2.xyz = gLocalToWorld._m02_m12_m22;
-  r0.z = dot(r1, r2);
+  float4x3 gLocalToView = gLocalToWorld;
+  gLocalToView[3].xyz -= cViewPos_VS.xyz;
+  v0.xyz *= gDrawScale.xyz;
+  r0.xyz = mul(v0, gLocalToView);
+  r0.w = v0.w;
 	r1 = mul(r0.xyz, gWorldToProj);
-  r0.xyz = cViewPos_VS.xyz + r0.xyz;
-
-  // Adjust r0 for cube-map lookup
-
-  r1 = cProjSkinMesh + r1;
+  r0.xyz += cViewPos_VS.xyz;
+  r0.w = 1;
+  r1 += cProjSkinMesh;
   o0 = r1;
   r2.xy = (int2)v1.xy;
   r2.zw = (int2)v2.xy;
   o1 = 0.00048828125 * r2;
-  r0.w = 1;
+
+  r0.xy += separation * (r0.w - convergence) * normalise(float3(cViewPos_VS.y, -cViewPos_VS.x, 0)).xy;
+  
   o2 = r0;
   o4 = -cViewPos_VS + r0;
   r0.xyz = cViewPos_VS.xyz - r0.xyz;
