@@ -5,6 +5,8 @@
 #include "CB/VS_SimpleTransform.hlsl"
 #include "loadout.hlsl"
 
+#define is_omni ini(x,3)
+
 void main(
 	float4 v0 : POSITION0,
 	int2 v1 : TEXCOORD0,
@@ -18,19 +20,19 @@ void main(
 	r0.w = 1;	
 	r1 = mul(r0, gSimpleWorldToProj);
 	
-	if (is_cutscene || in_loadout) 
-		stereo_fix_(r1, true);
+	stereo_fix_(r1, is_cutscene || in_loadout); // Cutscene/Loadout - Spot
 
 	o0 = r1;
 	
-	if (is_cutscene || in_loadout)
-		stereo_unfix_(o0);
-	else
-		stereo_fix(r1);
+	stereo_unfix_(o0);
 	
 	r0.xy = gViewportSB.zw * r1.w;
 	o2.x = r1.w;
 	o1.zw = r1.xy * gViewportSB.xy + r0.xy;
+
+	if (is_omni && in_loadout)
+		stereo_fix(r1);
+		
 	o1.xy = r1.xy;
 	o0 = reorientate(o0);
 	return;

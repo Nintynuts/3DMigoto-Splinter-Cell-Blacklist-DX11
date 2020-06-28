@@ -10,7 +10,7 @@ TEXTURE(_2D,sSceneAlbedo,2,4);
 TEXTURE(_2D,sSpotTex0,6,3);
 TEXTURE(_2D,sShadowSamples,15,2);
 
-#include "3Dmigoto.hlsl"
+#include "loadout.hlsl"
 
 void main(
 	float4 v0 : SV_Position0,
@@ -26,7 +26,7 @@ void main(
 	r1.xy = SAMPLE(sDepth, r0.zw).xw;
 	r2.xyz = r1.x * r2.xyz;
 
-	stereo_unfix(r2);
+	stereo_unfix_(r2);
 	
 	r3.xyz = mul(r2, cScreenToWorld);
 	r3.w = 1;

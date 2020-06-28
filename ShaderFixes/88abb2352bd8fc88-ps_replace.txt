@@ -1,4 +1,4 @@
-// Ignore - Depth Alpha
+// Lighting - Shadow Map (Ignore)
 
 cbuffer CB_PS_Depth_Static : register(b7)
 {
