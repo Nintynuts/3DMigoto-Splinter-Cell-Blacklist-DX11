@@ -1,4 +1,4 @@
-// Mesh - Static - Self-Illuminated
+// Mesh - Static - Self-Illuminated (Laser Sight)
 
 #include "CB/PerCamera.hlsl"
 #include "CB/PerObject.hlsl"
@@ -40,5 +40,9 @@ void main(
 	o3.w = 0;
 	r0.xyz = v3.zyx * 2 - 1;
 	o3.xyz = mul(r0.xyz, gLocalToWorld);
+
+	if (o0.z > 200 && filter_index==9)
+		o0.xy = float2(0,o0.w*0.2);
+
 	return;
 }
