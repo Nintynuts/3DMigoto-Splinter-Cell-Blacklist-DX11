@@ -56,7 +56,7 @@ void main(
 	r0.xyz = r1.xyz * r2.x + r2.y;
 	if (bSoftParticles != 0) {
 		r1.xy = v4.xy / v4.w;
-		r1.x = SAMPLE(sSceneDepth, v4.xy).x;
+		r1.x = SAMPLE(sSceneDepth, r1.xy).x;
 		r1.x = -v4.w + r1.x;
 		r1.x = saturate(cTranslucency.y * r1.x);
 		r1 = cFadeTerms.xxxy * r1.x + cFadeTerms.zzzw;
