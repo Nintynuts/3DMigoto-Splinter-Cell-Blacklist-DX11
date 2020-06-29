@@ -2,16 +2,12 @@
 
 #include "CB/VS_Scaleform.hlsl"
 
-#include "goal_boundaries.hlsl"
+#include "markers.hlsl"
 
 struct Vertex
 {
 	uint pos; // R16G16_SINT
 	uint colour; // R8G8B8A8_UNORM
-#ifdef TEXT
-	uint colour2; // R8G8B8A8_UNORM
-	float2 uv;
-#endif
 };
 
 StructuredBuffer<Vertex> VertexBuffer : register(t13);
@@ -33,24 +29,23 @@ float2 transform(uint quad, uint vertex, float4x4 trans)
 	return output;
 }
 
-#include "3Dmigoto.hlsl"
-
 void main(
 #ifdef BATCHED
 	float4 v1 : COLOR0,
 #endif
 	uint vID : SV_VertexID,
 	out float4 o0 : SV_Position0,
-	out float2 centre : TEXCOORD0)
+	out float2 centre : TEXCOORD0,
+	out uint quad : TEXCOORD1)
 {
 	#ifdef BATCHED
 		uint vertex = vID % 6;
-		uint quad = (vID - vertex)/6;
-		float r0 = (int)(2040.01001 * v1.x / 8);
+		quad = quad_id(vID);
+		float r0 = (int)(2040.01001 * v1.x);
 		float4x4 trans = sf[r0].pos;
 	#else
 		uint vertex = vID;
-		uint quad = 0;
+		quad = 0;
 		float4x4 trans = sf.pos;
 	#endif
 
@@ -63,8 +58,9 @@ void main(
 		default: o0 = 0; break;
 	}
 
-	if (texture_filter == -1)
+	if (marker_type == crosshair)
 	{
+		quad = 0;
 		centre = float2(0,0.2);
 		return;
 	}
@@ -73,7 +69,7 @@ void main(
 	float2 btmRgt = transform(quad,3,trans);
 	centre = (topLft + btmRgt)/2;
 
-	if (texture_filter == -3)
+	if (marker_type == execute)
 		centre.y -= 0.1;
 
 	return;

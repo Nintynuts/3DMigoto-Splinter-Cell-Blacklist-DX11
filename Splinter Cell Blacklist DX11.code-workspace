@@ -28,7 +28,7 @@
 			"uninstall.bat": true,
 		},
 		"files.associations": {
-			"*_replace.txt": "hlsl"
+			"*_replace.txt": "hlsl",
 		},
 		"replacerules.rules": {
 			"Known structs": {
@@ -100,6 +100,10 @@
 				"languages": [
 					"hlsl"
 				]
+			},
+			"Fix missing x in cb packoffset":{
+				"find": "((?:float|bool|u?int)(?<!\\d) [_\\w]+ : packoffset\\(c\\d+)(?!\\.)\\)",
+				"replace": "$1.x)"
 			},
 			"Simplify single-axis use": {
 				"find": "(\\.([xyzw]))\\2+\\b",
@@ -242,13 +246,62 @@
 			"CB float4 inline": {
 			  "find": "\\n(cb\\d+|buf)\\[\\d+\\]\\.[yzw]:",
 			  "replace": ""
-			}
+			},
+			"Simplify scope name": { 
+				"find": "[cC]onfigs\\\\(.*?)\\.ini",
+				"replace": "$1"
+			},
+			"Combine command and inspection": { 
+				"find": "(?<!pre|post) (\\[.*?\\] .*)(?<!else \\{|true|false)(?:[\\r\\n]+(?:\\d+\\.)?\\d{6} 3DMigoto\\s+)(?!else|\\[|\\})([^ ].*)(?=[\\r\\n])",
+				"replace": " $1 : $2"
+			},
+			"Copy scope after pre/post": { 
+				"find": "(pre|post) {(?=[\\r\\n]+(?:\\d+\\.)?\\d{6} 3DMigoto\\s+(\\[.*?\\]))",
+				"replace": "$1 $2 {"
+			},
+			"Remove repeated scopes": { 
+				"find": "(?<!pre|post) (\\[.*?\\])",
+				"replace": ""
+			},
+			"Remove zero fractionals": { 
+				"find": "(\\d+)\\.0+\\b",
+				"replace": "$1"
+			},
+			"Simplify assignment inspection": { 
+				"find": "(?<=:)( ini param override)? =",
+				"replace": ""
+			},
+			"Remove constant inspection": { 
+				"find": " = (-?\\d+(?:\\.\\d+)?) : \\1",
+				"replace": " = $1"
+			},
+			"Remove Empty Else-EndIf": { 
+				"find": "(?:([\\r\\n](?:\\d+\\.)?\\d{6} 3DMigoto\\s+)else \\{\\1\\})? endif",
+				"replace": ""
+			},
+			"Remove 3DMigoto prefix": {
+				"find": "3DMigoto ",
+				"replace": ""
+			},
+			"Remove useless lines": {
+				"find": "\\d+\\.\\d{6} (Map|Unmap|RS|DS|HS|OM(Set(?!Render)|GetRender)|.SSetSamplers|IASet(Prim|Input)|GetData).*\\n",
+				"replace": ""
+			},
+			"Remove samplers": {
+				"find": "\\n\\s+\\d+: handle=.*",
+				"replace": ""
+			},
+			"Remove pointer addresses": {
+				"find": "0x[0-9A-F]{8}",
+				"replace": ""
+			},
 		},
 		"replacerules.rulesets": {
 			"Tidy newly dumped shader": {
 				"rules": [
 					"Known structs",
 					"3Dmigoto resources",
+					"Fix missing x in cb packoffset",
 					"Simplify Square Magnitude (dot product with self)",
 					"Simplify 4x4 matrix multiply",
 					"Simplify 3x4 matrix multiply",
@@ -275,6 +328,7 @@
 					"Stereo Fix",
 					"Stereo Unfix with Scale",
 					"Stereo Unfix",
+					"Fix missing x in cb packoffset",
 					"Simplify Square Magnitude (dot product with self)",
 					"Simplify 4x4 matrix multiply",
 					"Simplify 3x4 matrix multiply",
@@ -314,6 +368,26 @@
 					"Make tiny numbers 0",
 					"Make +-0.00 just 0",
 					"CB float4 inline"
+				]
+			},
+			"Clean 3Dmigoto Log": {
+				"rules": [
+					"Remove useless lines",
+					"Remove samplers",
+					"Remove pointer addresses",
+				]
+			},
+			"Tidy 3Dmigoto Log": {
+				"rules": [
+					"Simplify scope name",
+					"Combine command and inspection",
+					"Copy scope after pre/post",
+					"Remove repeated scopes",
+					"Remove zero fractionals",
+					"Simplify assignment inspection",
+					"Remove constant inspection",
+					"Remove Empty Else-EndIf",
+					"Remove 3DMigoto prefix",
 				]
 			}
 		}

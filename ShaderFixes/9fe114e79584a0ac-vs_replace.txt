@@ -2,8 +2,7 @@
 
 #include "CB/VS_ScaleformBatched.hlsl"
 #include "CB/PerCamera.hlsl"
-#include "3Dmigoto.hlsl"
-#include "goal_boundaries.hlsl"
+#include "markers.hlsl"
 
 void main(
 	float4 v0 : POSITION0,
@@ -29,7 +28,22 @@ void main(
 	if (!rt_res_size_match()) // Render Target
 		return;
 
-	o0.x += depth[0] * -eye;
+	if (use_depth)
+	{
+		// offset by any chars from a partial batch
+		uint quad = quad_id(vID) + num_chars;
+		uint sum_elements = 0;
+		int idx = marker_index - 1; // -1 because of do loop
+		// loop through goals
+		do {
+			idx++;
+			uint marker_chars = markers[idx].chars;
+			if (marker_chars == 0)
+				break;
+			sum_elements += marker_chars;
+		} while (quad > sum_elements);
+		o0.x += markers[idx].depth * -eye;
+	}
 
 	return;
 }

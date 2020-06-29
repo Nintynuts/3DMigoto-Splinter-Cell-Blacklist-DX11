@@ -1,9 +1,7 @@
-// GUI - Decorations Batched (Crosshair)
+// GUI - Sprites Batched
 
 #include "CB/VS_ScaleformBatched.hlsl"
-#include "3Dmigoto.hlsl"
-#include "goal_boundaries.hlsl"
-#include "depth_adjust.hlsl" 
+#include "markers.hlsl"
 
 void main(
 	int4 v0 : POSITION0,
@@ -26,10 +24,11 @@ void main(
 	if (!rt_res_size_match()) // Render Target
 		return;
 
-	if (texture_filter > 0)
-		gui_element(o0,texture_filter,0.002);
-	else
-		o0.x += depth[0] * -eye;
+	if (use_depth) {
+		uint idx = marker_index + (marker_type == crosshair ? 0 : quad_id(vID));
+		o0.x += markers[idx].depth * -eye;
+	} else if (filter_index > 0)
+		gui_element(o0,filter_index,0.002);
 		
 	return;
 }

@@ -1,7 +1,6 @@
 // ShadowNet - Decorations
 
 #include "CB/VS_Scaleform.hlsl"
-#include "3Dmigoto.hlsl"
 #include "loadout.hlsl"
 
 void main(
@@ -19,20 +18,20 @@ void main(
 
 	float layer = 5;
 
-	if (texture_filter > 0)
-		layer = texture_filter;
+	if (filter_index != 0)
+		layer = filter_index;
 
-	if (texture_filter == -5) // Loadout character
+	if (filter_index == -5) // Loadout character
 	{
 		layer = 4;
 		if (fix_mode != 1)
 			o1.xy = float2(o1.y,(1-o1.x));
 	}
 
-	if (texture_filter == 2.1)
+	if (filter_index == 2.1)
 		layer = 5;
 
-	if (texture_filter == 3.1 && (o0.x < -27500 || o0.x > 27500)) // Large BG map
+	if (filter_index == 3.1 && (o0.x < -27500 || o0.x > 27500)) // Large BG map
 			layer = 1;
 	
 	gui_element(o0,layer,50);

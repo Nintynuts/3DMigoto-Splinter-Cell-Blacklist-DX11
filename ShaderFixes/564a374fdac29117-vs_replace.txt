@@ -15,8 +15,8 @@ void main(
 	stereo_unfix(o0);
 	float layer = 4;
 
-	if (texture_filter > 0)
-		layer = texture_filter;
+	if (filter_index != 0)
+		layer = filter_index;
 	
 	gui_element(o0,layer,50);
 	

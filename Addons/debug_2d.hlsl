@@ -1,4 +1,4 @@
-#include "../3Dmigoto.hlsl"
+#include "../ShaderFixes/3Dmigoto.hlsl"
 
 #define amplify IniParams[0].x
 #define flip IniParams[0].y

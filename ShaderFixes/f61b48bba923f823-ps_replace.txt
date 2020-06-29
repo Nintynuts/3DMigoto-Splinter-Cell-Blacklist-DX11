@@ -38,7 +38,7 @@ cbuffer CB_PS_ViewModeUtilThermal : register(b4)
 
 cbuffer CB_PS_ThermalViewMaterial_Static : register(b0)
 {
-	bool bAlphaTest : packoffset(c0);
+	bool bAlphaTest : packoffset(c0.x);
 	float4 cAlphaRef : packoffset(c1);
 	float4 cVisionModeFlags : packoffset(c2);
 	float4 cThermalBaseColor : packoffset(c3);

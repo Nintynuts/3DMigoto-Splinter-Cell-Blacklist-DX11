@@ -17,8 +17,8 @@ void main(
 		return;
 	float layer = 1;
 		
-	if (texture_filter > 0)
-	layer = texture_filter;
+	if (filter_index > 0)
+		layer = filter_index;
 	
 	gui_element(o0,layer,0.002);
 	

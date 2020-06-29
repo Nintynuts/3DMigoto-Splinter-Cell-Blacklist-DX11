@@ -3,7 +3,6 @@
 #include "CB/PerCamera.hlsl"
 #include "CB/PerObject.hlsl"
 #include "CB/BoneTransform.hlsl"
-#include "3Dmigoto.hlsl"
 #include "loadout.hlsl" 
 
 void main(

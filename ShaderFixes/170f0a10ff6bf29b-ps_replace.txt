@@ -13,7 +13,7 @@ TEXTURE(_2D,sIDMap,0,0);
 TEXTURE(_2D,sNormalMap,1,1);
 TEXTURE(_2D,sAOSphereMap,3,2);
 
-#include "3Dmigoto.hlsl"
+#include "loadout.hlsl"
 
 void main(
 	float4 v0 : SV_Position0,
@@ -30,7 +30,7 @@ void main(
 	r0.xyz = r0.yzx * 2 - 1;
 	r1.w = 1;
 			
-	stereo_unfix(r1);
+	stereo_unfix_(r1);
 	
 	r2.wyz = mul(r1, cScreenToWorld);
 	r0.w = dot(r2.yzw, r2.yzw);

@@ -1,4 +1,4 @@
-// Lighting - Shadow Map
+// Lighting - Ambient Occlusion Character
 
 #include "CB/PerCamera.hlsl"
 #include "CB/PerObject.hlsl"

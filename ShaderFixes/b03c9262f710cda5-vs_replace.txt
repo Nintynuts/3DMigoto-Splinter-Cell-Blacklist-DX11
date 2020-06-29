@@ -1,0 +1,82 @@
+// Laser Sight
+#include "CB/PerPass.hlsl"
+#include "CB/PerCamera.hlsl"
+#include "CB/PerObject.hlsl"
+#include "CB/PerFogControl.hlsl"
+
+cbuffer CB_VS_UnlitMaterial_Static : register(b7)
+{
+	float cSideFadeControl : packoffset(c0.x);
+}
+
+#include "3Dmigoto.hlsl"
+
+void main(
+	float4 v0 : POSITION0,
+	int4 v1 : TEXCOORD0,
+	int2 v2 : TEXCOORD1,
+	float4 v3 : NORMAL0,
+	float4 v4 : TANGENT0,
+	float4 v5 : BINORMAL0,
+	out float4 o0 : SV_Position0,
+	out float4 o1 : TEXCOORD0,
+	out float4 o2 : TEXCOORD1,
+	out float4 o3 : TEXCOORD2,
+	out float2 o4 : TEXCOORD3)
+{
+	float4 r0,r1,r2,r3;
+
+	r0.xyz = gDrawScale.xyz * v0.xyz;
+	r0.w = v0.w;
+	r1.x = dot(r0, gLocalToWorld._m00_m10_m20_m30);
+	r1.y = dot(r0, gLocalToWorld._m01_m11_m21_m31);
+	r1.z = dot(r0, gLocalToWorld._m02_m12_m22_m32);
+	r1.w = 1;
+	o0.x = dot(r1, gWorldToProj._m00_m10_m20_m30);
+	o0.y = dot(r1, gWorldToProj._m01_m11_m21_m31);
+	o0.z = dot(r1, gWorldToProj._m02_m12_m22_m32);
+	o0.w = dot(r1, gWorldToProj._m03_m13_m23_m33);
+	o3 = r1;
+	r0.xyz = cViewPos_VS.xyz - r1.xyz;
+	r0.w = sq_mag(r0.xyz);
+	r1.x = rsqrt(r0.w);
+	r0.w = sqrt(r0.w);
+	r0.w = -cFog_Density_Start_Range.y + r0.w;
+	r0.w = saturate(r0.w / cFog_Density_Start_Range.z);
+	r0.w = cFog_Density_Start_Range.x * r0.w;
+	o2.w = bFog ? r0.w : 0;
+	r0.xyz = r1.x * r0.xyz;
+	r1.xyz = v3.zyx * 2 - 1;
+	r2.x = dot(r1.xyz, gLocalToWorld._m00_m10_m20);
+	r2.y = dot(r1.xyz, gLocalToWorld._m01_m11_m21);
+	r2.z = dot(r1.xyz, gLocalToWorld._m02_m12_m22);
+	r0.w = sq_mag(r2.xyz);
+	r0.w = rsqrt(r0.w);
+	r1.xyz = r2.xyz * r0.w;
+	r0.x = saturate(dot(r1.xyz, r0.xyz));
+	r0.x = log2(r0.x);
+	r0.x = cSideFadeControl * r0.x;
+	o1.w = exp2(r0.x);
+	r0.xy = (int2)v1.xy;
+	r0.zw = (int2)v2.xy;
+	r0 = 0.00048828125 * r0;
+	o1.xy = r0.xy;
+	o4.xy = r0.zw;
+	o1.z = 0;
+	r1.w = 1;
+	r0.xyz = mul(r1, cMtx1);
+	r2 = r1.xyzz * r1.yzzx;
+	r3.xyz = mul(r2, cMtx2);
+	r0.xyz = r3.xyz + r0.xyz;
+	r0.w = r1.y * r1.y;
+	r0.w = r1.x * r1.x - r0.w;
+	r0.xyz = cExtra.xyz * r0.w + r0.xyz;
+	r0.xyz = max(0, r0.xyz);
+	r0.xyz = cSHScale * r0.xyz;
+	o2.xyz = bUseSH ? r0.xyz : cAmbientColor.xyz;
+	
+	if (o0.z > 200 && filter_index==9)
+		o0.xy = float2(0,o0.w*0.2);
+		
+	return;
+}

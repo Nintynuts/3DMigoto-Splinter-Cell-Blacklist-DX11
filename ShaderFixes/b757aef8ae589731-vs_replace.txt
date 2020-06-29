@@ -1,7 +1,6 @@
 // Lighting - Ignore
 #include "CB/PerCamera.hlsl"
 #include "CB/PerObject.hlsl"
-#include "3Dmigoto.hlsl"
 #include "loadout.hlsl" 
 
 void main(

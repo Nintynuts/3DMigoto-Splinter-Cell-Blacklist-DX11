@@ -1,8 +1,7 @@
-// Mesh - Static - Self-Illuminated
+// Mesh - Static - Self-Illuminated (Laser Sight)
 
 #include "CB/PerCamera.hlsl"
 #include "CB/PerObject.hlsl"
-#include "3Dmigoto.hlsl"
 #include "loadout.hlsl" 
 
 void main(
@@ -34,9 +33,6 @@ void main(
 	o2.xyz = cViewPos_VS.xyz + r0.xyz;
 	r0 = cProjSkinMesh + r1;
 	o0 = reorientate(r0);
-		
-	stereo_fix_(r0);
-	
 	o2.w = r0.w;
 	r0.xy = (int2)v1.xy;
 	r0.zw = (int2)v2.xy;
@@ -44,5 +40,9 @@ void main(
 	o3.w = 0;
 	r0.xyz = v3.zyx * 2 - 1;
 	o3.xyz = mul(r0.xyz, gLocalToWorld);
+
+	if (o0.z > 200 && filter_index==9)
+		o0.xy = float2(0,o0.w*0.2);
+
 	return;
 }

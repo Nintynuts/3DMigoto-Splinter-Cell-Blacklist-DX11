@@ -1,4 +1,4 @@
-// Ignore - Black
+// Lighting - Shared (Ignore - Black)
 
 #include "3Dmigoto.hlsl"
 

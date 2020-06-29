@@ -15,11 +15,11 @@ cbuffer CB_PS_PostFinal : register(b7)
 	float3 cLevelsGamma : packoffset(c8);
 	float4 cNightVisionTerms : packoffset(c9);
 	float4 cDebugShadedBrightness : packoffset(c10);
-	bool bPost : packoffset(c11);
+	bool bPost : packoffset(c11.x);
 	bool bBloom : packoffset(c11.y);
 	bool bNoise : packoffset(c11.z);
 	bool bNoiseLum : packoffset(c11.w);
-	bool bWaves : packoffset(c12);
+	bool bWaves : packoffset(c12.x);
 }
 #include "texture.hlsl"
 TEXTURE(_2D,sSceneTexPoint,0,0);
