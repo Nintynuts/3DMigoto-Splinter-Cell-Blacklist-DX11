@@ -20,7 +20,7 @@ void main(
 	r0.w = 1;	
 	r1 = mul(r0, gSimpleWorldToProj);
 	
-	stereo_fix_(r1, is_cutscene || in_loadout); // Cutscene/Loadout - Spot
+	stereo_fix_(r1, is_cutscene || in_loadout || gSimpleWorldToProj._m33 < 10); // Cutscene/Loadout/Moving - Spot
 
 	o0 = r1;
 	
