@@ -1,4 +1,4 @@
-// Depth Calculation and Caching for Goal Boundaries
+// Depth sample quad
 
 #include "CB/VS_Scaleform.hlsl"
 
@@ -14,19 +14,14 @@ StructuredBuffer<Vertex> VertexBuffer : register(t13);
 
 #include "D3DX_DXGIFormatConvert.inl"
 
-int2 getVertexPosition(uint index)
+int2 getPosition(uint index)
 {
 	return D3DX_R16G16_SINT_to_INT2(VertexBuffer[index].pos);
 }
 
-float2 transform(uint quad, uint vertex, float4x4 trans)
+int2 getVertex(uint quad, uint vertex)
 {
-	float4 vec;
-	vec.xy = getVertexPosition(quad+vertex);
-	vec.zw = float2(0,1);
-	float2 output;
-	output = mul(vec, trans).xy;
-	return output;
+	return getPosition((quad * 6) + vertex);
 }
 
 void main(
@@ -41,8 +36,7 @@ void main(
 	#ifdef BATCHED
 		uint vertex = vID % 6;
 		quad = quad_id(vID);
-		float r0 = (int)(2040.01001 * v1.x);
-		float4x4 trans = sf[r0].pos;
+		float4x4 trans = sf[quad].pos;
 	#else
 		uint vertex = vID;
 		quad = 0;
@@ -65,9 +59,12 @@ void main(
 		return;
 	}
 
-	float2 topLft = transform(quad,0,trans);
-	float2 btmRgt = transform(quad,3,trans);
-	centre = (topLft + btmRgt)/2;
+	float2 topLft = getVertex(quad,0);
+	float2 btmRgt = getVertex(quad,3);
+	float4 middle;
+	middle.xy = (topLft + btmRgt)/2;
+	middle.zw = float2(0,1);
+	centre = mul(middle, trans).xy;
 
 	if (marker_type == execute)
 		centre.y -= 0.1;

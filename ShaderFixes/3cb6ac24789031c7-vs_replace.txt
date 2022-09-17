@@ -1,6 +1,7 @@
 // ShadowNet - Overlay 2-Colour
 
-#include "CB/VS_ScaleformBatched.hlsl"
+#define BATCHED
+#include "CB/VS_Scaleform.hlsl"
 #include "3Dmigoto.hlsl"
 
 void main(
@@ -13,19 +14,12 @@ void main(
 	out float4 o3 : TEXCOORD1,
 	out float4 o4 : TEXCOORD2)
 {
-	float4 r0,r1,r2;
+	float4 r1,r2;
 	
-	r0.x = 2040.01001 * v2.x;
-	r0.x = (int)r0.x;
-	r1 = (int4)v0;
-	o0.x = dot(r1, mvp[r0.x]);
-	r2 = (int4)r0.x + int4(1,2,3,4);
-	r0.x = (int)r0.x + 5;
-	o3 = mvp[r0.x];
-	o0.y = dot(r1, mvp[r2.x]);
-	o0.z = dot(r1, mvp[r2.y]);
-	o0.w = dot(r1, mvp[r2.z]);
-	o4 = mvp[r2.w];
+	int r0 = (int)(255.00125 * v2.x);
+	o0 = mul(v0, sf[r0].pos);
+	o4 = sf[r0].other1;
+	o3 = sf[r0].other2;
 	o1 = v1.zyxw;
 	o2 = v2.zyxw;
 	

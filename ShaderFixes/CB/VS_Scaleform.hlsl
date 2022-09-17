@@ -6,12 +6,12 @@
 
 struct scaleform {
 	float4x4 pos;
-	float4x2 norm; // unsure
+	float4 other1;
+	float4 other2;
 	float4x2 tex;
 };
 
 cbuffer CB_VS_Scaleform : register(b7)
 {
-	//float4 mvp[8] : packoffset(c0);
 	scaleform sf SF_SIZE : packoffset(c0);
 }

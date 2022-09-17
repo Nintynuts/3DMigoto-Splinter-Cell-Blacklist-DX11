@@ -11,12 +11,12 @@ void main(
 	o0 = 1;
 
 	uint idx = marker_index + quad;
-	markers[idx].depth = adjust_from_stereo2mono_depth_buffer(centre.x,centre.y);
-	centre = (centre + 1) / 2;
-	centre.x *= res_width;
-	centre.y *= res_height;
+	markers[idx].depth = adjust_from_depth_buffer(centre.x,centre.y);
+	// centre = (centre + 1) / 2;
+	// centre.x *= res_width;
+	// centre.y *= res_height;
 	markers[idx].screenPos = centre;
-	markers[idx].chars = num_chars;
+	markers[idx].chars = new_chars;
 
 	return;
 }

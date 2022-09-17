@@ -297,6 +297,9 @@ void main(point vs2gs input[1], inout TriangleStream<gs2ps> ostream)
 	cur_pos.x += 0.01;
 	cur_pos.y -= 0.06;
 
+	if ((use_int && !any(ival)) || (!use_int && !any(cval)))
+		return;
+
 	emit_int(idx, ostream);
 	emit_char(':', ostream);
 	emit_char(' ', ostream);

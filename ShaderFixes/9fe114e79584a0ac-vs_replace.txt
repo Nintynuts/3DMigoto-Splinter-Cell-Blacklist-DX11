@@ -1,6 +1,7 @@
 // GUI - Text Batched
 
-#include "CB/VS_ScaleformBatched.hlsl"
+#define BATCHED
+#include "CB/VS_Scaleform.hlsl"
 #include "CB/PerCamera.hlsl"
 #include "markers.hlsl"
 
@@ -16,13 +17,12 @@ void main(
 	out float4 o3 : TEXCOORD2,
 	out float4 o4 : COLOR0)
 {	
-	int r0 = (int)(2040.01001 * v3.x);
-	o0.x = dot(v0, mvp[r0 + 0]);
-	o0.y = dot(v0, mvp[r0 + 1]);
+	int r0 = (int)(255.00125 * v3.x);
+	o0.xy = mul(v0, sf[r0].pos).xy;
 	o0.zw = v0.zw;
 	o1.xy = v1.xy;
-	o3 = mvp[r0 + 4];
-	o2 = mvp[r0 + 5];
+	o3 = sf[r0].other1;
+	o2 = sf[r0].other2;
 	o4 = v2.zyxw;
 	
 	if (!rt_res_size_match()) // Render Target
@@ -31,18 +31,20 @@ void main(
 	if (use_depth)
 	{
 		// offset by any chars from a partial batch
-		uint quad = quad_id(vID) + num_chars;
-		uint sum_elements = 0;
-		int idx = marker_index - 1; // -1 because of do loop
+		uint quad = quad_id(vID) + partial_chars;
+		float nearest = 2;
+		float idx = -1;
 		// loop through goals
-		do {
-			idx++;
-			uint marker_chars = markers[idx].chars;
-			if (marker_chars == 0)
-				break;
-			sum_elements += marker_chars;
-		} while (quad > sum_elements);
-		o0.x += markers[idx].depth * -eye;
+		for (int i = 0; all(markers[i].screenPos); i++)
+		{
+			float distance = length(o0.xy - (markers[i].screenPos /*/ float2(res_width,res_height)*/));
+			if (distance < nearest){
+				idx = i;
+				nearest = distance;
+			}
+		}
+		if (idx > -1)
+			o0.x += markers[idx].depth * -eye;
 	}
 
 	return;

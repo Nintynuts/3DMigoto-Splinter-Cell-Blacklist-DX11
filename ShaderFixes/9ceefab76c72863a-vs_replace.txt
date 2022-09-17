@@ -1,4 +1,4 @@
-// GUI - Load Screen Images + Menu Icons
+// GUI - Load Screen + Menu Images
 
 #include "CB/VS_Scaleform.hlsl"
 #include "3Dmigoto.hlsl"

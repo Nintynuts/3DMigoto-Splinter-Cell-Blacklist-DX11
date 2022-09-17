@@ -37,7 +37,8 @@ void main(
   r2.zw = (int2)v2.xy;
   o1 = 0.00048828125 * r2;
 
-  r0.xy += separation * (r0.w - convergence) * normalise(float3(cViewPos_VS.y, -cViewPos_VS.x, 0)).xy;
+  // messes up glass bottles + drinking glasses
+  //r0.xy += separation * (r0.w - convergence) * normalise(float3(cViewPos_VS.y, -cViewPos_VS.x, 0)).xy;
 
   o2 = r0;
   r0.xyz = cViewPos_VS.xyz - r0.xyz;

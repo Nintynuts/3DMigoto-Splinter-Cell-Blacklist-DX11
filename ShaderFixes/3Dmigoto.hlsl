@@ -6,7 +6,8 @@
 Texture1D<float4> IniParams : register(t120);
 Texture2D<float4> StereoParams : register(t125);
 
-#define ini(axis,num) IniParams.Load(int2(num,0)).axis
+#define ini_(num) IniParams.Load(int2(num,0))
+#define ini(axis,num) ini_(num).axis
 
 #define separation StereoParams.Load(0).x
 #define convergence StereoParams.Load(0).y
