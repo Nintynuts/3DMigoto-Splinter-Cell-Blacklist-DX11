@@ -1,108 +1,81 @@
 // Lighting - Shadows (Low)
 
-cbuffer CB_PS_Shadows : register(b7)
-{
-  float4 offsets[8] : packoffset(c0);
-  float2 shadow_map_res : packoffset(c8);
-  float4x4 cScreenToLight : packoffset(c9);
-  float4 cShadowFade : packoffset(c13);
-  float4 g_vShadowMapDimensions : packoffset(c14);
-  float4 g_vCHSData : packoffset(c15);
-}
+#include "Lighting - Shadows.hlsl"
 
-cbuffer CB_PS_ShadowRender : register(b6)
-{
-  bool bFade : packoffset(c0.x);
-  float4 cClip0 : packoffset(c1);
-  float4 cClip1 : packoffset(c2);
-  float4 cNoiseSB : packoffset(c3);
-  float4 cScale : packoffset(c4);
-  float4 cBias : packoffset(c5);
-  float4 cVPSB : packoffset(c6);
-  float4x4 cMaskScreenToLight : packoffset(c7);
-  float4 cSpotLight : packoffset(c11);
-}
-
-#include "texture.hlsl"
 TEXTURE(_2D,sLightAlpha,13,1);
 TEXTURE_CMP(_2D,g_txLightDepth,14,14);
-TEXTURE(_2D,sSceneDepth,15,0);
-
-#include "3Dmigoto.hlsl"
 
 void main(
-  float4 v0 : SV_Position0,
-  float4 v1 : TEXCOORD0,
-  float v2 : TEXCOORD1,
-  out float4 o0 : SV_Target0)
+	float4 v0 : SV_Position0,
+	float4 v1 : TEXCOORD0,
+	float v2 : TEXCOORD1,
+	out float4 o0 : SV_Target0)
 {
-  float4 r0,r1,r2,r3;
-  uint4 bitmask, uiDest;
-  float4 fDest;
+	float4 r0,r1,r2,r3;
 
-  r0.xy = -0.5 + v0.xy;
-  r0.xy = r0.xy * cVPSB.xy + cVPSB.zw;
-  r0.zw = v1.zw / v2.x;
-  r1.z = SAMPLE(sSceneDepth, r0.zw).x;
-  r1.xy = r1.z * r0.xy;
-  r1.w = 1;
+	r0.xy = -0.5 + v0.xy;
+	r0.xy = r0.xy * cVPSB.xy + cVPSB.zw;
+	r0.zw = v1.zw / v2.x;
+	r1.z = SAMPLE(sSceneDepth, r0.zw).x;
+	r1.xy = r1.z * r0.xy;
+	r1.w = 1;
 
-	stereo_unfix(r1);
+	stereo_unfix_(r1);
 	
-  r0.x = dot(r1, cScreenToLight._m00_m10_m20_m30);
-  r0.y = dot(r1, cScreenToLight._m01_m11_m21_m31);
-  r0.z = dot(r1, cScreenToLight._m02_m12_m22_m32);
-  r0.w = dot(r1, cScreenToLight._m03_m13_m23_m33);
-  r0 = r0 / r0.w;
-  r1.y = 1;
-  r1.xz = shadow_map_res.y;
-  r1.xyz = r1.xyz * r0.w;
-  r2.y = shadow_map_res.y;
-  r2.xz = float2(-1,0);
-  r3.xyz = r1.xyz * r2.xyz + r0.xyw;
-  r3.xy = r3.xy / r3.z;
-  r1.w = SAMPLE(sLightAlpha, r3.xy).z;
-  r3.xyz = r1.yyz * r2.yyz + r0.xyw;
-  r1.xyz = r1.yxz * r2.yxz + r0.xyw;
-  r1.xy = r1.xy / r1.z;
-  r1.x = SAMPLE(sLightAlpha, r1.xy).z;
-  r1.yz = r3.xy / r3.z;
-  r1.y = SAMPLE(sLightAlpha, r1.yz).z;
-  r1.y = max(r1.w, r1.y);
-  r1.z = shadow_map_res.y * r0.w;
-  r2.xyz = r1.z * float3(-1,-1,0) + r0.xyw;
-  r1.zw = r2.xy / r2.z;
-  r1.z = SAMPLE(sLightAlpha, r1.zw).z;
-  r1.x = max(r1.z, r1.x);
-  r1.x = max(r1.x, r1.y);
-  r1.yzw = r0.xyz / r0.w;
-  r0.xy = r0.xy * cScale.xy + cBias.xy;
-  r0.xy = saturate(abs(r0.xy) * cShadowFade.z + cShadowFade.w);
-  r2 = shadow_map_res.y * float4(-0.5,0,0.5,0) + r1.yzyz;
-  r0.z = SAMPLE_CMP_LVL(g_txLightDepth, r2.xy, r1.w).x;
-  r0.w = SAMPLE_CMP_LVL(g_txLightDepth, r2.zw, r1.w).x;
-  r0.z = r0.z + r0.w;
-  r2 = shadow_map_res.y * float4(0,0.5,0,-0.5) + r1.yzyz;
-  r0.w = SAMPLE_CMP_LVL(g_txLightDepth, r2.xy, r1.w).x;
-  r2.x = SAMPLE_CMP_LVL(g_txLightDepth, r2.zw, r1.w).x;
-  r0.z = r0.z + r0.w;
-  r0.z = r0.z + r2.x;
-  r2 = shadow_map_res.y * float4(-0.5,-0.5,0.5,0.5) + r1.yzyz;
-  r0.w = SAMPLE_CMP_LVL(g_txLightDepth, r2.xy, r1.w).x;
-  r2.x = SAMPLE_CMP_LVL(g_txLightDepth, r2.zw, r1.w).x;
-  r0.z = r0.z + r0.w;
-  r3 = shadow_map_res.y * float4(0.5,-0.5,-0.5,0.5) + r1.yzyz;
-  r0.w = SAMPLE_CMP_LVL(g_txLightDepth, r3.xy, r1.w).x;
-  r1.y = SAMPLE_CMP_LVL(g_txLightDepth, r3.zw, r1.w).x;
-  r0.z = r0.z + r0.w;
-  r0.z = r0.z + r1.y;
-  r0.z = r0.z + r2.x;
-  r0.w = 0.125 * r0.z;
-  r0.z = -r0.z * 0.125 + 1;
-  r0.z = r1.x * r0.z + r0.w;
-  o0.xyz = r0.z * cShadowFade.x + cShadowFade.y;
-  r0.x = 1 - r0.x;
-  r0.x = r0.y * -r0.x + r0.x;
-  o0.w = bFade ? r0.x : 1;
-  return;
+	r0 = mul(r1, cScreenToLight);
+	r0 = r0 / r0.w;
+	r1.y = 1;
+	r1.xz = shadow_map_res.y;
+	r1.xyz = r1.xyz * r0.w;
+	r2.y = shadow_map_res.y;
+	r2.xz = float2(-1,0);
+	r3.xyz = r1.xyz * r2.xyz + r0.xyw;
+	r3.xy = r3.xy / r3.z;
+	r1.w = SAMPLE(sLightAlpha, r3.xy).z;
+	r3.xyz = r1.yyz * r2.yyz + r0.xyw;
+	r1.xyz = r1.yxz * r2.yxz + r0.xyw;
+	r1.xy = r1.xy / r1.z;
+	r1.x = SAMPLE(sLightAlpha, r1.xy).z;
+	r1.yz = r3.xy / r3.z;
+	r1.y = SAMPLE(sLightAlpha, r1.yz).z;
+	r1.y = max(r1.w, r1.y);
+	r1.z = shadow_map_res.y * r0.w;
+	r2.xyz = r1.z * float3(-1,-1,0) + r0.xyw;
+	r1.zw = r2.xy / r2.z;
+	r1.z = SAMPLE(sLightAlpha, r1.zw).z;
+	r1.x = max(r1.z, r1.x);
+	r1.x = max(r1.x, r1.y);
+
+	r1.yzw = r0.xyz / r0.w;
+	r2 = shadow_map_res.y * float4(-0.5,0,0.5,0) + r1.yzyz;
+	r0.z = SAMPLE_CMP_LVL(g_txLightDepth, r2.xy, r1.w).x;
+	r0.w = SAMPLE_CMP_LVL(g_txLightDepth, r2.zw, r1.w).x;
+	r0.z = r0.z + r0.w;
+	r2 = shadow_map_res.y * float4(0,0.5,0,-0.5) + r1.yzyz;
+	r0.w = SAMPLE_CMP_LVL(g_txLightDepth, r2.xy, r1.w).x;
+	r2.x = SAMPLE_CMP_LVL(g_txLightDepth, r2.zw, r1.w).x;
+	r0.z = r0.z + r0.w;
+	r0.z = r0.z + r2.x;
+	r2 = shadow_map_res.y * float4(-0.5,-0.5,0.5,0.5) + r1.yzyz;
+	r0.w = SAMPLE_CMP_LVL(g_txLightDepth, r2.xy, r1.w).x;
+	r2.x = SAMPLE_CMP_LVL(g_txLightDepth, r2.zw, r1.w).x;
+	r0.z = r0.z + r0.w;
+	r3 = shadow_map_res.y * float4(0.5,-0.5,-0.5,0.5) + r1.yzyz;
+	r0.w = SAMPLE_CMP_LVL(g_txLightDepth, r3.xy, r1.w).x;
+	r1.y = SAMPLE_CMP_LVL(g_txLightDepth, r3.zw, r1.w).x;
+
+	r0.z = r0.z + r0.w;
+	r0.z = r0.z + r1.y;
+	r0.z = r0.z + r2.x;
+	r0.w = 0.125 * r0.z;
+	r0.z = -r0.z * 0.125 + 1;
+	r0.z = r1.x * r0.z + r0.w;
+	o0.xyz = r0.z * cShadowFade.x + cShadowFade.y;
+
+	r0.xy = r0.xy * cScale.xy + cBias.xy;
+	r0.xy = saturate(abs(r0.xy) * cShadowFade.z + cShadowFade.w);
+	r0.x = 1 - r0.x;
+	r0.x = r0.y * -r0.x + r0.x;
+	o0.w = bFade ? r0.x : 1;
+	return;
 }

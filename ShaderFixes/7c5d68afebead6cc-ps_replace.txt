@@ -1,32 +1,9 @@
 // Lighting - Shadows (Medium/High)
 
-cbuffer CB_PS_Shadows : register(b7)
-{
-	float4 offsets[8] : packoffset(c0);
-	float2 shadow_map_res : packoffset(c8);
-	float4x4 cScreenToLight : packoffset(c9);
-	float4 cShadowFade : packoffset(c13);
-	float4 g_vShadowMapDimensions : packoffset(c14);
-	float4 g_vCHSData : packoffset(c15);
-}
+#include "Lighting - Shadows.hlsl"
 
-cbuffer CB_PS_ShadowRender : register(b6)
-{
-	bool bFade : packoffset(c0.x);
-	float4 cClip0 : packoffset(c1);
-	float4 cClip1 : packoffset(c2);
-	float4 cNoiseSB : packoffset(c3);
-	float4 cScale : packoffset(c4);
-	float4 cBias : packoffset(c5);
-	float4 cVPSB : packoffset(c6);
-	float4x4 cMaskScreenToLight : packoffset(c7);
-	float4 cSpotLight : packoffset(c11);
-}
-#include "texture.hlsl"
-TEXTURE(_2D,sSceneDepth,15,0);
+
 TEXTURE_CMP(_2D,g_txLightDepth,14,14);
-
-#include "loadout.hlsl"
 
 void main(
 	float4 v0 : SV_Position0,
@@ -55,6 +32,7 @@ void main(
 	if (r0.x != 0) discard;
 	#endif
 	r0 = mul(r1, cScreenToLight);
+	
 	r0.xyz = r0.xyz / r0.w;
 	r1 = shadow_map_res.y * float4(-0.5,0,0.5,0) + r0.xyxy;
 	r0.w = SAMPLE_CMP_LVL(g_txLightDepth, r1.xy, r0.z).x;
@@ -72,13 +50,15 @@ void main(
 	r2 = shadow_map_res.y * float4(0.5,-0.5,-0.5,0.5) + r0.xyxy;
 	r1.x = SAMPLE_CMP_LVL(g_txLightDepth, r2.xy, r0.z).x;
 	r0.z = SAMPLE_CMP_LVL(g_txLightDepth, r2.zw, r0.z).x;
-	r0.xy = r0.xy * cScale.xy + cBias.xy;
-	r0.xy = saturate(abs(r0.xy) * cShadowFade.z + cShadowFade.w);
+	
 	r0.w = r1.x + r0.w;
 	r0.z = r0.w + r0.z;
 	r0.z = r0.z + r1.y;
 	r0.z = cShadowFade.x * r0.z;
 	o0.xyz = r0.z * 0.125 + cShadowFade.y;
+	
+	r0.xy = r0.xy * cScale.xy + cBias.xy;
+	r0.xy = saturate(abs(r0.xy) * cShadowFade.z + cShadowFade.w);
 	r0.x = 1 - r0.x;
 	r0.x = r0.y * -r0.x + r0.x;
 	o0.w = bFade ? r0.x : 1;
