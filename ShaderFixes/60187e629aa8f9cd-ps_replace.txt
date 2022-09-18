@@ -1,4 +1,4 @@
-// Lighting - Shadows (Low-High)
+// Lighting - Shadow Blur
 
 cbuffer CB_PS_ShadowBlur : register(b7)
 {

@@ -1,4 +1,4 @@
-// Lighting - Shadow Map
+// Lighting - Shadows (Medium/High)
 
 cbuffer CB_PS_Shadows : register(b7)
 {
