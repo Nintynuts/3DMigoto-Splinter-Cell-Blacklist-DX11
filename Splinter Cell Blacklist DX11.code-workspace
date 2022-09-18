@@ -231,6 +231,13 @@
 				"hlsl"
 			  ]
 			},
+			"Simplify Texture Sampler Gather call": {
+			  "find": "(\\w+)\\.Gather\\(\\1_s, (\\S+?), int2\\((\\S+?), (\\S+?)\\)\\)",
+			  "replace": "GATHER($1, $2, $3, $4)",
+			  "languages": [
+				"hlsl"
+			  ]
+			},
 			"Numbers to 2dp": {
 			  "find": "(?<=\\.\\d\\d)\\d+",
 			  "replace": ""
@@ -359,7 +366,8 @@
 					"Simplify Texture Sampler Comparison Definition",
 					"Simplify Texture Sampler Sample call",
 					"Simplify Texture Sampler SampleLevel call",
-					"Simplify Texture Sampler SampleCmpLevelZero call"
+					"Simplify Texture Sampler SampleCmpLevelZero call",
+					"Simplify Texture Sampler Gather call"
 				]
 			},
 			"Tidy dumped CB": {

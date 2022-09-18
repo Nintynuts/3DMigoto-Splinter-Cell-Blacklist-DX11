@@ -1,0 +1,156 @@
+// Lighting - Shadows (Ultra)
+
+cbuffer CB_PS_Shadows : register(b7)
+{
+  float4 offsets[8] : packoffset(c0);
+  float2 shadow_map_res : packoffset(c8);
+  float4x4 cScreenToLight : packoffset(c9);
+  float4 cShadowFade : packoffset(c13);
+  float4 g_vShadowMapDimensions : packoffset(c14);
+  float4 g_vCHSData : packoffset(c15);
+}
+
+cbuffer CB_PS_ShadowRender : register(b6)
+{
+  bool bFade : packoffset(c0.x);
+  float4 cClip0 : packoffset(c1);
+  float4 cClip1 : packoffset(c2);
+  float4 cNoiseSB : packoffset(c3);
+  float4 cScale : packoffset(c4);
+  float4 cBias : packoffset(c5);
+  float4 cVPSB : packoffset(c6);
+  float4x4 cMaskScreenToLight : packoffset(c7);
+  float4 cSpotLight : packoffset(c11);
+}
+
+#include "texture.hlsl"
+TEXTURE(_2D,g_txLowResDepth,8,9);
+TEXTURE_CMP(_2D,g_txShadowMap,10,8);
+TEXTURE(_2D,sSceneDepth,15,0);
+
+#include "3Dmigoto.hlsl"
+
+void main(
+  float4 v0 : SV_Position0,
+  float4 v1 : TEXCOORD0,
+  float v2 : TEXCOORD1,
+  out float4 o0 : SV_Target0)
+{
+  const float4 icb[] = { 
+    { -0.54, 2.48, 0.80, 0},
+    { 0, 2.65, 0.79, 0},
+    { -2.59, 0.70, 0.78, 0},
+    { -1.34, -2.41, 0.77, 0},
+    { 3.01, -0.92, 0.71, 0},
+    { 2.30, -2.29, 0.70, 0},
+    { 2.26, -3.37, 0.57, 0},
+    { -1.14, -3.93, 0.57, 0},
+    { -4.11, -0.53, 0.56, 0},
+    { 4.67, 1.08, 0.46, 0},
+    { -4.77, 1.73, 0.42, 0},
+    { -4.40, 2.60, 0.41, 0},
+    { -4.36, -2.79, 0.40, 0},
+    { 5.05, -1.35, 0.40, 0},
+    { -3.33, 4.13, 0.38, 0},
+    { 4.97, 2.27, 0.36, 0},
+    { 0.16, -5.49, 0.36, 0},
+    { -0.67, 5.52, 0.35, 0},
+    { 5.03, 2.54, 0.34, 0},
+    { -3.86, -4.47, 0.31, 0},
+    { -5.13, -3.14, 0.29, 0},
+    { -5.25, 3.59, 0.25, 0},
+    { 3.49, -5.40, 0.25, 0},
+    { 5.41, 3.86, 0.22, 0} 
+  };
+  float4 r0,r1,r2,r3,r4,r5,r6,r7,r8,r9;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+  r0.xy = -0.5 + v0.xy;
+  r0.zw = v1.zw / v2.x;
+  r0.xy = r0.xy * cVPSB.xy + cVPSB.zw;
+  r1.z = SAMPLE(sSceneDepth, r0.zw).x;
+  r1.xy = r1.z * r0.xy;
+  r1.w = 1;
+
+	stereo_unfix(r1);
+	
+  r0.x = dot(r1, cScreenToLight._m00_m10_m20_m30);
+  r0.y = dot(r1, cScreenToLight._m01_m11_m21_m31);
+  r0.z = dot(r1, cScreenToLight._m02_m12_m22_m32);
+  r0.w = dot(r1, cScreenToLight._m03_m13_m23_m33);
+  r0.xyz = r0.xyz / r0.w;
+  r1 = GATHER(g_txLowResDepth, r0.xy, -1, -1);
+  r2 = cmp(r1 >= r0.z);
+  r2 = r2 ? 0 : 1;
+  r0.w = dot(r2, 1);
+  r3 = GATHER(g_txLowResDepth, r0.xy, 1, -1);
+  r4 = cmp(r3 >= r0.z);
+  r4 = r4 ? 0 : 1;
+  r5.x = dot(r4, 1);
+  r0.w = r5.x + r0.w;
+  r5 = GATHER(g_txLowResDepth, r0.xy, -1, 1);
+  r6 = cmp(r5 >= r0.z);
+  r6 = r6 ? 0 : 1;
+  r7.x = dot(r6, 1);
+  r0.w = r7.x + r0.w;
+  r7 = GATHER(g_txLowResDepth, r0.xy, 1, 1);
+  r8 = cmp(r7 >= r0.z);
+  r8 = r8 ? 0 : 1;
+  r9.x = dot(r8, 1);
+  r0.w = r9.x + r0.w;
+  r9.x = cmp(0 < r0.w);
+  if (r9.x != 0) {
+    r1.x = dot(r1, r2);
+    r1.y = dot(r3, r4);
+    r1.x = r1.x + r1.y;
+    r1.y = dot(r5, r6);
+    r1.x = r1.x + r1.y;
+    r1.y = dot(r7, r8);
+    r1.x = r1.x + r1.y;
+    r0.w = r1.x / r0.w;
+    r1.x = r0.z - r0.w;
+    r1.x = g_vCHSData.x * r1.x;
+    r0.w = saturate(r1.x / r0.w);
+    r0.w = r0.w * r0.w;
+    r0.w = r0.w * 28.5 + 1;
+    r0.w = (int)r0.w;
+    r1.xy = -shadow_map_res.y + r0.xy;
+    r1.x = SAMPLE_CMP_LVL(g_txShadowMap, r1.xy, r0.z).x;
+    r2 = shadow_map_res.y * float4(1,-1,-1,1) + r0.xyxy;
+    r1.y = SAMPLE_CMP_LVL(g_txShadowMap, r2.xy, r0.z).x;
+    r1.y = 0.93 * r1.y;
+    r1.x = r1.x * 0.93 + r1.y;
+    r1.y = SAMPLE_CMP_LVL(g_txShadowMap, r2.zw, r0.z).x;
+    r1.x = r1.y * 0.93 + r1.x;
+    r1.yz = shadow_map_res.y + r0.xy;
+    r1.y = SAMPLE_CMP_LVL(g_txShadowMap, r1.yz, r0.z).x;
+    r1.x = r1.y * 0.93 + r1.x;
+    r1.y = SAMPLE_CMP_LVL(g_txShadowMap, r0.xy, r0.z).x;
+    r1.x = r1.x + r1.y;
+    r1.x = 0.60 * r1.x;
+    r0.w = (int)r0.w - 5;
+    r2.x = 2.84;
+    r2.y = r1.x;
+    r1.y = 0;
+    while (true) {
+      r1.z = cmp((int)r1.y >= (int)r0.w);
+      if (r1.z != 0) break;
+      r2.x = icb[r1.y+0].z + r2.x;
+      r1.zw = icb[r1.y+0].xy * shadow_map_res.y + r0.xy;
+      r1.z = SAMPLE_CMP_LVL(g_txShadowMap, r1.zw, r0.z).x;
+      r2.y = r1.z * icb[r1.y+0].z + r2.y;
+      r1.y = (int)r1.y + 1;
+    }
+    r0.z = r2.y / r2.x;
+  } else {
+    r0.z = 1;
+  }
+  o0.xyz = r0.z * cShadowFade.x + cShadowFade.y;
+  r0.xy = r0.xy * cScale.xy + cBias.xy;
+  r0.xy = saturate(abs(r0.xy) * cShadowFade.z + cShadowFade.w);
+  r0.x = 1 - r0.x;
+  r0.x = r0.y * -r0.x + r0.x;
+  o0.w = bFade ? r0.x : 1;
+  return;
+}

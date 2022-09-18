@@ -15,6 +15,9 @@ name.SampleLevel(name##_s, pos1, pos2)
 #define SAMPLE_CMP_LVL(name, pos1, pos2) \
 name.SampleCmpLevelZero(name##_s, pos1, pos2)
 
+#define GATHER(name, pos, x, y) \
+name.Gather(name##_s, pos, int2(x, y))
+
 #define _2D Texture2D
 #define _3D Texture3D
 #define _Cube TextureCube
