@@ -12,8 +12,6 @@ void main(
 	out float4 o0 : SV_Target0)
 {
 	float4 r0,r1,r2;
-	
-	if (separation && in_loadout) discard; // Temporary
 
 	r0.xy = -0.5 + v0.xy;
 	r0.xy = r0.xy * cVPSB.xy + cVPSB.zw;

@@ -5,9 +5,12 @@
 #include "CB/VS_SimpleTransform.hlsl"
 #include "loadout.hlsl"
 
-#define is_omni ini(x,3)
+#define light_type ini(x,3)
 
-#define offset ini_(5)
+int unspecified = 0;
+int spot = 1;
+int omni = 2;
+int baked = 3;
 
 void main(
 	float4 v0 : POSITION0,
@@ -20,23 +23,19 @@ void main(
 
 	r0.xyz = mul(v0, gLocalToWorld);
 	r0.w = 1;
-
 	r1 = mul(r0, gSimpleWorldToProj);
-	
-	stereo_fix_(r1, is_cutscene || in_loadout || gSimpleWorldToProj._m33 < 10); // Cutscene/Loadout/Moving - Spot
+
+	if (!in_loadout)
+		stereo_fix_(r1, is_cutscene || gSimpleWorldToProj._m33 < 10);
 
 	o0 = r1;
 	
 	stereo_unfix_(o0);
+	o0 = reorientate(o0);
 	
 	r0.xy = gViewportSB.zw * r1.w;
 	o2.x = r1.w;
-	o1.zw = r1.xy * gViewportSB.xy + r0.xy;
-
-	if (is_omni && in_loadout)
-		stereo_fix(r1);
-		
+	o1.zw = r1.xy * gViewportSB.xy + r0.xy;	
 	o1.xy = r1.xy;
-	o0 = reorientate(o0);
 	return;
 }

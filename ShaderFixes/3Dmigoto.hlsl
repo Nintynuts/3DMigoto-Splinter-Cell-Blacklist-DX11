@@ -30,6 +30,10 @@ bool rt_res_size_match() { return rt_width == res_width && rt_height == res_heig
 #define gui_separation ini(z,2)
 #define is_cutscene    ini(w,2)
 
+#define manual4 ini_(5) 
+#define manual manual4.x * 10 + manual4.y * 1 + manual4.z * 0.1 + manual4.w * 0.01
+#define stereo_manual eye * (manual)
+
 void gui_element(inout float4 vertex, float layer, float magnitude) { vertex.x -= separation * gui_separation * (layer - 5) * magnitude; }
 
 float sq_mag(float2 input) { return dot(input, input); }

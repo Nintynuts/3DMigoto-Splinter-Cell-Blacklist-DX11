@@ -34,9 +34,10 @@ void main(
 
 	r1.xyz = mul(BonesMtx, r0);
 	r0.xyz = -cViewPos_VS.xyz + r1.xyz;
-	r1 = mul(r0.xyz, gWorldToProj);
+	r0.w = 0;
+	r1 = mul(r0, gWorldToProj);
 	r0 = cProjSkinMesh + r1;
-	o0 = reorientate(r0);
+	o0 = r0;
 	o1.zw = r0.zw;
 	r0.xy = (int2)v1.xy;
 	o1.xy = 0.00048828125 * r0.xy;
