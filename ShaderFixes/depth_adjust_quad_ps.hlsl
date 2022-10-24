@@ -16,7 +16,7 @@ void main(
 	// centre.x *= res_width;
 	// centre.y *= res_height;
 	markers[idx].screenPos = centre;
-	markers[idx].chars = new_chars;
+	markers[idx].type = marker_type;
 
 	return;
 }

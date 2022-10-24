@@ -38,9 +38,9 @@ void main(
 
 #ifdef PIXEL_SHADER
 
-#include "../matrix.hlsl"
+#include "../ShaderFixes/matrix.hlsl"
 
-#include "../CB/PerCamera.hlsl"
+#include "../ShaderFixes/CB/PerCamera.hlsl"
 
 Texture2D<float4> tex : register(t100);
 

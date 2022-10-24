@@ -22,11 +22,7 @@ void main(
 		layer = filter_index;
 
 	if (filter_index == -5) // Loadout character
-	{
 		layer = 4;
-		if (fix_mode != 1)
-			o1.xy = float2(o1.y,(1-o1.x));
-	}
 
 	if (filter_index == 2.1)
 		layer = 5;
