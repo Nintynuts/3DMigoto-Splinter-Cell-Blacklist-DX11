@@ -18,7 +18,7 @@ cbuffer CB_PerCamera : register(b11)
 }
 
 float3 CameraStereo(float3 pos){
-	return pos.xyz + separation * convergence * gWorldToProj._m00_m10_m20 * mag(gWorldToProj._m00_m10_m20);
+	return pos.xyz + separation * convergence * normalise(gWorldToProj._m00_m10_m20);
 }
 
 float3 cViewPosStereo(){
