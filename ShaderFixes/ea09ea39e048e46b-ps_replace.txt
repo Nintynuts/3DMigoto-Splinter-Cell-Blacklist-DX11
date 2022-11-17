@@ -37,7 +37,7 @@ void main(
 	r0.xy = r5.xy / r5.w;
 	r5.xyz = SAMPLE(sSpotTex0, r0.xy).xyz;
 	if (r1.x != 0) {
-		r1.xzw = cViewPos.xyz - r3.xyz;
+		r1.xzw = cViewPosStereo() - r3.xyz;
 		r2.xyz = r2.xyz * 2 - 1;
 		r2.xyz = normalise(r2.xyz);
 		r0.y = 11 * r2.w;
@@ -71,7 +71,7 @@ void main(
 		r0.x = exp2(r0.x);
 		r0.y = 2 + r0.y;
 		r0.x = r0.y * r0.x;
-		r0.x = 0.125 * r0.x;
+		r0.x = r0.x / 8;
 		r1.xyz = r0.x * r3.xyz;
 		r1.xyz = cSpot0.sCol.xyz * r1.xyz;
 	} else {

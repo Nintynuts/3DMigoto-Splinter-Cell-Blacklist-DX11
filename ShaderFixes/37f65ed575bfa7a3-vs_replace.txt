@@ -1,4 +1,5 @@
 // Lighting - Unknown Shadow 
+
 #include "CB/PerPass.hlsl"
 #include "CB/PerCamera.hlsl"
 #include "CB/PerObject.hlsl"
@@ -37,11 +38,9 @@ void main(
   o2.w = min(64000, r0.w);
   r0.xy = (int2)v1.xy;
   r0.zw = (int2)v2.xy;
-  o1 = 0.00048828125 * r0;
+  o1 = r0 / 2048;
   r0.xyz = v3.zyx * 2 - 1;
-  r0.w = sq_mag(r0.xyz);
-  r0.w = rsqrt(r0.w);
-  r0.xyz = r0.xyz * r0.w;
+  r0.xyz = normalise(r0.xyz);
   r0.w = 1;
   r1.xyz = mul(r0, cMtx1);
   r2 = r0.xyzz * r0.yzzx;

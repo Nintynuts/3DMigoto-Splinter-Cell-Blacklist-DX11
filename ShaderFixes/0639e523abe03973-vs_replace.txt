@@ -37,16 +37,16 @@ void main(
 	r3.xyz = mul(BonesMtx, r0);
 	r0.xyz = -cViewPos_VS.xyz + r3.xyz;
 	o2.xyz = r3.xyz;
-	r3 = mul(r0.xyz, gWorldToProj);
+	r3 = mul(r0.xyz, (float3x4)gWorldToProj);
 	r0 = cProjSkinMesh + r3;
 	o0 = reorientate(r0);
 	o2.w = r0.w;
 	r0.xy = (int2)v1.xy;
 	r0.zw = (int2)v2.xy;
-	o1 = 0.00048828125 * r0;
+	o1 = r0 / 2048;
 	r0.xyz = v3.zyx * 2 - 1;
-	r3.xyz = mul(BonesMtx, r0.xyz);
-	o3.xyz = mul(r3.xyz, gLocalToWorld);
+	r3.xyz = mul((float3x3)BonesMtx, r0.xyz);
+	o3.xyz = mul(r3.xyz, (float3x3)gLocalToWorld);
 	o3.w = 0;
 	return;
 }

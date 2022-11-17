@@ -2,6 +2,8 @@
 
 #include "CB/PerCamera.hlsl"
 #include "CB/PerFogControl.hlsl"
+#include "texture.hlsl"
+#include "3Dmigoto.hlsl"
 
 struct Points
 {
@@ -51,10 +53,8 @@ cbuffer CB_PS_ThermalViewMaterial_Static : register(b0)
 	float4 cThermalDiffuseScale : packoffset(c10);
 	float4 cThermalDiffuseBias : packoffset(c11);
 }
-#include "texture.hlsl"
-TEXTURE(_2D,sSceneDepth,11,0);
 
-#include "3Dmigoto.hlsl"
+TEXTURE(_2D,sSceneDepth,11,0);
 
 void main(
 	float4 v0 : SV_Position0,
@@ -99,7 +99,7 @@ void main(
 	r1.xyz = r0.y - r0.xzw;
 	r0.xzw = r1.w * r1.xyz + r0.xzw;
 	r1.xyz = r0.y - r0.xzw;
-	r2.xyz = cViewPos.xyz - v2.xyz;
+	r2.xyz = cViewPosStereo() - v2.xyz;
 	r1.w = dot(r2.xyz, r2.xyz);
 	r1.w = sqrt(r1.w);
 	r1.w = saturate(cFogCol.w * r1.w);

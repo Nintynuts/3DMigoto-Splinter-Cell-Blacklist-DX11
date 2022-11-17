@@ -1,0 +1,106 @@
+// Ocean - Deferred Static (Cubemap)
+
+#include "CB/PerFrame.hlsl"
+#include "CB/PerCamera.hlsl"
+#include "CB/PerCubeMapRenderCell.hlsl"
+#include "texture.hlsl"
+#include "3Dmigoto.hlsl"
+
+cbuffer CB_PS_FullDeferredSceneOcean_Static : register(b7)
+{
+  float4 cDeferredMaterialProps : packoffset(c0);
+  float4 cAlphaTest : packoffset(c1);
+  float4 cDeepColor : packoffset(c2);
+  float4 cWaterColor : packoffset(c3);
+  float4 cEnvColor : packoffset(c4);
+  float4 data0 : packoffset(c5);
+  float4 cWaveParams : packoffset(c6);
+  float4 cFresnel : packoffset(c7);
+  float4 cDx11Padding2 : packoffset(c8);
+  bool bEnvPass : packoffset(c9.x);
+  bool bFresnel : packoffset(c9.y);
+}
+
+TEXTURE(_2D,sNormalMap,0,1);
+TEXTURE(_2D,sNormalMap_0,1,0);
+TEXTURE(_Cube,sEnvMap,9,2);
+TEXTURE(_2D,sSelfAOMap,12,3);
+
+void main(
+  float4 v0 : SV_Position0,
+  float4 v1 : TEXCOORD0,
+  float4 v2 : TEXCOORD1,
+  float4 v3 : TEXCOORD2,
+  float4 v4 : TEXCOORD3,
+  float4 v5 : TEXCOORD4,
+  float4 v6 : TEXCOORD5,
+  out float4 o0 : SV_Target0,
+  out float4 o1 : SV_Target1,
+  out float4 o2 : SV_Target2,
+  out float4 o3 : SV_Target3)
+{
+  float4 r0,r1,r2;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+  r0.x = SAMPLE(sSelfAOMap, v3.xy).x;
+  r0.y = r0.x * r0.x;
+  r0.y = r0.x * r0.y - r0.x;
+  o0.y = gAOControl * r0.y + r0.x;
+  o0.x = v1.w;
+  o0.zw = 0;
+  r0.xy = SAMPLE(sNormalMap_0, v2.xy).xy;
+  r0.zw = SAMPLE(sNormalMap_0, v2.zw).xy;
+  r0.xy = r0.xy + r0.zw;
+  r0.zw = SAMPLE(sNormalMap, v3.zw).xy;
+  r0.xy = r0.xy + r0.zw;
+  r0.xy = -1.5 + r0.xy;
+  r0.xy = r0.xy / 1.5;
+  r0.z = dot(r0.xy, r0.xy);
+  r1.xy = cWaveParams.x * r0.xy;
+  r0.x = min(1, r0.z);
+  r0.x = 1 - r0.x;
+  r1.z = sqrt(r0.x);
+  r0.xyz = normalise(r1.xyz);
+  r1.xyz = v5.xyz * r0.y;
+  r0.xyw = r0.x * v4.xyz + r1.xyz;
+  r0.xyz = r0.z * v6.xyz + r0.xyw;
+  r0.xyz = normalise(r0.xyz);
+  o1.xyz = r0.xyz * 0.5 + 0.5;
+  o1.w = cFresnel.z;
+  r1.xyz = cViewPosStereo() - v1.xyz;
+  r1.xyz = normalise(r1.xyz);
+  r0.w = saturate(r1.z);
+  r2.xyz = -cWaterColor.xyz + cDeepColor.xyz;
+  r2.xyz = r0.w * r2.xyz + cWaterColor.xyz;
+  o2.xyz = sqrt(r2.xyz);
+  o2.w = cFresnel.w;
+  r0.w = dot(r0.xyz, r1.xyz);
+  r1.w = r0.w + r0.w;
+  r0.w = saturate(r0.w);
+  r0.w = 1 - r0.w;
+  r0.w = log2(r0.w);
+  r0.w = cFresnel.y * r0.w;
+  r0.w = exp2(r0.w);
+  r0.xyz = r1.w * r0.xyz - r1.xyz;
+  r1 = SAMPLE_LVL(sEnvMap, r0.xyz, cEnvColor.w);
+  r0.xyz = r1.xyz * r1.w;
+  r0.xyz = r0.xyz * r0.xyz;
+  r0.xyz = gCubemapScale.x * r0.xyz;
+  r0.xyz = cEnvColor.xyz * r0.xyz;
+  r0.xyz = r0.xyz * r0.w;
+  r0.xyz = r2.xyz * data0.xyz + r0.xyz;
+  r0.xyz = gCubemapScale.y * r0.xyz;
+  r0.xyz = sqrt(r0.xyz);
+  r0.xyz = max(1e-4, r0.xyz);
+  r0.w = max(r0.x, r0.y);
+  r0.w = max(r0.w, r0.z);
+  r0.w = min(1, r0.w);
+  r0.w = 255 * r0.w;
+  r0.w = ceil(r0.w);
+  r0.w = r0.w / 255;
+  r0.xyz = r0.xyz / r0.w;
+  o3.w = r0.w;
+  o3.xyz = min(1, r0.xyz);
+  return;
+}

@@ -1,0 +1,61 @@
+// Deferred Static (Cubemap)
+
+#include "CB/PerFrame.hlsl"
+#include "CB/PerCamera.hlsl"
+#include "CB/PerCubeMapRenderCell.hlsl"
+#include "CB/PS_FullDeferredMaterial_Static.hlsl"
+#include "texture.hlsl"
+#include "3Dmigoto.hlsl"
+
+TEXTURE(_2D,sDiffuseMap,0,0);
+TEXTURE(_2D,sNormalMap,1,1);
+TEXTURE(_2D,sSpecularMap,2,2);
+TEXTURE(_Cube,sEnvMap,9,3);
+TEXTURE(_2D,sSelfAOMap,12,4);
+
+void main(
+  float4 i_pos0 : SV_Position0,
+  float4 i_tex0 : TEXCOORD0,
+  float4 i_tex1 : TEXCOORD1,
+  float4 i_tex2 : TEXCOORD2,
+  float4 i_tex3 : TEXCOORD3,
+  float4 i_tex4 : TEXCOORD4,
+  float4 i_tex6 : TEXCOORD6,
+  out float4 o_tar0 : SV_Target0,
+  out float4 o_tar1 : SV_Target1,
+  out float4 o_tar2 : SV_Target2,
+  out float4 o_tar3 : SV_Target3)
+{
+  float4 r0,r1,r2;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+  r0.x = SAMPLE(sSelfAOMap, i_tex0.zw).x;
+  o_tar0.y = r0.x * (gAOControl * (r0.x * r0.x - 1) + 1);
+  o_tar0.x = i_tex1.w;
+  o_tar0.zw = 0;
+  r0.xy = SAMPLE(sNormalMap, i_tex0.xy).xy * 2 - 1;
+  r0.xyz = sqrt((1 - min(1, dot(r0.xy, r0.xy)))) * i_tex4.xyz + (r0.x * i_tex2.xyz + i_tex3.xyz * r0.y);
+  r0.xyz = normalise(r0.xyz);
+  o_tar1.xyz = r0.xyz * 0.5 + 0.5;
+  r1.xyz = SAMPLE(sSpecularMap, i_tex0.xy).xyz;
+  o_tar1.w = saturate(log2(data0.x * r1.z * (r1.z * (1 - data0.w) + data0.w)) / 11 * r1.x);
+  r1.xzw = cViewPosStereo() - i_tex1.xyz;
+  r1.xzw = normalise(r1.xzw);
+  r0.w = dot(r0.xyz, r1.xzw);
+  r2.x = saturate(1 - r0.w);
+  r0.xyz = (r0.w + r0.w) * r0.xyz - r1.xzw;
+  r0 = SAMPLE_LVL(sEnvMap, r0.xyz, data1.x);
+  r0.xyz = r0.xyz * r0.w;
+  r0.w = data1.z * (-1 + exp2(data1.w * log2(r2.x))) + 1;
+  r0.xyz = cEnvCol.xyz * gCubemapScale.x * r0.xyz * r0.xyz * r0.w * r1.y;
+  o_tar2.w = min(1, sqrt(0.375 * data0.y * r1.y * r0.w));
+  r1.xyz = SAMPLE(sDiffuseMap, i_tex0.xy).xyz;
+  r1.xyz = cDiffCol.xyz * r1.xyz * r1.xyz;
+  o_tar2.xyz = sqrt(r1.xyz);
+  r0.w = ceil(255 * min(1, max(max(r0.x, r0.y), r0.z))) / 255;
+  o_tar3.w = r0.w;
+  o_tar3.xyz = min(1, max(1e-4, sqrt(gCubemapScale.y * (r1.xyz * i_tex6.xyz + r0.xyz))) / r0.w);
+  
+  return;
+}

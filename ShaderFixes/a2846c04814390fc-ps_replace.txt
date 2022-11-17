@@ -1,4 +1,5 @@
 // Particles - Fire
+
 #include "CB/PerFrame.hlsl"
 #include "CB/PerFogControl.hlsl"
 
@@ -68,7 +69,7 @@ void main(
   r0.xyw = v2.w * r0.xyz;
   r1.x = r0.x + r0.y;
   r0.z = r0.z * v2.w + r1.x;
-  r0.z = saturate(0.333333343 * r0.z);
+  r0.z = saturate(r0.z / 3);
   o0.w = gColorControl.w * r0.z;
   o0.xyz = r0.xyw;
   return;

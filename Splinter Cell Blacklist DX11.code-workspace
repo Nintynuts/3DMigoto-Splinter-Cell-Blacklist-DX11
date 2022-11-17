@@ -32,14 +32,14 @@
 		},
 		"replacerules.rules": {
 			"Known structs": {
-				"find": "\\ncbuffer CB_(BoneTransform|Per(Camera|CubeMapRenderCell|FogControl|Frame|Object|Pass)|PS_(PerLightBatch|Deferred(Omni|Spot|Dir)Light)|VS_(ColorPalette|ParticleTransforms|Scaleform(?:Batched)?|SimpleTransform)) : register\\(\\w+\\)[\\r\\n\\s]+\\{[\\w\\W]*?(?:^)\\}",
+				"find": "\\ncbuffer CB_(BoneTransform|FullDeferredScene_Vertex|Per(?:Camera|CubeMapRenderCell|FogControl|Frame|Object|Pass)|PS_(?:PerLightBatch|Deferred(Omni|Spot|Dir)Light|FullDeferredMaterial_(?:Dynamic|Static))|VS_(?:ColorPalette|ParticleTransforms|Scaleform(?:Batched)?|SimpleTransform)) : register\\(\\w+\\)[\\r\\n\\s]+\\{[\\w\\W]*?(?:^)\\}",
 				"replace": "#include \"CB/$1.hlsl\"",
 				"languages": [
 					"hlsl"
 				]
 			},
 			"3Dmigoto resources": {
-				"find": "\n\\/\\/ 3Dmigoto declarations\\n#define cmp -\nTexture1D<float4> IniParams : register\\(t120\\);\nTexture2D<float4> StereoParams : register\\(t125\\);",
+				"find": "\\n\\/\\/ 3Dmigoto declarations\\n#define cmp -\\nTexture1D<float4> IniParams : register\\(t120\\);\\nTexture2D<float4> StereoParams : register\\(t125\\);",
 				"replace": "#include \"3Dmigoto.hlsl\"",
 				"languages": [
 					"hlsl"
@@ -140,6 +140,34 @@
 					"hlsl"
 				]
 			},
+			"Simplify compound assignment": {
+				"find": "(\\S+) = \\1 ([-+*/]) (\\S+)",
+				"replace": "$1 $2= $3;",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify 5e-8": {
+				"find": "5\\.00000006e-008",
+				"replace": "5e-8",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify 1e-5": {
+				"find": "9\\.99999975e-006",
+				"replace": "1e-5",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify 1e-4": {
+				"find": "9\\.99999975e-005",
+				"replace": "1e-4",
+				"languages": [
+					"hlsl"
+				]
+			},
 			"Simplify 0.01": {
 				"find": "0\\.00999999978",
 				"replace": "0.01",
@@ -154,6 +182,55 @@
 					"hlsl"
 				]
 			},
+			"Simplify / 1.5": {
+				"find": "0\\.666666687 \\* (\\w+(?:\\.[xyzw]*)?)",
+				"replace": "$1 / 1.5",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify / 2": {
+				"find": "0\\.5 \\* (\\w+(?:\\.[xyzw]*)?)",
+				"replace": "$1 / 3",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify / 3": {
+				"find": "0\\.333333343 \\* (\\w+(?:\\.[xyzw]*)?)",
+				"replace": "$1 / 3",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify / 8": {
+				"find": "0\\.125 \\* (\\w+(?:\\.[xyzw]*)?)",
+				"replace": "$1 / 3",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify / 11": {
+				"find": "0\\.0909090936 \\* (\\w+(?:\\.[xyzw]*)?)",
+				"replace": "$1 / 11",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify / 255": {
+				"find": "0\\.00392156886 \\* (\\w+(?:\\.[xyzw]*)?)",
+				"replace": "$1 / 255",
+				"languages": [
+					"hlsl"
+				]
+			},
+			"Simplify / 2048": {
+				"find": "0\\.00048828125 \\* (\\w+(?:\\.[xyzw]*)?)",
+				"replace": "$1 / 2048",
+				"languages": [
+					"hlsl"
+				]
+			},
 			"Simplify Square Magnitude (dot product with self)": {
 				"find": "dot\\(((?<var>-?[vro]\\d+)(?:\\.(?<axis>[xyzw]{3})))?, \\1\\)",
 				"replace": "sq_mag($1)",
@@ -161,29 +238,36 @@
 					"hlsl"
 				]
 			},
+			"Simplify Normalise (multiply rsqrt(sq_mag) with self)": {
+				"find": "(\\w+\\.[xyzw]) = sq_mag\\((\\w+\\.[xyzw]+)\\);[\\r\\n\\s]+\\1 = rsqrt\\(\\1\\);[\\r\\n\\s]+(\\w+\\.[xyzw]+) = \\2 \\* \\1;",
+				"replace": "$3 = normalise($2);",
+				"languages": [
+					"hlsl"
+				]
+			},
 			"Simplify 3x3 matrix multiply": {
-				"find": "(\\w{2}\\.[xyzw]{3}) = (?<mtx>[\\w\\.]+)\\._m10_m11_m12 \\* (?<src>\\w{2})\\.y+;\n\\s+(\\w{2}\\.[xyzw]{3}) = \\k<src>\\.x+ \\* \\k<mtx>\\._m00_m01_m02 \\+ \\1;\n\\s+(?<tgt>\\w{2}\\.[xyzw]{3}) = \\k<src>\\.z+ \\* \\k<mtx>\\._m20_m21_m22 \\+ \\4;",
+				"find": "(\\w{2}\\.[xyzw]{3}) = (?<mtx>[\\w\\.]+)\\._m10_m11_m12 \\* (?<src>\\w{2})\\.y+;\\n\\s+(\\w{2}\\.[xyzw]{3}) = \\k<src>\\.x+ \\* \\k<mtx>\\._m00_m01_m02 \\+ \\1;\\n\\s+(?<tgt>\\w{2}\\.[xyzw]{3}) = \\k<src>\\.z+ \\* \\k<mtx>\\._m20_m21_m22 \\+ \\4;",
 				"replace": "$5 = mul3x3($3.xyz, $2);",
 				"languages": [
 					"hlsl"
 				]
 			},
 			"Simplify 3x4 matrix multiply": {
-				"find": "(\\w{2}\\.[xyzw]{3}) = (?<mtx>[\\w\\.]+)\\._m10_m11_m12 \\* (?<src>\\w{2})\\.y+;\n\\s+(\\w{2}\\.[xyzw]{3}) = \\k<src>\\.x+ \\* \\k<mtx>\\._m00_m01_m02 \\+ \\1;\n\\s+(\\w{2}\\.[xyzw]{3}) = \\k<src>\\.z+ \\* \\k<mtx>\\._m20_m21_m22 \\+ \\4;\n\\s+(?<tgt>\\w{2}\\.[xyzw]{3}) = (?:\\k<src>\\.(w)+ \\* )?\\k<mtx>\\._m30_m31_m32 \\+ \\5;",
+				"find": "(\\w{2}\\.[xyzw]{3}) = (?<mtx>[\\w\\.]+)\\._m10_m11_m12 \\* (?<src>\\w{2})\\.y+;\\n\\s+(\\w{2}\\.[xyzw]{3}) = \\k<src>\\.x+ \\* \\k<mtx>\\._m00_m01_m02 \\+ \\1;\\n\\s+(\\w{2}\\.[xyzw]{3}) = \\k<src>\\.z+ \\* \\k<mtx>\\._m20_m21_m22 \\+ \\4;\\n\\s+(?<tgt>\\w{2}\\.[xyzw]{3}) = (?:\\k<src>\\.(w)+ \\* )?\\k<mtx>\\._m30_m31_m32 \\+ \\5;",
 				"replace": "$6 = mul3x4($3.xyz$7, $2);",
 				"languages": [
 					"hlsl"
 				]
 			},
 			"Simplify 4x4 matrix multiply": {
-				"find": "(\\w{2}(?:\\.xyzw)?) = (?<mtx>[\\w\\.]+)\\._m10_m11_m12_m13 \\* (?<src>\\w{2})\\.y+;\n\\s+(\\w{2}(?:\\.xyzw)?) = \\k<src>\\.x+ \\* \\k<mtx>\\._m00_m01_m02_m03 \\+ \\1;\n\\s+(\\w{2}(?:\\.xyzw)?) = \\k<src>\\.z+ \\* \\k<mtx>\\._m20_m21_m22_m23 \\+ \\4;\n\\s+(?<tgt>\\w{2}(?:\\.xyzw)?) = (?:\\k<src>\\.(w)+ \\* )?\\k<mtx>\\._m30_m31_m32_m33 \\+ \\5;",
+				"find": "(\\w{2}(?:\\.xyzw)?) = (?<mtx>[\\w\\.]+)\\._m10_m11_m12_m13 \\* (?<src>\\w{2})\\.y+;\\n\\s+(\\w{2}(?:\\.xyzw)?) = \\k<src>\\.x+ \\* \\k<mtx>\\._m00_m01_m02_m03 \\+ \\1;\\n\\s+(\\w{2}(?:\\.xyzw)?) = \\k<src>\\.z+ \\* \\k<mtx>\\._m20_m21_m22_m23 \\+ \\4;\\n\\s+(?<tgt>\\w{2}(?:\\.xyzw)?) = (?:\\k<src>\\.(w)+ \\* )?\\k<mtx>\\._m30_m31_m32_m33 \\+ \\5;",
 				"replace": "$6 = mul4x4($3.xyz$7, $2);",
 				"languages": [
 					"hlsl"
 				]
 			},
 			"Simplify 3x4 matrix multiply SpotLight": {
-			  "find": "(\\w{2}\\.[xyzw]{3}) = (?<mtx>[\\w\\.]+)\\._m10_m11_m13 \\* (?<src>\\w{2})\\.y+;\n\\s+(\\w{2}\\.[xyzw]{3}) = \\k<src>\\.x+ \\* \\k<mtx>\\._m00_m01_m03 \\+ \\1;\n\\s+(\\w{2}\\.[xyzw]{3}) = \\k<src>\\.z+ \\* \\k<mtx>\\._m20_m21_m23 \\+ \\4;\n\\s+(?<tgt>\\w{2}\\.[xyzw]{3}) = \\k<mtx>\\._m30_m31_m33 \\+ \\5;",
+			  "find": "(\\w{2}\\.[xyzw]{3}) = (?<mtx>[\\w\\.]+)\\._m10_m11_m13 \\* (?<src>\\w{2})\\.y+;\\n\\s+(\\w{2}\\.[xyzw]{3}) = \\k<src>\\.x+ \\* \\k<mtx>\\._m00_m01_m03 \\+ \\1;\\n\\s+(\\w{2}\\.[xyzw]{3}) = \\k<src>\\.z+ \\* \\k<mtx>\\._m20_m21_m23 \\+ \\4;\\n\\s+(?<tgt>\\w{2}\\.[xyzw]{3}) = \\k<mtx>\\._m30_m31_m33 \\+ \\5;",
 			  "replace": "$6 = mul_spot($3.xyz, $2);",
 			  "languages": [
 				"hlsl"
@@ -309,7 +393,6 @@
 					"Known structs",
 					"3Dmigoto resources",
 					"Fix missing x in cb packoffset",
-					"Simplify Square Magnitude (dot product with self)",
 					"Simplify 4x4 matrix multiply",
 					"Simplify 3x4 matrix multiply",
 					"Simplify 3x3 matrix multiply",
@@ -319,8 +402,20 @@
 					"Simplify constants",
 					"Simplify zeros",
 					"Simplify subtraction",
+					"Simplify 5e-8",
+					"Simplify 1e-6",
+					"Simplify 1e-4",
 					"Simplify 0.01",
 					"Simplify 0.005",
+					"Simplify / 1.5",
+					"Simplify / 2",
+					"Simplify / 3",
+					"Simplify / 8",
+					"Simplify / 11",
+					"Simplify / 255",
+					"Simplify / 2048",
+					"Simplify Square Magnitude (dot product with self)",
+					"Simplify Normalise (multiply rsqrt(sq_mag) with self)",
 				]
 			},
 			"Tidy existing shader": {
@@ -398,6 +493,7 @@
 					"Remove 3DMigoto prefix",
 				]
 			}
-		}
+		},
+		"explorer.excludeGitIgnore": true
 	}
 }

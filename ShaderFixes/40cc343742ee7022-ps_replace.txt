@@ -32,7 +32,7 @@ void main(
 	stereo_unfix(r0);
 
 	r2.xyz = mul(r0, cScreenToWorld);
-	r0.xyz = cViewPos.xyz - r2.xyz;
+	r0.xyz = cViewPosStereo() - r2.xyz;
 	r0.xyz = normalise(r0.xyz) + cDir0.dir.xyz;
 	r0.xyz = normalise(r0.xyz);
 	r2 = SAMPLE(sNormal, r1.zw);
@@ -60,7 +60,7 @@ void main(
 	r0.z = r0.w * r0.z;
 	r0.xy = r0.zy * r0.xw;
 	r2.xyz = cDir0.dCol.xyz * r0.y;
-	r0.x = 0.125 * r0.x;
+	r0.x = r0.x / 8;
 	r0.xyz = cDir0.sCol.xyz * r0.x;
 	r3 = SAMPLE(sSceneLight, r1.zw);
 	r1 = SAMPLE(sSceneAlbedo, r1.zw);

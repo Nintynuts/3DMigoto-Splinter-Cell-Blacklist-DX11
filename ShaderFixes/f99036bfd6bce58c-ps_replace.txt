@@ -1,6 +1,8 @@
 // Lighting - Moon Glow
 
 #include "CB/PerCamera.hlsl"
+#include "texture.hlsl"
+#include "3Dmigoto.hlsl"
 
 cbuffer CB_PS_Atmosphere : register(b7)
 {
@@ -11,11 +13,9 @@ cbuffer CB_PS_Atmosphere : register(b7)
 	float4 cCst2 : packoffset(c4);
 	float4x4 cScreenToWorld : packoffset(c5);
 }
-#include "texture.hlsl"
+
 TEXTURE(_2D,sSceneTex,0,0);
 TEXTURE(_2D,sDepthTex,1,1);
-
-#include "3Dmigoto.hlsl"
 
 void main(
 	float4 v0 : SV_Position0,
@@ -37,7 +37,7 @@ void main(
 	stereo_unfix(r2);
 	
 	r3.xyz = mul(r2, cScreenToWorld);
-	r0.yzw = cViewPos.xyz - r3.xyz;
+	r0.yzw = cViewPosStereo() - r3.xyz;
 	r2.x = dot(r0.yzw, r0.yzw);
 	r2.y = rsqrt(r2.x);
 	r2.x = sqrt(r2.x);

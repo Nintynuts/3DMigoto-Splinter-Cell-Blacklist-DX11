@@ -67,7 +67,7 @@ void main(
 	r0.z = r0.z + r0.w;
 	r0.z = r0.z + r1.y;
 	r0.z = r0.z + r2.x;
-	r0.w = 0.125 * r0.z;
+	r0.w = r0.z / 8;
 	r0.z = -r0.z * 0.125 + 1;
 	r0.z = r1.x * r0.z + r0.w;
 	o0.xyz = r0.z * cShadowFade.x + cShadowFade.y;

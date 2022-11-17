@@ -1,29 +1,16 @@
 // Mesh - Wall decorations
+
 #include "CB/PerFrame.hlsl"
 #include "CB/PerCamera.hlsl"
-
-cbuffer CB_PS_FullDeferredMaterial_Static : register(b7)
-{
-  float4 cDeferredMaterialProps : packoffset(c0);
-  float4 cDiffCol : packoffset(c1);
-  float4 cSpecCol : packoffset(c2);
-  float4 cEnvCol : packoffset(c3);
-  float4 cDBlendCol : packoffset(c4);
-  float4 data0 : packoffset(c5);
-  float4 data1 : packoffset(c6);
-  float4 cDx11Padding : packoffset(c7);
-  bool bEnvPass : packoffset(c8.x);
-  bool bFresnel : packoffset(c8.y);
-}
 #include "CB/PerCubeMapRenderCell.hlsl"
+#include "CB/PS_FullDeferredMaterial_Static.hlsl"
 #include "texture.hlsl"
+#include "3Dmigoto.hlsl"
+
 TEXTURE(_2D,sDiffuseMap,0,0);
 TEXTURE(_2D,sNormalMap,1,1);
 TEXTURE(_2D,sSpecularMap,2,2);
 TEXTURE(_2D,sSelfAOMap,12,3);
-
-#include "3Dmigoto.hlsl"
-
 
 void main(
   float4 v0 : SV_Position0,
@@ -59,9 +46,7 @@ void main(
   r0.x = 1 - r0.x;
   r0.x = sqrt(r0.x);
   r0.xyz = r0.x * v5.xyz + r1.xyz;
-  r0.w = sq_mag(r0.xyz);
-  r0.w = rsqrt(r0.w);
-  r0.xyz = r0.xyz * r0.w;
+  r0.xyz = normalise(r0.xyz);
   o1.xyz = r0.xyz * 0.5 + 0.5;
   r0.w = 1 - data0.w;
   r1.xyz = SAMPLE(sSpecularMap, v1.xy).xyz;
@@ -71,11 +56,9 @@ void main(
   r0.w = log2(r0.w);
   r0.w = r0.w * r1.x;
   r1.x = data0.y * r1.y;
-  o1.w = saturate(0.0909090936 * r0.w);
-  r1.yzw = cViewPos.xyz - v2.xyz;
-  r0.w = sq_mag(r1.yzw);
-  r0.w = rsqrt(r0.w);
-  r1.yzw = r1.yzw * r0.w;
+  o1.w = saturate(r0.w / 11);
+  r1.yzw = cViewPosStereo() - v2.xyz;
+  r1.yzw = normalise(r1.yzw);
   r0.x = dot(r0.xyz, r1.yzw);
   r0.x = saturate(1 - r0.x);
   r0.x = log2(r0.x);
@@ -94,13 +77,13 @@ void main(
   r0.xyz = v6.xyz * r0.xyz;
   r0.xyz = gCubemapScale.y * r0.xyz;
   r0.xyz = sqrt(r0.xyz);
-  r0.xyz = max(9.99999975e-005, r0.xyz);
+  r0.xyz = max(1e-4, r0.xyz);
   r0.w = max(r0.x, r0.y);
   r0.w = max(r0.w, r0.z);
   r0.w = min(1, r0.w);
   r0.w = 255 * r0.w;
   r0.w = ceil(r0.w);
-  r0.w = 0.00392156886 * r0.w;
+  r0.w = r0.w / 255;
   r0.xyz = r0.xyz / r0.w;
   o3.w = r0.w;
   o3.xyz = min(1, r0.xyz);

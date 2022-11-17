@@ -40,6 +40,6 @@ void main(
 	o0 = r0;
 	o1.zw = r0.zw;
 	r0.xy = (int2)v1.xy;
-	o1.xy = 0.00048828125 * r0.xy;
+	o1.xy = r0.xy / 2048;
 	return;
 }

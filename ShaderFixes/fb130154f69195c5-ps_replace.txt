@@ -1,0 +1,130 @@
+// Water - Deferred Static + Dynamic (Cubemap)
+
+#include "CB/PerFrame.hlsl"
+#include "CB/PerCamera.hlsl"
+#include "CB/PerObject.hlsl"
+#include "CB/PerFogControl.hlsl"
+#include "CB/PerCubeMapRenderCell.hlsl"
+#include "texture.hlsl"
+#include "3Dmigoto.hlsl"
+
+cbuffer CB_PS_WaterMaterial_Static : register(b7)
+{
+  bool bEnvGammaControl : packoffset(c0.x);
+  bool bEnvPass : packoffset(c0.y);
+  float4 data0 : packoffset(c1);
+  float4 data1 : packoffset(c2);
+  float4 cDiffCol : packoffset(c3);
+  float4 cSpecCol : packoffset(c4);
+  float4 cEnvCol : packoffset(c5);
+  float4 cThermalBaseColor : packoffset(c6);
+  float cAlphaTest : packoffset(c7.x);
+}
+
+cbuffer CB_PS_WaterMaterial_Dynamic : register(b6)
+{
+  float4x2 cTexTransform0 : packoffset(c0);
+  float4x2 cTexTransform1 : packoffset(c2);
+  float4x2 cTexTransform2 : packoffset(c4);
+  float4x2 cTexTransform3 : packoffset(c6);
+}
+
+TEXTURE(_2D,sNormalMap0,0,1);
+TEXTURE(_2D,sNormalMap1,1,2);
+TEXTURE(_Cube,sEnvMap,9,4);
+TEXTURE(_2D,sSceneDepth,11,3);
+TEXTURE(_2D,sDepthMap,13,0);
+
+void main(
+  float4 v0 : SV_Position0,
+  float4 v1 : TEXCOORD0,
+  float4 v2 : TEXCOORD1,
+  float4 v3 : TEXCOORD2,
+  float4 v4 : TEXCOORD3,
+  float4 v5 : TEXCOORD4,
+  float4 v6 : TEXCOORD5,
+  out float4 o0 : SV_Target0)
+{
+  float4 r0,r1,r2,r3,r4;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+  r0.xy = gVPTexelRes.zw / 2;
+  r0.xy = v0.xy * gVPTexelRes.zw + r0.xy;
+  r0.zw = sDepthMap.Sample(sDepthMap_s, r0.xy).xy;
+  r1.xy = gVPTexelRes.xy * float2(-1,0) + r0.xy;
+  r1.xy = sDepthMap.Sample(sDepthMap_s, r1.xy).xy;
+  r2 = gVPTexelRes.xyxy * float4(0,-1,1,0) + r0.xyxy;
+  r1.zw = sDepthMap.Sample(sDepthMap_s, r2.xy).xy;
+  r2.xy = sDepthMap.Sample(sDepthMap_s, r2.zw).xy;
+  r2.zw = gVPTexelRes.xy * float2(0,1) + r0.xy;
+  r2.zw = sDepthMap.Sample(sDepthMap_s, r2.zw).xy;
+  bool condition = (abs(r0.z - v6.w) < 100000) & (abs(r0.w - cAOID) < 5e-8);
+  r3.x = condition ? abs(r0.z) : 100000;
+  r4.x = abs(r1.x - v6.w);
+  condition = (r4.x < r3.x) & (abs(r1.y - cAOID) < 5e-8);
+  r4.yz = float2(-1,0);
+  r3.yz = 0;
+  r3.xyz = condition ? r4.xyz : r3.xyz;
+  r1.x = abs(r1.z - v6.w);
+  condition = (r1.x < r3.x) & (abs(r1.w - cAOID) < 5e-8);
+  r1.yz = float2(0,-1);
+  r1.xyz = condition ? r1.xyz : r3.xyz;
+  r3.x = abs(r2.x - v6.w);
+  condition = (r3.x < r1.x) & (abs(r2.y - cAOID) < 5e-8);
+  r3.yz = float2(1,0);
+  r1.xyz = condition ? r3.xyz : r1.xyz;
+  condition = (abs(r2.z - v6.w) < r1.x) & (abs(r2.w - cAOID) < 5e-8);
+  r0.zw = condition ? float2(0,1) : r1.yz;
+  r0.xy = r0.zw * gVPTexelRes.xy + r0.xy;
+  r0.x = sSceneDepth.SampleLevel(sSceneDepth_s, r0.xy, 0).x;
+  r0.y = 16 * cDiffCol.w;
+  r0.x = r0.x - v6.w;
+  r0.x = cDiffCol.w * 16 + r0.x;
+  r0.x = r0.y / r0.x;
+  r0.x = saturate(1 - r0.x);
+  r0.yzw = cDiffCol.xyz * r0.x;
+  if (bEnvPass) {
+    r1.xyz = cViewPosStereo() - v2.xyz;
+    r1.xyz = normalise(r1.xyz);
+    r2.xy = v1.xy;
+    r2.z = 1;
+    r3.x = dot(r2.xyz, cTexTransform0._m00_m10_m30);
+    r3.y = dot(r2.xyz, cTexTransform0._m01_m11_m31);
+    r2.xy = v1.zw;
+    r2.z = 1;
+    r4.x = dot(r2.xyz, cTexTransform1._m00_m10_m30);
+    r4.y = dot(r2.xyz, cTexTransform1._m01_m11_m31);
+    r2.xy = sNormalMap0.Sample(sNormalMap0_s, r3.xy).xy;
+    r2.zw = sNormalMap1.Sample(sNormalMap1_s, r4.xy).xy;
+    r2 = -0.5 + r2;
+    r3.x = v5.w;
+    r3.z = v3.w;
+    r2 = r3.xxzz * r2;
+    r2 = data0.zzww * r2;
+    r2.xy = r2.xy + r2.zw;
+    r2.yzw = v4.xyz * r2.y;
+    r2.xyz = r2.x * v3.xyz + r2.yzw;
+    r2.xyz = v5.xyz + r2.xyz;
+    r2.xyz = normalise(r2.xyz);
+    r1.w = dot(v5.xyz, r1.xyz);
+    r1.w = saturate(1 - r1.w);
+    r1.w = r1.w * r1.w;
+    r2.w = dot(r2.xyz, r1.xyz);
+    r2.w = r2.w + r2.w;
+    r1.xyz = r2.w * r2.xyz - r1.xyz;
+    r2 = sEnvMap.SampleLevel(sEnvMap_s, r1.xyz, data0.x);
+    r1.xyz = r2.xyz * r2.w;
+    r1.xyz = r1.xyz * r1.xyz;
+    r1.xyz = gCubemapScale.x * r1.xyz;
+    r1.xyz = cEnvCol.xyz * r1.xyz;
+    r1.xyz = r1.xyz * r1.w;
+    r1.w = cDiffCol.w * r0.x;
+    r1.w = saturate(4 * r1.w);
+    r0.yzw = r1.xyz * r1.w + r0.yzw;
+  }
+  r1.xyz = cFogCol.xyz * r0.x - r0.yzw;
+  o0.xyz = v6.z * r1.xyz + r0.yzw;
+  o0.w = gColorControl.w * r0.x;
+  return;
+}

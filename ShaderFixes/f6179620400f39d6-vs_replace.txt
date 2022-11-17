@@ -1,4 +1,5 @@
 // Videos on Displays - Reflections
+
 #include "CB/PerCamera.hlsl"
 #include "CB/PerObject.hlsl"
 #include "CB/PerFogControl.hlsl"
@@ -26,20 +27,20 @@ void main(
   v0.xyz *= gDrawScale.xyz;
   r0.xyz = mul(v0, gLocalToView);
   r0.w = v0.w;
-	r1 = mul(r0.xyz, gWorldToProj);
+	r1 = mul(r0.xyz, (float3x4)gWorldToProj);
   r0.xyz += cViewPos_VS.xyz;
   r0.w = 1;
   r1 += cProjSkinMesh;
   o0 = r1;
   r2.xy = (int2)v1.xy;
   r2.zw = (int2)v2.xy;
-  o1 = 0.00048828125 * r2;
+  o1 = r2 / 2048;
+  o2 = r0;  
 
-  r0.xy += separation * (r0.w - convergence) * normalise(float3(cViewPos_VS.y, -cViewPos_VS.x, 0)).xy;
-  
-  o2 = r0;
-  o4 = -cViewPos_VS + r0;
-  r0.xyz = cViewPos_VS.xyz - r0.xyz;
+  float4 cViewPos = cViewPosStereo_VS();
+
+  o4 = r0 - cViewPos;
+  r0.xyz = cViewPos.xyz - r0.xyz;
   r0.x = sq_mag(r0.xyz);
   r0.x = sqrt(r0.x);
   r0.x = -cFog_Density_Start_Range.y + r0.x;
@@ -48,9 +49,7 @@ void main(
   o6.z = bFog ? r0.x : 0;
   o3.w = 0;
   r0.xyz = v3.zyx * 2 - 1;
-  o3.x = dot(r0.xyz, gLocalToWorld._m00_m10_m20);
-  o3.y = dot(r0.xyz, gLocalToWorld._m01_m11_m21);
-  o3.z = dot(r0.xyz, gLocalToWorld._m02_m12_m22);
+  o3.xyz = mul(r0.xyz, (float3x3)gLocalToWorld);
   o5.x = v3.w;
   o5.y = v4.w;
   o5.z = v5.w;

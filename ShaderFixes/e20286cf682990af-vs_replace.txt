@@ -36,7 +36,7 @@ void main(
 	o2.w = r0.w;
 	r0.xy = (int2)v1.xy;
 	r0.zw = (int2)v2.xy;
-	o1 = 0.00048828125 * r0;
+	o1 = r0 / 2048;
 	o3.w = 0;
 	r0.xyz = v3.zyx * 2 - 1;
 	o3.xyz = mul(r0.xyz, gLocalToWorld);

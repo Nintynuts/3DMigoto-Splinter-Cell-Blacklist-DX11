@@ -33,10 +33,10 @@ void main(
 	o3.zw = r0.zw;
 	o3.xy = r1.xy + r1.zw;
 	r0.xy = (int2)v1.xy;
-	o1.xy = 0.00048828125 * r0.xy;
+	o1.xy = r0.xy / 2048;
 	o1.zw = 1;
 	o4.w = 0;
 	r0.xyz = v3.zyx * 2 - 1;
-	o4.xyz = mul(r0.xyz, gLocalToWorld);	
+	o4.xyz = mul(r0.xyz, (float3x3)gLocalToWorld);	
 	return;
 }

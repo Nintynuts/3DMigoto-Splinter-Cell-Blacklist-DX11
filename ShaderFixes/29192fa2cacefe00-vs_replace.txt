@@ -44,7 +44,7 @@ void main(
 	o2.w = min(64000, r2.w);
 	r5.xy = (int2)v1.xy;
 	r5.zw = (int2)v2.xy;
-	o1 = 0.00048828125 * r5;
+	o1 = r5 / 2048;
 	r5.xyz = v4.zyx * 2 - 1;
 	r6.xyz = mul((float3x3)BonesMtx, r5.xyz);
 	r5.xyz = v3.zyx * 2 - 1;

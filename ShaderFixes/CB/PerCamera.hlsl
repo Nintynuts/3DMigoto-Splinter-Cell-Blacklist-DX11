@@ -1,5 +1,6 @@
 #ifndef CB_PerCamera_DEFINED
 #define CB_PerCamera_DEFINED
+#include "3Dmigoto.hlsl"
 
 cbuffer CB_PerCamera : register(b11)
 {
@@ -15,4 +16,20 @@ cbuffer CB_PerCamera : register(b11)
 	float4 cViewPos : packoffset(c18);
 	float2 gViewportOffset : packoffset(c19);
 }
+
+float3 CameraStereo(float3 pos){
+	return pos.xyz + separation * convergence * gWorldToProj._m00_m10_m20 * mag(gWorldToProj._m00_m10_m20);
+}
+
+float3 cViewPosStereo(){
+	return CameraStereo(cViewPos.xyz);
+}
+
+float4 cViewPosStereo_VS(){
+	float4 cViewPos;
+	cViewPos.xyz = CameraStereo(cViewPos_VS.xyz);
+  	cViewPos.w = 1;
+	return cViewPos;
+}
+
 #endif
